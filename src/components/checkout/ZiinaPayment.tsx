@@ -79,10 +79,10 @@ const ZiinaPayment: React.FC<ZiinaPaymentProps> = ({
         await supabase.from('order_items').insert(orderItems);
       }
 
-      // Convert to AED (assuming USD to AED conversion rate)
+      // Convert to AED
       const aedAmount = Math.round(amount * 3.67 * 100); // Convert to fils
 
-      // Prepare Ziina payment request
+      // Prepare Ziina payment request with the exact structure from the example
       const paymentPayload = {
         currency_code: "AED",
         amount: aedAmount,
@@ -90,7 +90,7 @@ const ZiinaPayment: React.FC<ZiinaPaymentProps> = ({
         success_url: `https://shopzyra.vercel.app/order-success/${order.id}`,
         cancel_url: "https://shopzyra.vercel.app/order-failed",
         failure_url: "https://shopzyra.vercel.app/order-failed",
-        test: true, // Set to false for production
+        test: true,
         transaction_source: "directApi"
       };
 

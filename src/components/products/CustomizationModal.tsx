@@ -36,16 +36,19 @@ const CustomizationModal: React.FC<CustomizationModalProps> = ({
 
   const handleSaveCustomization = () => {
     try {
-      addToCart({
-        id: product.id,
-        product_id: product.id,
-        name: product.name,
-        price: product.price,
-        image_url: product.images?.[0] || "",
-        quantity,
-        customization,
-        is_customized: true
-      });
+      addToCart(
+        {
+          id: product.id,
+          product_id: product.id,
+          name: product.name,
+          price: product.price,
+          image_url: product.images?.[0] || "",
+          quantity,
+          customization,
+          is_customized: true
+        },
+        quantity
+      );
 
       toast({
         title: "Added to Cart!",
