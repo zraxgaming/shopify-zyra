@@ -18,15 +18,31 @@ interface CartContextType {
   addToCart: (item: Omit<CartItem, 'id' | 'quantity' | 'user_id'>, quantity?: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
+  updateCartItem: (id: string, quantity: number) => void;
   clearCart: () => void;
   getTotalItems: () => number;
   getTotalPrice: () => number;
+  totalItems: () => number;
+  totalPrice: () => number;
+  // Additional properties for checkout
+  items: CartItem[];
+  isLoading: boolean;
+  subtotal: number;
+  discount: number;
+  giftCardAmount: number;
+  coupon: any;
+  giftCard: any;
+  setCoupon: (coupon: any) => void;
+  setGiftCard: (giftCard: any) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [coupon, setCoupon] = useState<any>(null);
+  const [giftCard, setGiftCard] = useState<any>(null);
   const { toast } = useToast();
 
   // Load cart from localStorage on mount
@@ -91,6 +107,21 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
   };
 
+  const updateCartItem = (id: string, quantity: number) => {
+    if (quantity <= 0) {
+      setCart(prevCart => prevCart.filter(item => item.id !== id));
+      return;
+    }
+
+    setCart(prevCart =>
+      prevCart.map(item =>
+        item.id === id
+          ? { ...item, quantity }
+          : item
+      )
+    );
+  };
+
   const clearCart = () => {
     setCart([]);
     localStorage.removeItem('cart');
@@ -104,15 +135,35 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return cart.reduce((total, item) => total + (item.price * item.quantity), 0);
   };
 
+  const totalItems = getTotalItems;
+  const totalPrice = getTotalPrice;
+
+  // Calculate values for checkout
+  const subtotal = getTotalPrice();
+  const discount = coupon ? coupon.discount || 0 : 0;
+  const giftCardAmount = giftCard ? giftCard.amount || 0 : 0;
+
   return (
     <CartContext.Provider value={{
       cart,
       addToCart,
       removeFromCart,
       updateQuantity,
+      updateCartItem,
       clearCart,
       getTotalItems,
-      getTotalPrice
+      getTotalPrice,
+      totalItems,
+      totalPrice,
+      items: cart,
+      isLoading,
+      subtotal,
+      discount,
+      giftCardAmount,
+      coupon,
+      giftCard,
+      setCoupon,
+      setGiftCard
     }}>
       {children}
     </CartContext.Provider>

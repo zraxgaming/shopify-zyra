@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/components/cart/CartProvider";
 import { useAuth } from "@/contexts/AuthContext";
-import { PayPalPayment } from "@/components/checkout/PaypalPayment";
+import { PayPalPayment } from "@/components/checkout/PayPalPayment";
 import { useNavigate } from "react-router-dom";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, AlertTriangle } from "lucide-react";

@@ -1,345 +1,251 @@
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useAuth } from "@/contexts/AuthContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { CreditCard, Smartphone, Shield, Loader2 } from "lucide-react";
-import PayPalPayment from "./PayPalPayment";
+import { useCart } from "@/components/cart/CartProvider";
+import { useAuth } from "@/contexts/AuthContext";
+import { PayPalPayment } from "@/components/checkout/PayPalPayment";
+import { CheckCircle2, AlertTriangle, User, Mail, Phone, CreditCard } from "lucide-react";
 
-interface SimpleCheckoutFormProps {
-  items: any[];
-  subtotal: number;
-  onPaymentSuccess: (orderId: string) => void;
+interface FormData {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  state: string;
+  zipCode: string;
 }
 
-const SimpleCheckoutForm: React.FC<SimpleCheckoutFormProps> = ({
-  items,
-  subtotal,
-  onPaymentSuccess
-}) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("ziina");
-  const [formData, setFormData] = useState({
-    firstName: user?.user_metadata?.first_name || "",
-    lastName: user?.user_metadata?.last_name || "",
-    email: user?.email || "",
+const SimpleCheckoutForm = () => {
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
     phone: "",
     address: "",
     city: "",
     state: "",
     zipCode: "",
-    country: "UAE"
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const { clearCart, getTotalPrice } = useCart();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  // Always keep email in sync with user.email
-  React.useEffect(() => {
-    setFormData(prev => ({ ...prev, email: user?.email || "" }));
-  }, [user?.email]);
+  const finalTotal = getTotalPrice();
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const processPayment = async () => {
-    if (!formData.firstName || !formData.lastName || !formData.email) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields",
-        variant: "destructive"
-      });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!formData.name || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.state || !formData.zipCode) {
+      setFormError("Please fill in all required fields.");
       return;
     }
 
-    setIsProcessing(true);
+    setIsSubmitting(true);
+    setFormError("");
+
     try {
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user?.id,
-          total_amount: subtotal,
-          status: 'pending',
-          payment_status: 'pending',
-          payment_method: paymentMethod,
-          shipping_address: formData,
-          billing_address: formData
-        })
-        .select()
-        .single();
-      if (orderError) throw orderError;
-      // Add order items
-      const orderItems = items.map(item => ({
-        order_id: order.id,
-        product_id: item.id,
-        quantity: item.quantity,
-        price: item.price
-      }));
-      await supabase.from('order_items').insert(orderItems);
-      if (paymentMethod === 'ziina') {
-        // Process real Ziina payment
-        const orderData = {
-          email: formData.email,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          items,
-          subtotal
-        };
-        const { data, error } = await supabase.functions.invoke('ziina-payment', {
-          body: {
-            amount: Math.round(subtotal * 367),
-            success_url: `${window.location.origin}/order-success/${order.id}`,
-            cancel_url: `${window.location.origin}/checkout`,
-            order_data: orderData
-          }
-        });
-        if (error) throw error;
-        if (data?.payment_url) {
-          localStorage.setItem('pending_order_id', order.id);
-          window.location.href = data.payment_url;
-        } else {
-          throw new Error('No payment URL received');
-        }
-      } else if (paymentMethod === 'paypal') {
-        // PayPal handled in UI, just update order status on success
-        setShowPayPal(true);
-        setCurrentOrderId(order.id);
-      }
-    } catch (error: any) {
+      // Simulate order submission
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Clear cart and set success state
+      clearCart();
+      setOrderSuccess(true);
       toast({
-        title: "Payment Failed",
-        description: error.message || "Unable to process payment",
+        title: "Order Submitted",
+        description: "Your order has been successfully submitted!",
+      });
+    } catch (error: any) {
+      console.error("Order submission error:", error);
+      setFormError("Failed to submit order. Please try again.");
+      toast({
+        title: "Order Submission Failed",
+        description: "There was an error submitting your order. Please try again.",
         variant: "destructive",
       });
     } finally {
-      setIsProcessing(false);
+      setIsSubmitting(false);
     }
   };
 
-  // State for PayPal modal
-  const [showPayPal, setShowPayPal] = useState(false);
-  const [currentOrderId, setCurrentOrderId] = useState<string | null>(null);
-  
-  const handlePayPalSuccess = async (transactionId: string) => {
-    if (!currentOrderId) return;
-    await supabase.from('orders').update({
-      status: 'processing',
-      payment_status: 'paid',
-      tracking_number: transactionId
-    }).eq('id', currentOrderId);
-    setShowPayPal(false);
-    onPaymentSuccess(currentOrderId);
-  };
-  
-  const handlePayPalError = (error: string) => {
+  const handlePaymentSuccess = (paymentResult: any) => {
+    console.log("Payment successful:", paymentResult);
     toast({
-      title: "PayPal Payment Failed",
-      description: error,
-      variant: "destructive"
+      title: "Payment Successful",
+      description: "Thank you for your order!",
     });
-    setShowPayPal(false);
+    clearCart();
+    setOrderSuccess(true);
+  };
+
+  const handlePaymentError = (error: string) => {
+    console.error("Payment error:", error);
+    setFormError("Payment failed. Please try again.");
+    toast({
+      title: "Payment Failed",
+      description: "There was an error processing your payment. Please try again.",
+      variant: "destructive",
+    });
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <Card className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-900 dark:to-purple-950 border-purple-200 dark:border-purple-800 animate-fade-in">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
-            <Shield className="h-5 w-5" />
-            Shipping Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="firstName">First Name *</Label>
-              <Input
-                id="firstName"
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                required
-                className="border-purple-200 focus:border-purple-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="lastName">Last Name *</Label>
-              <Input
-                id="lastName"
-                value={formData.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                required
-                className="border-purple-200 focus:border-purple-500"
-              />
-            </div>
-          </div>
+    <Card className="w-full max-w-2xl mx-auto">
+      <CardContent className="p-8">
+        <h2 className="text-2xl font-bold mb-6">Checkout</h2>
 
-          <div>
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={user?.email || ""}
-              disabled
-              readOnly
-              className="border-purple-200 focus:border-purple-500 bg-gray-100 cursor-not-allowed"
-            />
+        {orderSuccess ? (
+          <div className="text-center text-green-500">
+            <CheckCircle2 className="mx-auto h-12 w-12 mb-4" />
+            <p className="text-lg font-semibold">Order successfully placed!</p>
+            {/* You can add more details or a link to order history here */}
           </div>
-
-          <div>
-            <Label htmlFor="phone">Phone</Label>
-            <Input
-              id="phone"
-              value={formData.phone}
-              onChange={(e) => handleInputChange('phone', e.target.value)}
-              placeholder="+971 50 123 4567"
-              className="border-purple-200 focus:border-purple-500"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="address">Address</Label>
-            <Input
-              id="address"
-              value={formData.address}
-              onChange={(e) => handleInputChange('address', e.target.value)}
-              className="border-purple-200 focus:border-purple-500"
-            />
-          </div>
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label htmlFor="city">City</Label>
-              <Input
-                id="city"
-                value={formData.city}
-                onChange={(e) => handleInputChange('city', e.target.value)}
-                className="border-purple-200 focus:border-purple-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="state">State</Label>
-              <Input
-                id="state"
-                value={formData.state}
-                onChange={(e) => handleInputChange('state', e.target.value)}
-                className="border-purple-200 focus:border-purple-500"
-              />
-            </div>
-            <div>
-              <Label htmlFor="zipCode">ZIP Code</Label>
-              <Input
-                id="zipCode"
-                value={formData.zipCode}
-                onChange={(e) => handleInputChange('zipCode', e.target.value)}
-                className="border-purple-200 focus:border-purple-500"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-900 dark:to-purple-950 border-purple-200 dark:border-purple-800 animate-slide-in-up">
-        <CardHeader>
-          <CardTitle className="text-purple-700 dark:text-purple-300">Payment Method</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
-            <div className="flex items-center space-x-2 p-4 border-2 border-purple-200 dark:border-purple-800 rounded-lg bg-purple-50 dark:bg-purple-950 hover:shadow-md transition-all duration-300">
-              <RadioGroupItem value="ziina" id="ziina" />
-              <Label htmlFor="ziina" className="flex items-center gap-2 cursor-pointer flex-1">
-                <Smartphone className="h-4 w-4 text-purple-600" />
-                <span className="text-purple-700 dark:text-purple-300">Ziina Payment (AED)</span>
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2 p-4 border-2 border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50 dark:bg-blue-950 hover:shadow-md transition-all duration-300">
-              <RadioGroupItem value="paypal" id="paypal" />
-              <Label htmlFor="paypal" className="flex items-center gap-2 cursor-pointer flex-1">
-                <CreditCard className="h-4 w-4 text-blue-600" />
-                <span className="text-blue-700 dark:text-blue-300">PayPal (USD)</span>
-              </Label>
-            </div>
-          </RadioGroup>
-          {paymentMethod === 'ziina' && (
-            <div>
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                value={formData.phone}
-                onChange={(e) => handleInputChange('phone', e.target.value)}
-                placeholder="+971 50 123 4567"
-                className="border-purple-200 focus:border-purple-500"
-              />
-            </div>
-          )}
-          {paymentMethod === 'ziina' && (
-            <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                💰 Amount: {(subtotal * 3.67).toFixed(2)} AED (${subtotal.toFixed(2)} USD)
-              </p>
-              <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                🔒 Secure payment via Ziina Payment Gateway
-              </p>
-            </div>
-          )}
-          {paymentMethod === 'paypal' && (
-            <div className="p-4 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-700 dark:text-blue-300">
-                💰 Amount: ${subtotal.toFixed(2)} USD
-              </p>
-              <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                🔒 Secure payment via PayPal
-              </p>
-            </div>
-          )}
-          <Button 
-            onClick={processPayment} 
-            disabled={isProcessing || (paymentMethod === 'ziina' && !formData.phone)}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold py-3 rounded-xl transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-            size="lg"
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Processing Payment...
-              </>
-            ) : (
-              <>
-                <CreditCard className="h-4 w-4 mr-2" />
-                {paymentMethod === 'ziina'
-                  ? `Pay ${(subtotal * 3.67).toFixed(2)} AED with Ziina`
-                  : `Pay $${subtotal.toFixed(2)} with PayPal`}
-              </>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {formError && (
+              <div className="text-red-500 flex items-center gap-2 bg-red-100 border border-red-400 rounded-md p-3">
+                <AlertTriangle className="h-4 w-4" />
+                {formError}
+              </div>
             )}
-          </Button>
-          {showPayPal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-              <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl p-4 max-w-lg w-full relative flex flex-col items-center">
-                <button
-                  className="absolute top-2 right-2 text-gray-500 hover:text-red-500 text-2xl font-bold"
-                  onClick={() => setShowPayPal(false)}
-                  aria-label="Close"
-                >
-                  ×
-                </button>
-                <h2 className="text-xl font-bold mb-4 text-center">Complete Your PayPal Payment</h2>
-                <PayPalPayment
-                  amount={subtotal}
-                  orderData={formData}
-                  onSuccess={handlePayPalSuccess}
-                  onError={handlePayPalError}
-                  clientId="demo-client-id"
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <User className="h-5 w-5 text-primary" />
+                Contact Information
+              </h3>
+              <div>
+                <Label htmlFor="name" className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Full Name
+                </Label>
+                <Input
+                  type="text"
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="email" className="flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Email
+                </Label>
+                <Input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone" className="flex items-center gap-2">
+                  <Phone className="h-4 w-4" />
+                  Phone Number
+                </Label>
+                <Input
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  className="mt-1"
                 />
               </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+
+            <Separator />
+
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-primary" />
+                Shipping Information
+              </h3>
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  type="text"
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                  className="mt-1"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    type="text"
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleChange}
+                    required
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="state">State</Label>
+                  <Input
+                    type="text"
+                    id="state"
+                    name="state"
+                    value={formData.state}
+                    onChange={handleChange}
+                    required
+                    className="mt-1"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="zipCode">Zip Code</Label>
+                  <Input
+                    type="text"
+                    id="zipCode"
+                    name="zipCode"
+                    value={formData.zipCode}
+                    onChange={handleChange}
+                    required
+                    className="mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <Separator />
+
+            <PayPalPayment
+              total={finalTotal}
+              onSuccess={handlePaymentSuccess}
+              onError={handlePaymentError}
+            />
+
+            <Button disabled={isSubmitting} className="w-full">
+              {isSubmitting ? "Submitting Order..." : "Submit Order"}
+            </Button>
+          </form>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

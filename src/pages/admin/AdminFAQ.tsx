@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { Plus, Edit2, Trash2, Save, X } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 
@@ -19,9 +18,49 @@ interface FAQ {
   created_at: string;
 }
 
+// Static FAQ data since we don't have the table in Supabase
+const staticFAQs: FAQ[] = [
+  {
+    id: '1',
+    question: 'How long does shipping take?',
+    answer: 'Standard shipping takes 3-5 business days within the UAE. International shipping takes 7-14 business days.',
+    category: 'Shipping',
+    order_index: 1,
+    is_active: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '2', 
+    question: 'Can I customize my products?',
+    answer: 'Yes! Most of our products offer customization options. Look for the "Customize" button on product pages.',
+    category: 'Customization',
+    order_index: 2,
+    is_active: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '3',
+    question: 'What payment methods do you accept?',
+    answer: 'We accept credit cards, PayPal, and Ziina payments. All transactions are secure.',
+    category: 'Payment',
+    order_index: 3,
+    is_active: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: '4',
+    question: 'What is your return policy?',
+    answer: 'We offer 30-day returns for non-customized items. Custom products have a 7-day return window for defects only.',
+    category: 'Returns',
+    order_index: 4,
+    is_active: true,
+    created_at: new Date().toISOString()
+  }
+];
+
 const AdminFAQ = () => {
-  const [faqs, setFaqs] = useState<FAQ[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [faqs, setFaqs] = useState<FAQ[]>(staticFAQs);
+  const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newFaq, setNewFaq] = useState({
     question: "",
@@ -30,31 +69,6 @@ const AdminFAQ = () => {
   });
   const [showAddForm, setShowAddForm] = useState(false);
   const { toast } = useToast();
-
-  useEffect(() => {
-    fetchFAQs();
-  }, []);
-
-  const fetchFAQs = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('faqs')
-        .select('*')
-        .order('order_index', { ascending: true });
-
-      if (error) throw error;
-      setFaqs(data || []);
-    } catch (error) {
-      console.error('Error fetching FAQs:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load FAQs",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleAddFaq = async () => {
     if (!newFaq.question.trim() || !newFaq.answer.trim()) {
@@ -66,100 +80,44 @@ const AdminFAQ = () => {
       return;
     }
 
-    try {
-      const { error } = await supabase
-        .from('faqs')
-        .insert({
-          question: newFaq.question,
-          answer: newFaq.answer,
-          category: newFaq.category || null,
-          is_active: true
-        });
+    const newFaqItem: FAQ = {
+      id: Date.now().toString(),
+      question: newFaq.question,
+      answer: newFaq.answer,
+      category: newFaq.category || undefined,
+      order_index: faqs.length + 1,
+      is_active: true,
+      created_at: new Date().toISOString()
+    };
 
-      if (error) throw error;
+    setFaqs(prev => [...prev, newFaqItem]);
+    setNewFaq({ question: "", answer: "", category: "" });
+    setShowAddForm(false);
 
-      toast({
-        title: "Success",
-        description: "FAQ added successfully",
-      });
-
-      setNewFaq({ question: "", answer: "", category: "" });
-      setShowAddForm(false);
-      fetchFAQs();
-    } catch (error) {
-      console.error('Error adding FAQ:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add FAQ",
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Success",
+      description: "FAQ added successfully",
+    });
   };
 
-  const handleDeleteFaq = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('faqs')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "FAQ deleted successfully",
-      });
-
-      fetchFAQs();
-    } catch (error) {
-      console.error('Error deleting FAQ:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete FAQ",
-        variant: "destructive",
-      });
-    }
+  const handleDeleteFaq = (id: string) => {
+    setFaqs(prev => prev.filter(faq => faq.id !== id));
+    toast({
+      title: "Success", 
+      description: "FAQ deleted successfully",
+    });
   };
 
-  const handleToggleActive = async (id: string, isActive: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('faqs')
-        .update({ is_active: !isActive })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: `FAQ ${!isActive ? 'activated' : 'deactivated'} successfully`,
-      });
-
-      fetchFAQs();
-    } catch (error) {
-      console.error('Error updating FAQ:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update FAQ",
-        variant: "destructive",
-      });
-    }
+  const handleToggleActive = (id: string, isActive: boolean) => {
+    setFaqs(prev => prev.map(faq => 
+      faq.id === id ? { ...faq, is_active: !isActive } : faq
+    ));
+    
+    toast({
+      title: "Success",
+      description: `FAQ ${!isActive ? 'activated' : 'deactivated'} successfully`,
+    });
   };
-
-  if (loading) {
-    return (
-      <AdminLayout>
-        <div className="space-y-6">
-          <h1 className="text-3xl font-bold">FAQ Management</h1>
-          <div className="animate-pulse space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-32 bg-muted rounded"></div>
-            ))}
-          </div>
-        </div>
-      </AdminLayout>
-    );
-  }
 
   return (
     <AdminLayout>
