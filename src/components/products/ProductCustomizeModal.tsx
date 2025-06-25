@@ -1,159 +1,178 @@
+import React, { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useCart } from "@/components/cart/CartProvider";
+import { useToast } from "@/hooks/use-toast";
+import { ShoppingCart } from "lucide-react";
 
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { useCart } from '@/components/cart/CartProvider';
-import { useToast } from '@/hooks/use-toast';
+type CustomizationOptions = {
+  allow_text?: boolean;
+  allow_image?: boolean;
+  max_text_length?: number;
+  max_image_count?: number;
+};
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  images: string[];
-  slug?: string;
+interface Props {
+  open: boolean;
+  onOpenChange: (o: boolean) => void;
+  product: {
+    id: string;
+    name: string;
+    price: number;
+    images: string[];
+    is_digital?: boolean;
+    digital_file_url?: string;
+    customization_options?: CustomizationOptions;
+    stock_quantity?: number;
+  };
 }
 
-interface ProductCustomizeModalProps {
-  product: Product;
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-export const ProductCustomizeModal: React.FC<ProductCustomizeModalProps> = ({
-  product,
-  isOpen,
-  onClose
-}) => {
-  const [customText, setCustomText] = useState('');
-  const [customColor, setCustomColor] = useState('#000000');
-  const [notes, setNotes] = useState('');
+const ProductCustomizeModal: React.FC<Props> = ({ open, onOpenChange, product }) => {
+  const opts = product.customization_options ?? {};
   const { addToCart } = useCart();
   const { toast } = useToast();
 
-  const handleAddToCart = () => {
-    const customizationData = {
-      text: customText,
-      color: customColor,
-      notes: notes
-    };
+  const [customText, setCustomText] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(false);
 
-    addToCart({
-      product_id: product.id,
-      name: product.name,
-      price: product.price,
-      image_url: product.images[0] || '/placeholder-product.jpg',
-      customization: customizationData
-    }, 1);
+  const hasCustomization = opts.allow_text || opts.allow_image;
+  const isDigital = !!product.is_digital;
 
+  // Only require customization if allow_text or allow_image;
+  // Otherwise, allow adding as is (for customizable that also can be "default").
+  const canAdd =
+    (opts.allow_text ? customText.trim().length > 0 : true) &&
+    (opts.allow_image ? !!selectedFile : true);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    setSelectedFile(file || null);
+    if (file) setImagePreview(URL.createObjectURL(file));
+    else setImagePreview(null);
+  };
+
+  const handleAddToCart = async () => {
+    if (!canAdd) {
+      toast({
+        title: "Customization required",
+        description: "Please provide the required customization.",
+        variant: "destructive"
+      });
+      return;
+    }
+    setLoading(true);
+    // For now, we only store image uploads as base64 for demo; in production, upload to storage bucket!
+    let customization: any = {};
+    if (opts.allow_text) customization.text = customText.trim();
+    if (opts.allow_image && selectedFile) {
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
+        customization.image_base64 = evt.target?.result as string;
+        await doAddToCart(customization);
+      };
+      reader.readAsDataURL(selectedFile);
+      return;
+    }
+    await doAddToCart(customization);
+  };
+
+  const doAddToCart = async (customization: any) => {
+    await addToCart(
+      {
+        product_id: product.id,
+        name: product.name,
+        price: product.price,
+        image_url: product.images[0] || "/placeholder-product.jpg"
+      },
+      quantity,
+      customization
+    );
     toast({
-      title: "Custom Product Added",
-      description: "Your customized product has been added to cart!",
+      title: "Added to cart",
+      description: (
+        <span>
+          {quantity} {product.name} added to your cart
+        </span>
+      ),
     });
-
-    onClose();
+    setLoading(false);
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Customize {product.name}</DialogTitle>
+          <DialogTitle>
+            {product.is_digital ? "Purchase Digital Product" : "Customize Product"}
+          </DialogTitle>
         </DialogHeader>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
+        <div className="space-y-4">
+          {opts.allow_text && (
             <div>
               <Label htmlFor="customText">Custom Text</Label>
-              <Input
+              <Textarea
                 id="customText"
+                placeholder="Enter your custom text..."
                 value={customText}
                 onChange={(e) => setCustomText(e.target.value)}
-                placeholder="Enter your custom text..."
-                maxLength={50}
+                maxLength={opts.max_text_length ?? 100}
               />
-              <p className="text-sm text-muted-foreground mt-1">
-                {customText.length}/50 characters
-              </p>
+              <p className="text-xs text-muted-foreground">{customText.length}/{opts.max_text_length ?? 100} characters</p>
             </div>
-
+          )}
+          {opts.allow_image && (
             <div>
-              <Label htmlFor="customColor">Text Color</Label>
-              <div className="flex gap-2 items-center">
-                <Input
-                  id="customColor"
-                  type="color"
-                  value={customColor}
-                  onChange={(e) => setCustomColor(e.target.value)}
-                  className="w-20 h-10"
-                />
-                <Input
-                  type="text"
-                  value={customColor}
-                  onChange={(e) => setCustomColor(e.target.value)}
-                  className="flex-1"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="notes">Additional Notes</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Any special instructions..."
-                rows={3}
+              <Label htmlFor="customImage">Upload an Image</Label>
+              <Input
+                id="customImage"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
               />
+              {imagePreview && (
+                <img src={imagePreview} alt="Preview" className="h-32 mt-2 rounded shadow" />
+              )}
             </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="border rounded-lg p-4 bg-muted/50">
-              <h3 className="font-semibold mb-2">Preview</h3>
-              <div className="relative">
-                <img
-                  src={product.images[0] || '/placeholder-product.jpg'}
-                  alt={product.name}
-                  className="w-full h-48 object-cover rounded"
-                />
-                {customText && (
-                  <div
-                    className="absolute inset-0 flex items-center justify-center"
-                    style={{ color: customColor }}
-                  >
-                    <span className="font-bold text-lg bg-white/80 px-2 py-1 rounded">
-                      {customText}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between">
-                <span>Base Price:</span>
-                <span>${product.price.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between font-bold">
-                <span>Total:</span>
-                <span>${product.price.toFixed(2)}</span>
-              </div>
-            </div>
+          )}
+          {!opts.allow_text && !opts.allow_image && !product.is_digital && (
+            <div className="text-muted-foreground text-sm">No customization required for this product.</div>
+          )}
+          <div className="flex items-center gap-4">
+            <Label>Qty</Label>
+            <Input
+              type="number"
+              min={1}
+              max={product.stock_quantity ?? 99}
+              value={quantity}
+              className="w-16"
+              onChange={e => setQuantity(Math.max(1, Number(e.target.value)))}
+              disabled={loading}
+            />
           </div>
         </div>
-
-        <div className="flex gap-2 mt-6">
-          <Button onClick={handleAddToCart} className="flex-1">
-            Add to Cart
-          </Button>
-          <Button variant="outline" onClick={onClose}>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancel
           </Button>
-        </div>
+          <Button
+            onClick={handleAddToCart}
+            disabled={!canAdd || loading}
+            className="bg-primary text-white flex gap-2"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {product.is_digital ? "Purchase" : "Add to Cart"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 };
+
+export default ProductCustomizeModal;

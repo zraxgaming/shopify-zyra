@@ -100,9 +100,8 @@ const Shop = () => {
   return (
     <>
       <SEOHead 
-        title="Shop Premium Custom Products | Zyra Custom Craft"
-        description="Discover our premium collection of customizable products at Zyra Custom Craft. From custom phone cases to personalized mugs, create something unique that reflects your style."
-        keywords="custom products, personalized gifts, custom phone cases, custom mugs, custom t-shirts, UAE shopping, premium quality, unique designs"
+        title="Shop - Zyra"
+        description="Discover our premium collection of customizable products. Shop the latest designs and create something unique."
         url="https://shopzyra.vercel.app/shop"
       />
       <Navbar />

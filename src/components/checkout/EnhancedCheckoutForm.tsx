@@ -1,285 +1,301 @@
+
 import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { useCart } from "@/components/cart/CartProvider";
-import { useAuth } from "@/contexts/AuthContext";
-import { PayPalPayment } from "@/components/checkout/PayPalPayment";
-import { useNavigate } from "react-router-dom";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, AlertTriangle } from "lucide-react";
-import ZiinaPayment from "@/components/checkout/ZiinaPayment";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2, CreditCard, ShoppingBag, Lock, Smartphone, Gift } from "lucide-react";
+import ZiinaPayment from "./ZiinaPayment";
 
-interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  address: string;
-  city: string;
-  state: string;
-  zipCode: string;
+interface EnhancedCheckoutFormProps {
+  items: any[];
+  subtotal: number;
+  onPaymentSuccess: (orderId: string) => void;
 }
 
-export default function EnhancedCheckoutForm() {
-  const [formData, setFormData] = useState<FormData>({
-    firstName: "",
-    lastName: "",
-    email: "",
+const EnhancedCheckoutForm: React.FC<EnhancedCheckoutFormProps> = ({
+  items,
+  subtotal,
+  onPaymentSuccess
+}) => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("ziina");
+  const [formData, setFormData] = useState({
+    firstName: user?.user_metadata?.first_name || "",
+    lastName: user?.user_metadata?.last_name || "",
+    email: user?.email || "",
     phone: "",
     address: "",
     city: "",
-    state: "",
     zipCode: "",
+    country: "UAE"
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formError, setFormError] = useState("");
-  const [orderSuccess, setOrderSuccess] = useState(false);
-  const { cart, clearCart, getTotalPrice } = useCart();
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const navigate = useNavigate();
 
-  const finalTotal = getTotalPrice();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phone || !formData.address || !formData.city || !formData.state || !formData.zipCode) {
-      setFormError("Please fill in all required fields.");
-      return;
+  const createOrder = async () => {
+    if (!formData.firstName || !formData.lastName || !formData.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return null;
     }
-
-    setIsSubmitting(true);
-    setFormError("");
 
     try {
-      // Simulate order submission
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const { data: order, error } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user?.id,
+          total_amount: subtotal,
+          status: 'pending',
+          payment_status: 'pending',
+          payment_method: paymentMethod,
+          shipping_address: formData,
+          billing_address: formData
+        })
+        .select()
+        .single();
 
-      // Clear cart and set success state
-      clearCart();
-      setOrderSuccess(true);
-      toast({
-        title: "Order Submitted",
-        description: "Your order has been successfully submitted!",
-      });
-      navigate('/order-success');
+      if (error) throw error;
+
+      const orderItems = items.map(item => ({
+        order_id: order.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: item.price
+      }));
+
+      await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      return order;
     } catch (error: any) {
-      console.error("Order submission error:", error);
-      setFormError("Failed to submit order. Please try again.");
       toast({
-        title: "Order Submission Failed",
-        description: "There was an error submitting your order. Please try again.",
-        variant: "destructive",
+        title: "Order Creation Failed",
+        description: error.message,
+        variant: "destructive"
       });
-    } finally {
-      setIsSubmitting(false);
+      return null;
     }
   };
 
-  const handlePaymentSuccess = (paymentResult: any) => {
-    console.log("Payment successful:", paymentResult);
-    toast({
-      title: "Payment Successful",
-      description: "Thank you for your order!",
-    });
-    clearCart();
-    setOrderSuccess(true);
-    navigate('/order-success');
+  const handlePaymentSuccess = async (transactionId: string) => {
+    const order = await createOrder();
+    if (!order) return;
+
+    try {
+      await supabase
+        .from('orders')
+        .update({ 
+          status: 'completed',
+          payment_status: 'paid',
+          tracking_number: transactionId
+        })
+        .eq('id', order.id);
+
+      toast({
+        title: "Payment Successful!",
+        description: "Your order has been placed successfully",
+      });
+
+      onPaymentSuccess(order.id);
+    } catch (error: any) {
+      toast({
+        title: "Order Update Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   };
 
   const handlePaymentError = (error: string) => {
-    console.error("Payment error:", error);
-    setFormError("Payment failed. Please try again.");
     toast({
       title: "Payment Failed",
-      description: "There was an error processing your payment. Please try again.",
-      variant: "destructive",
+      description: error,
+      variant: "destructive"
     });
   };
 
-  const renderPaymentMethods = () => {
-    return (
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Payment Method</h3>
-        <div className="grid gap-4">
-          {/* Ziina Payment */}
-          <div className="border rounded-lg p-4">
-            <ZiinaPayment
-              amount={finalTotal}
-              orderData={{
-                user_id: user?.id,
-                name: `${formData.firstName} ${formData.lastName}`,
-                email: formData.email,
-                phone: formData.phone,
-                shipping_address: formData,
-                billing_address: formData,
-                items: cart,
-                notes: `Order from ${formData.email}`
-              }}
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
-            />
-          </div>
-
-          {/* PayPal Payment */}
-          <div className="border rounded-lg p-4">
-            <PayPalPayment
-              total={finalTotal}
-              onSuccess={handlePaymentSuccess}
-              onError={handlePaymentError}
-            />
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardContent className="p-8">
-        <h2 className="text-2xl font-bold mb-6">Checkout</h2>
-
-        {orderSuccess ? (
-          <div className="text-center text-green-500">
-            <CheckCircle2 className="mx-auto h-12 w-12 mb-4" />
-            <p className="text-lg font-semibold">Order successfully placed!</p>
-            {/* You can add more details or a link to order history here */}
+    <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-8">
+      <Card className="h-fit bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950 dark:to-pink-950 border-purple-200 dark:border-purple-800 animate-fade-in">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+            <ShoppingBag className="h-5 w-5" />
+            Order Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {items.map((item, index) => (
+            <div key={`${item.id}-${index}`} className="flex items-center gap-3 p-3 bg-white/60 dark:bg-gray-800/60 rounded-lg backdrop-blur-sm animate-slide-in-up" style={{animationDelay: `${index * 100}ms`}}>
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-lg flex items-center justify-center overflow-hidden">
+                {item.image_url ? (
+                  <img
+                    src={item.image_url}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <Gift className="h-6 w-6 text-purple-400" />
+                )}
+              </div>
+              <div className="flex-1">
+                <h4 className="font-medium text-sm">{item.name}</h4>
+                <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+              </div>
+              <p className="font-bold text-purple-700 dark:text-purple-300">${(item.price * item.quantity).toFixed(2)}</p>
+            </div>
+          ))}
+          
+          <Separator />
+          
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <span>Subtotal</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Shipping</span>
+              <span className="text-green-600">Free</span>
+            </div>
+            <Separator />
+            <div className="flex justify-between text-lg font-bold text-purple-700 dark:text-purple-300">
+              <span>Total</span>
+              <span>${subtotal.toFixed(2)}</span>
+            </div>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {formError && (
-              <div className="text-red-500 flex items-center gap-2 bg-red-100 border border-red-400 rounded-md p-3">
-                <AlertTriangle className="h-4 w-4" />
-                {formError}
+        </CardContent>
+      </Card>
+
+      <div className="space-y-6">
+        <Card className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-900 dark:to-purple-950 border-purple-200 dark:border-purple-800 animate-slide-in-right">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-700 dark:text-purple-300">
+              <Lock className="h-5 w-5" />
+              Shipping Information
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name *</Label>
+                  <Input
+                    id="firstName"
+                    value={formData.firstName}
+                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    required
+                    className="border-purple-200 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    value={formData.lastName}
+                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    required
+                    className="border-purple-200 focus:border-purple-500"
+                  />
+                </div>
               </div>
+
+              <div>
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => handleInputChange('email', e.target.value)}
+                  required
+                  className="border-purple-200 focus:border-purple-500"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(e) => handleInputChange('phone', e.target.value)}
+                  className="border-purple-200 focus:border-purple-500"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  className="border-purple-200 focus:border-purple-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="city">City</Label>
+                  <Input
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => handleInputChange('city', e.target.value)}
+                    className="border-purple-200 focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="zipCode">ZIP Code</Label>
+                  <Input
+                    id="zipCode"
+                    value={formData.zipCode}
+                    onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                    className="border-purple-200 focus:border-purple-500"
+                  />
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-white to-purple-50 dark:from-gray-900 dark:to-purple-950 border-purple-200 dark:border-purple-800 animate-scale-in">
+          <CardHeader>
+            <CardTitle className="text-purple-700 dark:text-purple-300">Payment Method</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+              <div className="flex items-center space-x-2 p-4 border-2 border-purple-200 dark:border-purple-800 rounded-lg bg-purple-50 dark:bg-purple-950">
+                <RadioGroupItem value="ziina" id="ziina" />
+                <Label htmlFor="ziina" className="flex items-center gap-2 cursor-pointer flex-1">
+                  <Smartphone className="h-4 w-4 text-purple-600" />
+                  <span className="text-purple-700 dark:text-purple-300">Ziina (UAE)</span>
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {paymentMethod === "ziina" && (
+              <ZiinaPayment
+                amount={subtotal}
+                orderPayload={{ orderId: "temp", metadata: { customerEmail: formData.email } }}
+                onSuccess={handlePaymentSuccess}
+                onError={handlePaymentError}
+              />
             )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="firstName">First Name</Label>
-                <Input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="phone">Phone Number</Label>
-              <Input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <Separator />
-
-            <div>
-              <Label htmlFor="address">Address</Label>
-              <Input
-                type="text"
-                id="address"
-                name="address"
-                value={formData.address}
-                onChange={handleChange}
-                required
-                className="mt-1"
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="city">City</Label>
-                <Input
-                  type="text"
-                  id="city"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="state">State</Label>
-                <Input
-                  type="text"
-                  id="state"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="zipCode">Zip Code</Label>
-                <Input
-                  type="text"
-                  id="zipCode"
-                  name="zipCode"
-                  value={formData.zipCode}
-                  onChange={handleChange}
-                  required
-                  className="mt-1"
-                />
-              </div>
-            </div>
-
-            <Separator />
-
-            {renderPaymentMethods()}
-
-            <Button disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Submitting Order..." : "Submit Order"}
-            </Button>
-          </form>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
-}
+};
+
+export default EnhancedCheckoutForm;
