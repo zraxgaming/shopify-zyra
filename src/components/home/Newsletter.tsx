@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { sendEmail, getNewsletterTemplate } from "@/utils/mailersend";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
@@ -41,26 +42,67 @@ const Newsletter = () => {
           throw error;
         }
       } else {
-        // Send welcome email
-        await supabase.functions.invoke('send-brevo-email', {
-          body: {
-            to: email,
-            subject: 'Welcome to Zyra Newsletter!',
-            content: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2>Welcome to Zyra!</h2>
-                <p>Thank you for subscribing to our newsletter!</p>
-                <p>You'll be the first to know about new products, exclusive offers, and design tips.</p>
-                <p>Stay tuned for amazing content!</p>
+        // Send welcome email using MailerSend
+        const welcomeContent = `
+          <div style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #333; margin: 0 0 15px 0; font-size: 24px; font-weight: 600;">Welcome to the Zyra family! 🎉</h2>
+            <p style="color: #666; margin: 0; font-size: 16px; line-height: 1.6;">Thank you for subscribing to our newsletter!</p>
+          </div>
+          
+          <div style="background: linear-gradient(135deg, #f8f9ff 0%, #f0f2ff 100%); border-radius: 12px; padding: 25px; margin-bottom: 25px;">
+            <h3 style="color: #333; margin: 0 0 15px 0; font-size: 18px; font-weight: 600;">What to expect:</h3>
+            <div style="display: grid; gap: 15px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: #667eea; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px;">🎨</span>
+                <span style="color: #333; font-size: 16px;">Latest custom craft designs and inspiration</span>
               </div>
-            `,
-            type: 'newsletter-welcome'
-          }
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: #667eea; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px;">💰</span>
+                <span style="color: #333; font-size: 16px;">Exclusive subscriber discounts and offers</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: #667eea; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px;">📚</span>
+                <span style="color: #333; font-size: 16px;">Crafting tips and tutorials from our experts</span>
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="background: #667eea; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px;">🎉</span>
+                <span style="color: #333; font-size: 16px;">Early access to new products and collections</span>
+              </div>
+            </div>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="https://shopzyra.vercel.app/shop" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 32px; text-decoration: none; border-radius: 30px; display: inline-block; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">
+              Start Shopping →
+            </a>
+          </div>
+        `;
+
+        await sendEmail({
+          to: email,
+          subject: 'Welcome to Zyra Custom Craft!',
+          html: getNewsletterTemplate(welcomeContent, 'Welcome to Zyra Custom Craft!')
+            .replace('{{email}}', encodeURIComponent(email))
+        });
+
+        // Send admin notification
+        await sendEmail({
+          to: 'zainabusal113@gmail.com',
+          subject: 'New Newsletter Subscription',
+          html: `
+            <div style="font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f8f9ff;">
+              <h2 style="color: #667eea;">📰 New Newsletter Subscriber</h2>
+              <div style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Subscribed at:</strong> ${new Date().toLocaleString()}</p>
+              </div>
+            </div>
+          `
         });
 
         toast({
           title: "Successfully subscribed!",
-          description: "Thank you for subscribing to our newsletter.",
+          description: "Welcome to our newsletter! Check your email for confirmation.",
         });
         setEmail("");
       }
