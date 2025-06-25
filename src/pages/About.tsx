@@ -1,202 +1,201 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Container } from "@/components/ui/container";
-import { Badge } from "@/components/ui/badge";
-import { Users, Award, Globe, Heart, Star, Sparkles, Shield, Zap } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import { Container } from "@/components/ui/container";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Sparkles, Heart, Award, Users, Palette, Truck } from "lucide-react";
 import SEOHead from "@/components/seo/SEOHead";
 
 const About = () => {
-  const stats = [
-    { icon: Users, label: "Happy Customers", value: "50,000+", color: "text-blue-600" },
-    { icon: Award, label: "Products Delivered", value: "100,000+", color: "text-green-600" },
-    { icon: Globe, label: "Countries Served", value: "25+", color: "text-purple-600" },
-    { icon: Heart, label: "5-Star Reviews", value: "45,000+", color: "text-pink-600" }
+  const features = [
+    {
+      icon: <Palette className="h-8 w-8" />,
+      title: "Custom Design",
+      description: "Create unique products with our advanced customization tools and bring your vision to life."
+    },
+    {
+      icon: <Award className="h-8 w-8" />,
+      title: "Premium Quality",
+      description: "We use only the finest materials and state-of-the-art printing technology for lasting results."
+    },
+    {
+      icon: <Truck className="h-8 w-8" />,
+      title: "Fast Delivery",
+      description: "Quick processing and reliable shipping to get your custom products to you faster."
+    },
+    {
+      icon: <Users className="h-8 w-8" />,
+      title: "Expert Support",
+      description: "Our dedicated team is here to help you every step of the way, from design to delivery."
+    }
   ];
 
-  const values = [
-    {
-      icon: Star,
-      title: "Premium Quality",
-      description: "We source only the finest materials and work with top-tier manufacturers to ensure every product meets our exacting standards.",
-      gradient: "from-yellow-500 to-orange-500"
-    },
-    {
-      icon: Sparkles,
-      title: "Endless Customization",
-      description: "Your imagination is the only limit. Our advanced customization platform allows you to create truly unique products.",
-      gradient: "from-purple-500 to-pink-500"
-    },
-    {
-      icon: Shield,
-      title: "Customer Trust",
-      description: "We protect your data, secure your payments, and stand behind every product with our comprehensive guarantee.",
-      gradient: "from-blue-500 to-cyan-500"
-    },
-    {
-      icon: Zap,
-      title: "Lightning Fast",
-      description: "From order to delivery, we've optimized every step to get your custom creations to you as quickly as possible.",
-      gradient: "from-green-500 to-emerald-500"
-    }
+  const stats = [
+    { number: "10,000+", label: "Happy Customers" },
+    { number: "50,000+", label: "Products Created" },
+    { number: "99%", label: "Satisfaction Rate" },
+    { number: "3-5", label: "Days Delivery" }
   ];
 
   return (
     <>
       <SEOHead 
-        title="About Zyra - Premium Custom Products"
-        description="Learn about Zyra's mission to deliver premium customizable products. Discover our story, values, and commitment to quality."
+        title="About Zyra Custom Craft - Premium Custom Products & Personalized Gifts"
+        description="Learn about Zyra Custom Craft's mission to create exceptional custom products and personalized gifts. Discover our story, values, and commitment to quality craftsmanship in the UAE."
+        keywords="about zyra, custom craft company, personalized gifts UAE, custom products Dubai, premium quality, craftsmanship, custom printing services"
         url="https://shopzyra.vercel.app/about"
       />
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/20">
+      <div className="min-h-screen bg-background">
         <Navbar />
         
         {/* Hero Section */}
-        <section className="pt-20 pb-16 bg-gradient-to-br from-purple-600/10 via-transparent to-pink-600/10">
-          <Container>
-            <div className="text-center mb-16 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 rounded-full mb-8 animate-bounce-in shadow-2xl">
-                <Heart className="h-12 w-12 text-white animate-pulse" />
+        <section className="relative py-20 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5"></div>
+          <Container className="relative z-10">
+            <div className="text-center max-w-4xl mx-auto animate-fade-in">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="relative">
+                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-full blur-xl animate-pulse"></div>
+                  <div className="relative bg-gradient-to-br from-primary/10 to-purple-500/10 p-4 rounded-2xl border border-primary/20 backdrop-blur-sm">
+                    <Heart className="h-10 w-10 text-primary animate-pulse" />
+                  </div>
+                </div>
               </div>
-              <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-800 bg-clip-text text-transparent animate-text-shimmer">
-                About Zyra
+              <Badge className="mb-6 bg-gradient-to-r from-primary to-purple-600 text-white">
+                <Sparkles className="h-4 w-4 mr-2" />
+                About Zyra Custom Craft
+              </Badge>
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 animate-scale-in">
+                Crafting Dreams Into Reality
               </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto animate-slide-in-up leading-relaxed" style={{animationDelay: '0.2s'}}>
-                We're passionate about transforming ordinary products into extraordinary personalized experiences. Since our founding, we've been dedicated to bringing your unique vision to life with premium quality and unmatched customization.
+              <p className="text-xl text-muted-foreground leading-relaxed animate-slide-in-right">
+                We're passionate about turning your ideas into beautiful, personalized products. 
+                From custom phone cases to unique gifts, we bring creativity and quality together 
+                to create something truly special for you.
               </p>
             </div>
           </Container>
         </section>
 
         {/* Stats Section */}
-        <Container className="pb-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
-            {stats.map((stat, index) => (
-              <Card key={index} className="text-center hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-scale-in border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm" style={{animationDelay: `${index * 0.1}s`}}>
-                <CardContent className="p-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-2xl mb-4 shadow-lg">
-                    <stat.icon className={`h-8 w-8 ${stat.color} animate-float`} />
+        <section className="py-16 bg-muted/30">
+          <Container>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent mb-2">
+                    {stat.number}
                   </div>
-                  <div className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    {stat.value}
-                  </div>
-                  <div className="text-gray-600 dark:text-gray-400 font-medium">
+                  <div className="text-muted-foreground font-medium">
                     {stat.label}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+              ))}
+            </div>
+          </Container>
+        </section>
 
-          {/* Story Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
-            <div className="animate-slide-in-left">
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Our Story
-              </h2>
-              <div className="space-y-4 text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-                <p>
-                  Founded in 2020 with a simple mission: to make premium customization accessible to everyone. What started as a small team of designers and engineers has grown into a global platform serving customers worldwide.
+        {/* Story Section */}
+        <section className="py-16">
+          <Container>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              <div className="animate-slide-in-left">
+                <Badge className="mb-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                  Our Story
+                </Badge>
+                <h2 className="text-4xl font-bold mb-6 text-foreground">
+                  Building Something Beautiful Together
+                </h2>
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  Founded with a vision to make personalization accessible to everyone, Zyra Custom Craft 
+                  has grown from a small startup to a trusted name in custom products. We believe that 
+                  everyone deserves to own something unique that reflects their personality and style.
                 </p>
-                <p>
-                  We believe that every product should tell a story - your story. Whether it's a personalized gift for a loved one or a custom piece that reflects your unique style, we're here to bring your vision to life with exceptional quality and attention to detail.
-                </p>
-                <p>
-                  Today, we're proud to offer thousands of customizable products, working with carefully selected suppliers and using cutting-edge technology to ensure every order exceeds expectations.
+                <p className="text-muted-foreground leading-relaxed">
+                  Our team of designers, craftspeople, and technology experts work together to ensure 
+                  every product meets our high standards of quality and creativity. From the initial 
+                  design to the final product, we're committed to excellence at every step.
                 </p>
               </div>
-            </div>
-            <div className="animate-slide-in-right">
-              <div className="bg-gradient-to-br from-purple-100 via-white to-pink-100 dark:from-purple-900/30 dark:via-gray-800 dark:to-pink-900/30 rounded-3xl p-8 shadow-2xl">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">2020</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Founded</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-pink-600 dark:text-pink-400 mb-2">25+</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Countries</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">50K+</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Customers</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">100K+</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Orders</div>
-                  </div>
+              <div className="animate-slide-in-right">
+                <div className="relative">
+                  <div className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-purple-500/20 rounded-2xl blur-2xl"></div>
+                  <img
+                    src="/placeholder-about.jpg"
+                    alt="Zyra Custom Craft Workshop"
+                    className="relative w-full h-96 object-cover rounded-2xl shadow-2xl"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = 'https://images.unsplash.com/photo-1556742502-ec7c0e9f34b1?w=600&h=400&fit=crop';
+                    }}
+                  />
                 </div>
               </div>
             </div>
-          </div>
+          </Container>
+        </section>
 
-          {/* Values Section */}
-          <div className="mb-20">
-            <div className="text-center mb-16 animate-fade-in">
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Our Values
-              </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                These core principles guide everything we do, from product design to customer service.
+        {/* Features Section */}
+        <section className="py-16 bg-muted/30">
+          <Container>
+            <div className="text-center mb-12">
+              <Badge className="mb-4 bg-gradient-to-r from-primary to-purple-600 text-white">
+                Why Choose Zyra
+              </Badge>
+              <h2 className="text-4xl font-bold mb-6 text-foreground">What Makes Us Different</h2>
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                We're not just another custom product company. We're your partners in creativity, 
+                committed to bringing your unique ideas to life with exceptional quality and service.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {values.map((value, index) => (
-                <Card key={index} className="hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-scale-in border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm overflow-hidden" style={{animationDelay: `${index * 0.15}s`}}>
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 bg-gradient-to-br ${value.gradient} rounded-2xl flex items-center justify-center shadow-xl`}>
-                        <value.icon className="h-7 w-7 text-white animate-pulse" />
-                      </div>
-                      <CardTitle className="text-2xl text-gray-900 dark:text-white">
-                        {value.title}
-                      </CardTitle>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {features.map((feature, index) => (
+                <Card key={index} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 bg-card/50 backdrop-blur-sm border-border/50 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <CardContent className="p-6 text-center">
+                    <div className="mb-4 text-primary group-hover:scale-110 transition-transform duration-300">
+                      {feature.icon}
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
-                      {value.description}
+                    <h3 className="text-xl font-semibold mb-3 text-foreground">
+                      {feature.title}
+                    </h3>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {feature.description}
                     </p>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </div>
+          </Container>
+        </section>
 
-          {/* Mission Statement */}
-          <Card className="bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 border-0 shadow-2xl animate-scale-in text-white overflow-hidden">
-            <CardContent className="p-12 text-center relative">
-              <div className="absolute inset-0 bg-black/10"></div>
-              <div className="relative z-10">
-                <Sparkles className="h-16 w-16 mx-auto mb-6 animate-float" />
-                <h3 className="text-4xl font-bold mb-6 animate-text-shimmer">
-                  Our Mission
-                </h3>
-                <p className="text-xl leading-relaxed max-w-4xl mx-auto animate-fade-in">
-                  To empower individuals and businesses to express their unique identity through premium customizable products, while maintaining the highest standards of quality, sustainability, and customer satisfaction. We believe everyone deserves products that are as unique as they are.
-                </p>
-                <div className="flex items-center justify-center gap-6 mt-8">
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-lg px-4 py-2">
-                    <Star className="h-4 w-4 mr-2" />
-                    Premium Quality
-                  </Badge>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-lg px-4 py-2">
-                    <Globe className="h-4 w-4 mr-2" />
-                    Global Reach
-                  </Badge>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-lg px-4 py-2">
-                    <Heart className="h-4 w-4 mr-2" />
-                    Customer First
-                  </Badge>
-                </div>
+        {/* Mission Section */}
+        <section className="py-16">
+          <Container>
+            <div className="max-w-4xl mx-auto text-center">
+              <Badge className="mb-6 bg-gradient-to-r from-pink-600 to-red-600 text-white">
+                Our Mission
+              </Badge>
+              <h2 className="text-4xl font-bold mb-8 text-foreground">
+                Empowering Your Creativity
+              </h2>
+              <p className="text-xl text-muted-foreground leading-relaxed mb-8">
+                Our mission is simple: to empower everyone to express their creativity through beautiful, 
+                high-quality custom products. We believe that personalization shouldn't be a luxury – 
+                it should be accessible, affordable, and absolutely amazing.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <Badge variant="outline" className="text-lg px-4 py-2">Quality First</Badge>
+                <Badge variant="outline" className="text-lg px-4 py-2">Customer Focused</Badge>
+                <Badge variant="outline" className="text-lg px-4 py-2">Innovation Driven</Badge>
+                <Badge variant="outline" className="text-lg px-4 py-2">Sustainably Made</Badge>
               </div>
-            </CardContent>
-          </Card>
-        </Container>
-        
+            </div>
+          </Container>
+        </section>
+
         <Footer />
       </div>
     </>
