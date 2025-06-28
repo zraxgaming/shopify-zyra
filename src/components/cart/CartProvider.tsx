@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 // Define the types
 export type Json =
@@ -27,6 +28,7 @@ export interface CartItem {
   image_url: string;
   name?: string;
   customization?: Json;
+  is_digital?: boolean;
 }
 
 interface CartContextType {
@@ -65,6 +67,7 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [coupon, setCoupon] = useState<any>(null);
   const [giftCard, setGiftCard] = useState<any>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     let cancelled = false;
@@ -78,6 +81,8 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       intervalRef.current = setInterval(poll, 5000);
     } else {
       setCart([]);
+      setCoupon(null);
+      setGiftCard(null);
     }
     return () => {
       cancelled = true;
@@ -91,9 +96,8 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     try {
       const { data: dbCart, error } = await supabase
         .from("cart_items")
-        .select("*")
+        .select("*, product:is_digital") // join product for is_digital
         .eq("user_id", user?.id);
-
       if (!error && dbCart) {
         setCart(
           dbCart.map((item: any) => ({
@@ -101,12 +105,24 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
             price: typeof item.price === "number" ? item.price : 0,
             image_url: typeof item.image_url === "string" ? item.image_url : "",
             name: typeof item.name === "string" ? item.name : "",
-            customization: item.customization ?? {}, // ensure customization is always an object or {}
+            customization: item.customization ?? {},
+            is_digital: typeof item.is_digital === 'boolean' ? item.is_digital : (item.product?.is_digital ?? false),
           }))
         );
+      } else if (error) {
+        toast({
+          title: "Cart Load Error",
+          description: error.message || "Failed to load cart from server.",
+          variant: "destructive",
+        });
       }
     } catch (err) {
       console.error("Error loading cart from database:", err);
+      toast({
+        title: "Cart Load Error",
+        description: err.message || "Failed to load cart from server.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +134,31 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     customization = {}
   ) => {
     if (!user) {
-      console.log("User not logged in");
+      toast({
+        title: "Login Required",
+        description: "Please log in to add items to your cart.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Digital/physical product cart rules
+    const isDigital = product.is_digital;
+    const cartHasDigital = cart.some(item => item.is_digital);
+    const cartHasPhysical = cart.some(item => !item.is_digital);
+    if (isDigital && cartHasPhysical) {
+      toast({
+        title: "Cart Rule",
+        description: "Digital products can only be bought with other digital products.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!isDigital && cartHasDigital) {
+      toast({
+        title: "Cart Rule",
+        description: "Physical products cannot be added to a cart with digital products.",
+        variant: "destructive",
+      });
       return;
     }
     // Check product stock from Supabase directly for freshness
@@ -144,18 +184,24 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
     const totalDesired = cartQty + quantity;
 
     if (totalDesired > maxStock) {
-      console.log("Attempted to add above stock level.");
+      toast({
+        title: "Stock Limit",
+        description: "Cannot add more than available stock.",
+        variant: "destructive",
+      });
       return;
     }
-
     if (
       product.name?.toLowerCase().includes("custom") &&
       (!customization || Object.keys(customization).length === 0)
     ) {
-      console.log("Customization required for this product.");
+      toast({
+        title: "Customization Required",
+        description: "Please provide customization details for this product.",
+        variant: "destructive",
+      });
       return;
     }
-
     try {
       const { data, error } = await supabase
         .from("cart_items")
@@ -172,12 +218,14 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         ])
         .select()
         .single();
-
       if (error) {
-        console.error("Error adding to cart:", error);
+        toast({
+          title: "Add to Cart Failed",
+          description: error.message || "Could not add item to cart.",
+          variant: "destructive",
+        });
         return;
       }
-
       setCart((prevCart) => [
         ...prevCart,
         {
@@ -186,25 +234,38 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
           image_url: data.image_url || "",
           name: data.name || "",
           customization: data.customization ?? {},
+          is_digital: typeof product.is_digital === 'boolean' ? product.is_digital : false,
         }
       ]);
     } catch (err) {
       console.error("Error adding to cart:", err);
+      toast({
+        title: "Add to Cart Failed",
+        description: err.message || "Could not add item to cart.",
+        variant: "destructive",
+      });
     }
   };
 
   const removeFromCart = async (id: string) => {
     try {
       const { error } = await supabase.from("cart_items").delete().eq("id", id);
-
       if (error) {
-        console.error("Error removing from cart:", error);
+        toast({
+          title: "Remove from Cart Failed",
+          description: error.message || "Could not remove item from cart.",
+          variant: "destructive",
+        });
         return;
       }
-
       setCart((prevCart) => prevCart.filter((item) => item.id !== id));
     } catch (err) {
       console.error("Error removing from cart:", err);
+      toast({
+        title: "Remove from Cart Failed",
+        description: err.message || "Could not remove item from cart.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -222,23 +283,36 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         typeof productRes.data?.stock_quantity === "number"
           ? productRes.data?.stock_quantity
           : 99;
-      if (quantity > maxStock) return;
-
+      if (quantity > maxStock) {
+        toast({
+          title: "Stock Limit",
+          description: "Cannot set quantity above available stock.",
+          variant: "destructive",
+        });
+        return;
+      }
       const { error } = await supabase
         .from("cart_items")
         .update({ quantity })
         .eq("id", id);
-
       if (error) {
-        console.error("Error updating cart item:", error);
+        toast({
+          title: "Update Cart Failed",
+          description: error.message || "Could not update cart item.",
+          variant: "destructive",
+        });
         return;
       }
-
       setCart((prevCart) =>
         prevCart.map((item) => (item.id === id ? { ...item, quantity } : item))
       );
     } catch (err) {
       console.error("Error updating cart item:", err);
+      toast({
+        title: "Update Cart Failed",
+        description: err.message || "Could not update cart item.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -248,15 +322,22 @@ const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
         .from("cart_items")
         .delete()
         .eq("user_id", user?.id);
-
       if (error) {
-        console.error("Error clearing cart:", error);
+        toast({
+          title: "Clear Cart Failed",
+          description: error.message || "Could not clear cart.",
+          variant: "destructive",
+        });
         return;
       }
-
       setCart([]);
     } catch (err) {
       console.error("Error clearing cart:", err);
+      toast({
+        title: "Clear Cart Failed",
+        description: err.message || "Could not clear cart.",
+        variant: "destructive",
+      });
     }
   };
 

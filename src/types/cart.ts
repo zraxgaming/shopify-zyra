@@ -1,4 +1,3 @@
-
 export interface CartItemCustomization {
   text?: string;
   color?: string;
@@ -17,4 +16,5 @@ export interface CartItem {
   quantity: number;
   customization?: CartItemCustomization;
   in_stock?: boolean;
+  is_digital?: boolean;
 }

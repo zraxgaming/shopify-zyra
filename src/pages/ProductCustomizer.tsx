@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -51,7 +50,7 @@ const ProductCustomizer = () => {
       <SEOHead 
         title="Customize Your Product - Zyra"
         description="Personalize your product with custom text, colors, and images using our advanced customization tools."
-        url={`https://shopzyra.vercel.app/customize/${productId}`}
+        url={`https://www.shopzyra.site/customize/${productId}`}
       />
       <Navbar />
       <div className="min-h-screen bg-background">

@@ -3,7 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { sendOrderEmail } from '@/utils/resend';
+import { supabase } from '@/integrations/supabase/client';
+import { sendNewsletterEmail } from '@/utils/emailjs';
 
 const Newsletter: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -11,41 +12,43 @@ const Newsletter: React.FC = () => {
   const { toast } = useToast();
 
   const handleSubscribe = async () => {
+    if (!email) {
+      toast({
+        title: 'Email required',
+        description: 'Please enter your email address.',
+        variant: 'destructive'
+      });
+      return;
+    }
     setLoading(true);
     try {
-      await sendOrderEmail({
-        to: 'zainabusal113@gmail.com',
-        subject: 'New Newsletter Subscription',
-        html: `
-<div style="font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom right, #6c4dc1, #b974e6); padding: 24px; color: #ffffff;">
-  <div style="max-width: 600px; margin: auto; background: #ffffff; color: #333333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
-    <div style="background-color: #7c3aed; padding: 20px; text-align: center">
-      <img src="https://shopzyra.vercel.app/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
-      <h2 style="margin: 0; font-size: 20px; color: #ffffff">📰 New Newsletter Subscriber</h2>
-    </div>
-    <div style="padding: 24px; font-size: 15px">
-      <p><strong>Email:</strong> ${email}</p>
-    </div>
-    <div style="background-color: #f9f9f9; text-align: center; font-size: 13px; color: #888; padding: 16px;">
-      Sent from <a href="mailto:${email}" style="color: #7c3aed">${email}</a>
-    </div>
-  </div>
-</div>`
-      });
-      const res = await fetch('/api/newsletter', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-      const data = await res.json();
-      if (data.success) {
-        toast({ title: 'Subscribed!', description: 'You have been added to our newsletter.' });
-        setEmail('');
+      const { error } = await supabase
+        .from('newsletter_subscriptions')
+        .insert([{ email, is_active: true }]);
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: 'Already subscribed',
+            description: 'This email is already subscribed to our newsletter.',
+            variant: 'destructive'
+          });
+        } else {
+          throw error;
+        }
       } else {
-        throw new Error(data.error || 'Subscription failed');
+        await sendNewsletterEmail({
+          to: email,
+          message: `Thank you for subscribing to our newsletter! You'll be the first to know about new products, exclusive offers, and design tips.`,
+          unsubscribe_link: `${window.location.origin}/unsubscribe?email=${encodeURIComponent(email)}`
+        });
+        toast({
+          title: 'Successfully subscribed!',
+          description: 'Thank you for subscribing to our newsletter.'
+        });
+        setEmail('');
       }
     } catch (e: any) {
-      toast({ title: 'Error', description: e.message, variant: 'destructive' });
+      toast({ title: 'Error', description: e.message || 'Failed to subscribe. Please try again.', variant: 'destructive' });
     } finally {
       setLoading(false);
     }

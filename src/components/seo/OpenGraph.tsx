@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
@@ -15,7 +14,7 @@ const OpenGraph: React.FC<OpenGraphProps> = ({
   title = "Zyra - Premium E-commerce Platform",
   description = "Discover premium products at Zyra - your destination for quality, customization, and style.",
   image = "/icon-512.png",
-  url = "https://shopzyra.vercel.app",
+  url = "https://www.shopzyra.site",
   type = "website",
   siteName = "Zyra"
 }) => {

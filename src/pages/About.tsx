@@ -1,9 +1,8 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
-import { Users, Award, Globe, Heart, Star, Sparkles, Shield, Zap } from "lucide-react";
+import { Users, Award, ShoppingBag, Heart, Star, Sparkles, Shield, Zap, Globe } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
@@ -12,7 +11,7 @@ const About = () => {
   const stats = [
     { icon: Users, label: "Happy Customers", value: "50,000+", color: "text-blue-600" },
     { icon: Award, label: "Products Delivered", value: "100,000+", color: "text-green-600" },
-    { icon: Globe, label: "Countries Served", value: "25+", color: "text-purple-600" },
+    { icon: ShoppingBag, label: "Orders Placed", value: "75,000+", color: "text-purple-600" },
     { icon: Heart, label: "5-Star Reviews", value: "45,000+", color: "text-pink-600" }
   ];
 
@@ -46,13 +45,33 @@ const About = () => {
   return (
     <>
       <SEOHead 
-        title="About Zyra - Premium Custom Products"
-        description="Learn about Zyra's mission to deliver premium customizable products. Discover our story, values, and commitment to quality."
-        url="https://shopzyra.vercel.app/about"
+        title="About Zyra - Custom, Digital, and Coding Products | Our Story, Mission & Values"
+        description="Learn about Zyra's journey, mission, and values. Zyra delivers customizable, digital, and coding products worldwide—quality, innovation, and customer satisfaction for all creators."
+        url="https://www.shopzyra.site/about"
+        image="https://www.shopzyra.site/favicon.ico"
+        keywords="Zyra, custom products, digital products, coding files, programming, personalized gifts, company mission, values, global reach, customer satisfaction, innovation, software, code, templates"
       />
+      <script type="application/ld+json">{JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        'name': 'About Zyra',
+        'description': "Learn about Zyra's journey, mission, and values. Zyra delivers customizable, digital, and coding products worldwide—quality, innovation, and customer satisfaction for all creators.",
+        'url': 'https://www.shopzyra.site/about',
+        'mainEntity': {
+          '@type': 'Organization',
+          'name': 'Zyra',
+          'url': 'https://www.shopzyra.site',
+          'logo': 'https://www.shopzyra.site/icon-512.png',
+          'sameAs': [
+            'https://www.instagram.com/shopzyra',
+            'https://twitter.com/shopzyra',
+            'https://www.facebook.com/shopzyra'
+          ],
+          'description': 'Custom, digital, and coding products for everyone, delivered worldwide.'
+        }
+      })}</script>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/20">
         <Navbar />
-        
         {/* Hero Section */}
         <section className="pt-20 pb-16 bg-gradient-to-br from-purple-600/10 via-transparent to-pink-600/10">
           <Container>
@@ -64,7 +83,7 @@ const About = () => {
                 About Zyra
               </h1>
               <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto animate-slide-in-up leading-relaxed" style={{animationDelay: '0.2s'}}>
-                We're passionate about transforming ordinary products into extraordinary personalized experiences. Since our founding, we've been dedicated to bringing your unique vision to life with premium quality and unmatched customization.
+                Zyra is your trusted partner for customizable, digital, and coding products—serving creators, developers, and gift-givers worldwide. Since 2020, we've empowered 50,000+ customers in 25+ countries to design, download, and own products that reflect their unique stories: from personalized gifts and home decor to digital downloads, programming resources, and code templates. Our mission is to make high-quality personalization and digital creation accessible to everyone. Whether you want a one-of-a-kind gift, a digital asset, or a coding tool, Zyra delivers quality, endless customization, and a seamless experience from design to delivery.
               </p>
             </div>
           </Container>
@@ -196,6 +215,69 @@ const About = () => {
             </CardContent>
           </Card>
         </Container>
+
+        {/* FAQ Section for SEO (with FAQPage schema) */}
+        <React.Fragment>
+          <Container>
+            <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Frequently Asked Questions</h2>
+            <div className="max-w-2xl mx-auto space-y-6">
+              <div>
+                <h3 className="font-semibold text-lg">What makes Zyra different from other product and digital marketplaces?</h3>
+                <p className="text-gray-700 dark:text-gray-300">Zyra offers advanced customization, premium materials, and a passion for customer satisfaction. Our platform provides more options, faster delivery, and a global reach for both physical and digital products—including code, templates, and software tools.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">How do I create or purchase a personalized or digital product?</h3>
+                <p className="text-gray-700 dark:text-gray-300">Choose a product or digital file, use our customization tools or download options, and place your order. Our team ensures every detail is perfect before shipping or delivering your digital asset.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">What types of digital and coding products does Zyra offer?</h3>
+                <p className="text-gray-700 dark:text-gray-300">We offer digital downloads, including code snippets, programming templates, software tools, and more—alongside our physical product catalog.</p>
+              </div>
+              <div>
+                <h3 className="font-semibold text-lg">Is my data and payment information safe?</h3>
+                <p className="text-gray-700 dark:text-gray-300">Absolutely. Zyra uses industry-leading security protocols to protect your data and ensure safe, secure transactions every time.</p>
+              </div>
+            </div>
+            <script type="application/ld+json">{JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              'mainEntity': [
+                {
+                  '@type': 'Question',
+                  'name': 'What makes Zyra different from other product and digital marketplaces?',
+                  'acceptedAnswer': {
+                    '@type': 'Answer',
+                    'text': 'Zyra offers advanced customization, premium materials, and a passion for customer satisfaction. Our platform provides more options, faster delivery, and a global reach for both physical and digital products—including code, templates, and software tools.'
+                  }
+                },
+                {
+                  '@type': 'Question',
+                  'name': 'How do I create or purchase a personalized or digital product?',
+                  'acceptedAnswer': {
+                    '@type': 'Answer',
+                    'text': 'Choose a product or digital file, use our customization tools or download options, and place your order. Our team ensures every detail is perfect before shipping or delivering your digital asset.'
+                  }
+                },
+                {
+                  '@type': 'Question',
+                  'name': 'What types of digital and coding products does Zyra offer?',
+                  'acceptedAnswer': {
+                    '@type': 'Answer',
+                    'text': 'We offer digital downloads, including code snippets, programming templates, software tools, and more—alongside our physical product catalog.'
+                  }
+                },
+                {
+                  '@type': 'Question',
+                  'name': 'Is my data and payment information safe?',
+                  'acceptedAnswer': {
+                    '@type': 'Answer',
+                    'text': 'Absolutely. Zyra uses industry-leading security protocols to protect your data and ensure safe, secure transactions every time.'
+                  }
+                }
+              ]
+            })}</script>
+          </Container>
+        </React.Fragment>
         
         <Footer />
       </div>

@@ -136,7 +136,7 @@ const AdminNewsletter = () => {
 <div style="font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom right, #6c4dc1, #b974e6); padding: 24px; color: #ffffff;">
   <div style="max-width: 600px; margin: auto; background: #ffffff; color: #333333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
     <div style="background-color: #7c3aed; padding: 20px; text-align: center">
-      <img src="https://shopzyra.vercel.app/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
+      <img src="https://www.shopzyra.site/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
       <h2 style="margin: 0; font-size: 20px; color: #ffffff">📰 Newsletter Sent</h2>
     </div>
     <div style="padding: 24px; font-size: 15px">
@@ -144,7 +144,7 @@ const AdminNewsletter = () => {
       <div>${newsletter.html_content || newsletter.content}</div>
     </div>
     <div style="background-color: #f9f9f9; text-align: center; font-size: 13px; color: #888; padding: 16px;">
-      Sent to all subscribers • <a href="https://shopzyra.vercel.app" style="color: #7c3aed">shopzyra.com</a>
+      Sent to all subscribers • <a href="https://www.shopzyra.site" style="color: #7c3aed">shopzyra.com</a>
     </div>
   </div>
 </div>`

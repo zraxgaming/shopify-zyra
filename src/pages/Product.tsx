@@ -188,7 +188,7 @@ const Product = () => {
       <SEOHead
         title="Loading Product - Zyra Custom Craft"
         description="Loading product details..."
-        url={`https://shopzyra.vercel.app/product/${slug}`}
+        url={`https://www.shopzyra.site/product/${slug}`}
       />
       <div>Loading product details...</div>
     </>
@@ -198,7 +198,7 @@ const Product = () => {
       <SEOHead
         title="Product Not Found - Zyra Custom Craft"
         description="The product you are looking for was not found."
-        url={`https://shopzyra.vercel.app/product/${slug}`}
+        url={`https://www.shopzyra.site/product/${slug}`}
       />
       <div>Product not found.</div>
     </>
@@ -207,35 +207,59 @@ const Product = () => {
   return (
     <>
       <SEOHead
-        title={`${product.name} - Zyra Custom Craft`}
-        description={product.description || "View product details, reviews and make it yours at Zyra Custom Craft."}
-        url={`https://shopzyra.vercel.app/product/${slug}`}
-        image={product.images?.[0]}
+        title={product.name ? `${product.name} | Zyra Custom Craft` : 'Product | Zyra Custom Craft'}
+        description={product.description || `Buy ${product.name || 'this product'} and personalize it at Zyra Custom Craft. High-quality, unique, and customizable products delivered fast.`}
+        url={`https://www.shopzyra.site/product/${slug}`}
+        image={product.images?.[0] || '/icon-512.png'}
+        type="product"
       />
       <div>
+        {/* SEO-optimized intro section */}
+        <section className="py-8 px-4 max-w-3xl mx-auto text-center">
+          <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
+          <img
+            src={product.images?.[0] || '/placeholder-product.jpg'}
+            alt={product.name}
+            className="mx-auto mb-4 rounded-lg shadow-lg w-full max-w-md object-cover"
+            loading="lazy"
+            style={{ maxHeight: 320 }}
+          />
+          <p className="text-lg text-muted-foreground mb-4">
+            {product.description || `Discover the unique features of our ${product.name}. Personalize it with your own design, name, or message. Perfect for gifts, special occasions, or treating yourself to something special. All our products are crafted with care and delivered quickly to your door.`}
+          </p>
+          <p className="text-base text-muted-foreground mb-4">
+            <strong>Why choose this product?</strong> Our {product.name} stands out for its quality, durability, and customization options. Whether you want to create a memorable gift or add a personal touch to your home or wardrobe, this product is designed to impress. Join hundreds of happy customers who have made their moments special with Zyra Custom Craft.
+          </p>
+          <p className="text-base text-muted-foreground mb-4">
+            <strong>Order now</strong> and enjoy fast shipping, secure checkout, and our satisfaction guarantee. Have questions? Contact our support team for help with customization or bulk orders.
+          </p>
+        </section>
         {/* ... product details ... */}
         <section>
           <h3 className="font-semibold text-lg mt-4">Customer Reviews</h3>
           <div>
-            {reviews.map((review: Review) => (
-              <div key={review.id} className="p-4 border-b">
-                <div className="flex gap-2">
-                  <div className="font-medium">{review.user_name}</div>
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`h-4 w-4 ${
-                        star <= review.rating
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
+            {Array.isArray(reviews) && reviews.length > 0 ? (
+              reviews.map((review: Review) => (
+                <div key={review.id} className="p-4 border-b">
+                  <div className="flex gap-2">
+                    <div className="font-medium">{review.user_name}</div>
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        className={`h-4 w-4 ${
+                          star <= review.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <div className="text-sm mt-1">{review.comment}</div>
                 </div>
-                <div className="text-sm mt-1">{review.comment}</div>
-                {/* NO edit or delete options! */}
-              </div>
-            ))}
+              ))
+            ) : (
+              <div className="text-gray-500 text-sm p-4">No reviews yet.</div>
+            )}
           </div>
           {/* Always show the review form, allow adding multiple reviews */}
           <div className="mt-4">

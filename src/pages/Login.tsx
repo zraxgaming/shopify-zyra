@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -49,7 +48,7 @@ const Login = () => {
       <SEOHead 
         title="Login - Zyra"
         description="Sign in to your Zyra account to access your orders, wishlist, and account settings."
-        url="https://shopzyra.vercel.app/auth"
+        url="https://www.shopzyra.site/auth"
       />
       <Navbar />
       <div className="min-h-screen bg-background flex items-center justify-center">

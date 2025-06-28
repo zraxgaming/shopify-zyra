@@ -1,4 +1,3 @@
-
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
@@ -6,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'zyra-custom-craft',
   webDir: 'dist',
   server: {
-    url: 'https://shopzyra.vercel.app',
+    url: 'https://www.shopzyra.site',
     cleartext: true
   },
   plugins: {

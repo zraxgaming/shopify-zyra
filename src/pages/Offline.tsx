@@ -8,7 +8,7 @@ const Offline: React.FC = () => (
     <SEOHead
       title="Offline - Zyra Custom Craft"
       description="You are currently offline. Please check your internet connection and try again."
-      url="https://shopzyra.vercel.app/offline"
+      url="https://www.shopzyra.site/offline"
     />
     {/* Animated SVG icon for no connection */}
     <div className="animate-pulse-glow mb-4">

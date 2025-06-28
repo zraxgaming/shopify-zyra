@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
@@ -20,8 +19,8 @@ interface SEOHeadProps {
 const SEOHead: React.FC<SEOHeadProps> = ({
   title = 'Zyra Custom Craft - Premium Customizable Products & Personalized Gifts',
   description = 'Discover premium customizable products at Zyra Custom Craft. From custom printing to bespoke designs, we create unique items tailored to your vision with exceptional quality and fast delivery in UAE.',
-  url = 'https://shopzyra.vercel.app',
-  image = 'https://shopzyra.vercel.app/og-image.jpg',
+  url = 'https://www.shopzyra.site',
+  image = 'https://www.shopzyra.site/og-image.jpg',
   type = 'website',
   siteName = 'Zyra Custom Craft',
   keywords = 'custom products, personalized gifts, crafting, UAE, customization, premium quality, custom printing, bespoke design, unique items, personalized products, Dubai crafts, custom merchandise',

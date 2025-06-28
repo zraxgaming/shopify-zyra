@@ -59,7 +59,7 @@ const Products = () => {
         <SEOHead
           title="Our Products - Zyra Custom Craft"
           description="Browse all our published premium customizable products."
-          url="https://shopzyra.vercel.app/products"
+          url="https://www.shopzyra.site/products"
         />
         <Navbar />
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -75,7 +75,7 @@ const Products = () => {
       <SEOHead
         title="Our Products - Zyra Custom Craft"
         description="Browse all our published premium customizable products."
-        url="https://shopzyra.vercel.app/products"
+        url="https://www.shopzyra.site/products"
       />
       <Navbar />
       <div className="min-h-screen bg-background py-12 animate-fade-in">

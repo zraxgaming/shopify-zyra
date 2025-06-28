@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -124,133 +123,132 @@ const FAQ = () => {
 
   return (
     <>
-      <SEOHead 
-        title="FAQ - Frequently Asked Questions | Zyra"
-        description="Find answers to common questions about Zyra's custom products, shipping, returns, and more. Get help with your order today."
-        keywords="faq, help, support, questions, shipping, returns, customization"
-        url="https://shopzyra.vercel.app/faq"
+      <SEOHead
+        title="FAQ - Zyra Custom Craft"
+        description="Find answers to common questions about orders, shipping, customization, and more at Zyra Custom Craft."
+        url="https://www.shopzyra.site/faq"
+        keywords="faq, help, support, shipping, order, customization, zyra, custom craft"
+        section="FAQ"
       />
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        
-        {/* Hero Section */}
-        <section className="relative py-20 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5"></div>
-          <Container className="relative z-10">
-            <div className="text-center max-w-3xl mx-auto animate-fade-in">
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <div className="relative">
-                  <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-full blur-xl animate-pulse"></div>
-                  <div className="relative bg-gradient-to-br from-primary/10 to-purple-500/10 p-4 rounded-2xl border border-primary/20 backdrop-blur-sm">
-                    <HelpCircle className="h-10 w-10 text-primary animate-pulse" />
-                  </div>
-                </div>
-              </div>
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 animate-scale-in">
-                Frequently Asked Questions
-              </h1>
-              <p className="text-xl text-muted-foreground leading-relaxed animate-slide-in-right">
-                Find quick answers to common questions about our products, shipping, returns, and more. 
-                Can't find what you're looking for? Contact our support team.
-              </p>
-            </div>
-          </Container>
-        </section>
-
-        {/* Search Section */}
-        <section className="py-8 bg-muted/30">
-          <Container>
-            <div className="max-w-2xl mx-auto animate-fade-in">
+      <Navbar />
+      
+      {/* Hero Section */}
+      <section className="relative py-20 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5"></div>
+        <Container className="relative z-10">
+          <div className="text-center max-w-3xl mx-auto animate-fade-in">
+            <div className="flex items-center justify-center gap-4 mb-6">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search frequently asked questions..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-12 pr-4 py-3 text-lg bg-background/80 backdrop-blur-sm border-2 border-border/50 focus:border-primary/50 transition-all duration-300 focus:scale-[1.02]"
-                />
-              </div>
-            </div>
-          </Container>
-        </section>
-
-        {/* FAQ Content */}
-        <section className="py-16">
-          <Container>
-            <div className="space-y-12">
-              {filteredFAQs.map((category, categoryIndex) => (
-                <div key={categoryIndex} className="animate-fade-in" style={{ animationDelay: `${categoryIndex * 100}ms` }}>
-                  <div className="text-center mb-8">
-                    <Badge className={`mb-4 bg-gradient-to-r ${category.color} text-white`}>
-                      {category.category}
-                    </Badge>
-                    <h2 className="text-3xl font-bold text-foreground">{category.category}</h2>
-                  </div>
-                  
-                  <div className="max-w-4xl mx-auto space-y-4">
-                    {category.questions.map((faq, index) => {
-                      const globalIndex = categoryIndex * 100 + index;
-                      const isOpen = openItems.includes(globalIndex);
-                      
-                      return (
-                        <Card 
-                          key={index} 
-                          className="bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-lg transition-all duration-300 animate-slide-in-right"
-                          style={{ animationDelay: `${index * 50}ms` }}
-                        >
-                          <Collapsible open={isOpen} onOpenChange={() => toggleItem(globalIndex)}>
-                            <CollapsibleTrigger className="w-full">
-                              <CardContent className="p-6">
-                                <div className="flex items-center justify-between text-left">
-                                  <h3 className="text-lg font-semibold text-foreground pr-4">
-                                    {faq.question}
-                                  </h3>
-                                  <div className="flex-shrink-0">
-                                    {isOpen ? (
-                                      <ChevronDown className="h-5 w-5 text-primary transition-transform duration-200" />
-                                    ) : (
-                                      <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform duration-200" />
-                                    )}
-                                  </div>
-                                </div>
-                              </CardContent>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                              <CardContent className="px-6 pb-6 pt-0">
-                                <div className="border-t border-border/50 pt-4">
-                                  <p className="text-muted-foreground leading-relaxed">
-                                    {faq.answer}
-                                  </p>
-                                </div>
-                              </CardContent>
-                            </CollapsibleContent>
-                          </Collapsible>
-                        </Card>
-                      );
-                    })}
-                  </div>
+                <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-full blur-xl animate-pulse"></div>
+                <div className="relative bg-gradient-to-br from-primary/10 to-purple-500/10 p-4 rounded-2xl border border-primary/20 backdrop-blur-sm">
+                  <HelpCircle className="h-10 w-10 text-primary animate-pulse" />
                 </div>
-              ))}
-            </div>
-
-            {filteredFAQs.length === 0 && (
-              <div className="text-center py-12 animate-fade-in">
-                <HelpCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-2xl font-semibold mb-2 text-foreground">No results found</h3>
-                <p className="text-muted-foreground mb-6">
-                  We couldn't find any FAQs matching your search. Try different keywords or contact our support team.
-                </p>
-                <Badge className="bg-gradient-to-r from-primary to-purple-600">
-                  Contact Support for Help
-                </Badge>
               </div>
-            )}
-          </Container>
-        </section>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 animate-scale-in">
+              Frequently Asked Questions
+            </h1>
+            <p className="text-xl text-muted-foreground leading-relaxed animate-slide-in-right">
+              Find quick answers to common questions about our products, shipping, returns, and more. 
+              Can't find what you're looking for? Contact our support team.
+            </p>
+          </div>
+        </Container>
+      </section>
 
-        <Footer />
-      </div>
+      {/* Search Section */}
+      <section className="py-8 bg-muted/30">
+        <Container>
+          <div className="max-w-2xl mx-auto animate-fade-in">
+            <div className="relative">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search frequently asked questions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-12 pr-4 py-3 text-lg bg-background/80 backdrop-blur-sm border-2 border-border/50 focus:border-primary/50 transition-all duration-300 focus:scale-[1.02]"
+              />
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* FAQ Content */}
+      <section className="py-16">
+        <Container>
+          <div className="space-y-12">
+            {filteredFAQs.map((category, categoryIndex) => (
+              <div key={categoryIndex} className="animate-fade-in" style={{ animationDelay: `${categoryIndex * 100}ms` }}>
+                <div className="text-center mb-8">
+                  <Badge className={`mb-4 bg-gradient-to-r ${category.color} text-white`}>
+                    {category.category}
+                  </Badge>
+                  <h2 className="text-3xl font-bold text-foreground">{category.category}</h2>
+                </div>
+                
+                <div className="max-w-4xl mx-auto space-y-4">
+                  {category.questions.map((faq, index) => {
+                    const globalIndex = categoryIndex * 100 + index;
+                    const isOpen = openItems.includes(globalIndex);
+                    
+                    return (
+                      <Card 
+                        key={index} 
+                        className="bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-lg transition-all duration-300 animate-slide-in-right"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <Collapsible open={isOpen} onOpenChange={() => toggleItem(globalIndex)}>
+                          <CollapsibleTrigger className="w-full">
+                            <CardContent className="p-6">
+                              <div className="flex items-center justify-between text-left">
+                                <h3 className="text-lg font-semibold text-foreground pr-4">
+                                  {faq.question}
+                                </h3>
+                                <div className="flex-shrink-0">
+                                  {isOpen ? (
+                                    <ChevronDown className="h-5 w-5 text-primary transition-transform duration-200" />
+                                  ) : (
+                                    <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform duration-200" />
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <CardContent className="px-6 pb-6 pt-0">
+                              <div className="border-t border-border/50 pt-4">
+                                <p className="text-muted-foreground leading-relaxed">
+                                  {faq.answer}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {filteredFAQs.length === 0 && (
+            <div className="text-center py-12 animate-fade-in">
+              <HelpCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-2xl font-semibold mb-2 text-foreground">No results found</h3>
+              <p className="text-muted-foreground mb-6">
+                We couldn't find any FAQs matching your search. Try different keywords or contact our support team.
+              </p>
+              <Badge className="bg-gradient-to-r from-primary to-purple-600">
+                Contact Support for Help
+              </Badge>
+            </div>
+          )}
+        </Container>
+      </section>
+
+      <Footer />
     </>
   );
 };

@@ -96,7 +96,7 @@ const Profile = () => {
         <SEOHead 
           title="Sign In - Zyra Custom Craft"
           description="Access your profile at Zyra. Please sign in to view your account details and manage your profile, orders, and wishlist."
-          url="https://shopzyra.vercel.app/profile"
+          url="https://www.shopzyra.site/profile"
         />
         <Navbar />
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -117,7 +117,7 @@ const Profile = () => {
       <SEOHead 
         title="My Profile - Zyra Custom Craft"
         description="View and update your profile, manage your orders and wishlist at Zyra Custom Craft."
-        url="https://shopzyra.vercel.app/profile"
+        url="https://www.shopzyra.site/profile"
       />
       <Navbar />
       <div className="min-h-screen bg-background py-12">

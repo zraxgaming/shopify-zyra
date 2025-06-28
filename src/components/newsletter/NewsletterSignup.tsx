@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail } from "lucide-react";
-import { sendOrderEmail } from '@/utils/resend';
 import { sendNewsletterEmail } from '@/utils/emailjs';
 
 const NewsletterSignup = () => {
@@ -24,36 +23,12 @@ const NewsletterSignup = () => {
       });
       return;
     }
-
     setIsLoading(true);
+    let timeout: NodeJS.Timeout | null = null;
     try {
-      // Notify admin of new subscriber
-      await sendOrderEmail({
-        to: 'zainabusal113@gmail.com',
-        subject: 'New Newsletter Subscription',
-        html: `
-<div style="font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom right, #6c4dc1, #b974e6); padding: 24px; color: #ffffff;">
-  <div style="max-width: 600px; margin: auto; background: #ffffff; color: #333333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
-    <div style="background-color: #7c3aed; padding: 20px; text-align: center">
-      <img src="https://shopzyra.vercel.app/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
-      <h2 style="margin: 0; font-size: 20px; color: #ffffff">📰 New Newsletter Subscriber</h2>
-    </div>
-    <div style="padding: 24px; font-size: 15px">
-      <p><strong>Email:</strong> ${email}</p>
-      ${name ? `<p><strong>Name:</strong> ${name}</p>` : ''}
-    </div>
-    <div style="background-color: #f9f9f9; text-align: center; font-size: 13px; color: #888; padding: 16px;">
-      Sent from <a href="mailto:${email}" style="color: #7c3aed">${email}</a>
-    </div>
-  </div>
-</div>`
-      });
-      // Send confirmation to user using emailjs
-      await sendNewsletterEmail({
-        to: email,
-        message: `Thank you for subscribing, ${name || 'friend'}. You'll now receive updates, offers, and news from us.`,
-        unsubscribe_link: `${window.location.origin}/unsubscribe?email=${encodeURIComponent(email)}`
-      });
+      // Add a timeout to guarantee loading state ends
+      timeout = setTimeout(() => setIsLoading(false), 10000);
+      // Add to Supabase
       const { error } = await supabase
         .from("newsletter_subscriptions")
         .insert({
@@ -62,7 +37,6 @@ const NewsletterSignup = () => {
           is_active: true,
           subscribed_at: new Date().toISOString(),
         });
-
       if (error) {
         if (error.code === '23505') {
           toast({
@@ -74,6 +48,12 @@ const NewsletterSignup = () => {
           throw error;
         }
       } else {
+        // Send confirmation to user using EmailJS
+        await sendNewsletterEmail({
+          to: email,
+          message: `Thank you for subscribing, ${name || 'friend'}. You'll now receive updates, offers, and news from us.`,
+          unsubscribe_link: `${window.location.origin}/unsubscribe?email=${encodeURIComponent(email)}`
+        });
         toast({
           title: "Successfully subscribed!",
           description: "Thank you for subscribing to our newsletter.",
@@ -88,6 +68,7 @@ const NewsletterSignup = () => {
         variant: "destructive",
       });
     } finally {
+      if (timeout) clearTimeout(timeout);
       setIsLoading(false);
     }
   };

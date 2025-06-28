@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,6 +34,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const [paymentMethod, setPaymentMethod] = useState("ziina");
 
   const total = Math.max(0, subtotal - discount - giftCardAmount);
+
+  // Determine if cart is digital-only
+  const isDigitalOnly = items.length > 0 && items.every(item => item.is_digital);
 
   const handleCheckout = async () => {
     setIsSubmitting(true);
@@ -277,28 +279,56 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
               <Card 
                 className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                  paymentMethod === "cash" 
+                  paymentMethod === "paypal" 
                     ? "ring-2 ring-primary bg-primary/5" 
                     : "hover:bg-gray-50 dark:hover:bg-gray-800"
-                }`}
-                onClick={() => setPaymentMethod("cash")}
+                } ${!isDigitalOnly ? 'pointer-events-none opacity-50' : ''}`}
+                onClick={() => isDigitalOnly && setPaymentMethod("paypal")}
               >
                 <CardContent className="p-4 flex items-center gap-3">
                   <input
                     type="radio"
                     name="payment_method"
-                    value="cash"
-                    checked={paymentMethod === "cash"}
-                    onChange={() => setPaymentMethod("cash")}
+                    value="paypal"
+                    checked={paymentMethod === "paypal"}
+                    onChange={() => isDigitalOnly && setPaymentMethod("paypal")}
                     className="accent-primary"
+                    disabled={!isDigitalOnly}
                   />
-                  <Banknote className="h-5 w-5 text-primary" />
+                  <CreditCard className="h-5 w-5 text-primary" />
                   <div>
-                    <p className="font-medium">Cash on Pickup</p>
-                    <p className="text-sm text-muted-foreground">Pay when collecting</p>
+                    <p className="font-medium">PayPal</p>
+                    <p className="text-sm text-muted-foreground">Pay securely with PayPal</p>
                   </div>
                 </CardContent>
               </Card>
+
+              {!isDigitalOnly && (
+                <Card 
+                  className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
+                    paymentMethod === "cash" 
+                      ? "ring-2 ring-primary bg-primary/5" 
+                      : "hover:bg-gray-50 dark:hover:bg-gray-800"
+                  }`}
+                  onClick={() => setPaymentMethod("cash")}
+                >
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <input
+                      type="radio"
+                      name="payment_method"
+                      value="cash"
+                      checked={paymentMethod === "cash"}
+                      onChange={() => setPaymentMethod("cash")}
+                      className="accent-primary"
+                    />
+                    <Banknote className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium">Cash on Pickup</p>
+                      <p className="text-sm text-muted-foreground">Pay when collecting</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
 

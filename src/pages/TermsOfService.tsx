@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -11,7 +10,7 @@ const TermsOfService = () => {
       <SEOHead
         title="Terms of Service - Zyra Custom Craft"
         description="Read our terms of service for Zyra Custom Craft. Learn about our policies, user responsibilities, and service conditions."
-        url="https://shopzyra.vercel.app/terms"
+        url="https://www.shopzyra.site/terms"
       />
       <Navbar />
       

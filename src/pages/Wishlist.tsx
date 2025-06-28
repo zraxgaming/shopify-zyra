@@ -37,7 +37,7 @@ const Wishlist = () => {
   if (isLoading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <SEOHead title="Wishlist - Loading..." url="https://shopzyra.vercel.app/wishlist" />
+        <SEOHead title="Wishlist - Loading..." url="https://www.shopzyra.site/wishlist" />
         <h1 className="text-3xl font-bold mb-4">Wishlist</h1>
         <p className="text-muted-foreground">Loading your favorite items...</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
@@ -63,7 +63,7 @@ const Wishlist = () => {
       <SEOHead
         title="Wishlist - Zyra Custom Craft"
         description="View your wishlist and easily add your favorite items to the cart."
-        url="https://shopzyra.vercel.app/wishlist"
+        url="https://www.shopzyra.site/wishlist"
       />
       <h1 className="text-3xl font-bold mb-4">Wishlist</h1>
       {isEmpty ? (

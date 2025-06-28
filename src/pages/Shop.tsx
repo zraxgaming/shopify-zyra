@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
@@ -100,9 +99,11 @@ const Shop = () => {
   return (
     <>
       <SEOHead 
-        title="Shop - Zyra"
-        description="Discover our premium collection of customizable products. Shop the latest designs and create something unique."
-        url="https://shopzyra.vercel.app/shop"
+        title="Shop Custom, Digital, and Coding Products Online | Zyra Custom Craft"
+        description="Browse and buy premium customizable, digital, and coding products at Zyra. Personalize gifts, home decor, apparel, download code, templates, and more. Fast shipping, instant digital delivery, unique designs, and top-rated customer service. Shop the best custom and digital products online!"
+        url="https://www.shopzyra.site/shop"
+        image="https://www.shopzyra.site/icon-512.png"
+        type="website"
       />
       <Navbar />
       
@@ -119,14 +120,11 @@ const Shop = () => {
             <div className="text-center mb-12 animate-fade-in">
               <Badge className="mb-6 bg-gradient-to-r from-primary to-purple-600 hover:scale-110 transition-transform duration-300 text-lg px-6 py-3" variant="outline">
                 <Sparkles className="h-5 w-5 mr-3" />
-                Premium Collection
+                Premium & Digital Collection
               </Badge>
               <h1 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent animate-scale-in">
-                Shop Collection
+                Shop Custom, Digital, and Coding Products Online
               </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto animate-slide-in-right">
-                Discover our curated selection of premium products. Customize, personalize, and make it yours.
-              </p>
             </div>
           </Container>
         </section>
@@ -207,7 +205,15 @@ const Shop = () => {
             </div>
 
             <div className="flex-1 animate-fade-in">
-              <ProductGrid products={sortedProducts} isLoading={isLoading} />
+              <ProductGrid filters={{
+                searchTerm,
+                selectedCategories,
+                sortBy,
+                priceRange,
+                inStock,
+                featured,
+                customizable
+              }} />
             </div>
           </div>
         </Container>

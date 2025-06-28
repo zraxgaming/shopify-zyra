@@ -44,7 +44,7 @@ const Contact = () => {
 <div style="font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom right, #6c4dc1, #b974e6); padding: 24px; color: #ffffff;">
   <div style="max-width: 600px; margin: auto; background: #ffffff; color: #333333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
     <div style="background-color: #7c3aed; padding: 20px; text-align: center">
-      <img src="https://shopzyra.vercel.app/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
+      <img src="https://www.shopzyra.site/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
       <h2 style="margin: 0; font-size: 20px; color: #ffffff">📩 New Contact Message</h2>
     </div>
     <div style="padding: 24px; font-size: 15px">
@@ -66,7 +66,7 @@ const Contact = () => {
 <div style="font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom right, #6c4dc1, #b974e6); padding: 24px; color: #ffffff;">
   <div style="max-width: 600px; margin: auto; background: #ffffff; color: #333333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
     <div style="background-color: #7c3aed; padding: 20px; text-align: center">
-      <img src="https://shopzyra.vercel.app/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
+      <img src="https://www.shopzyra.site/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
       <h2 style="margin: 0; font-size: 20px; color: #ffffff">Thank you for contacting Zyra!</h2>
     </div>
     <div style="padding: 24px; font-size: 15px">
@@ -75,7 +75,7 @@ const Contact = () => {
       <p style="margin-top: 32px">– The Zyra Team</p>
     </div>
     <div style="background-color: #f9f9f9; text-align: center; font-size: 13px; color: #888; padding: 16px;">
-      <a href="https://shopzyra.vercel.app" style="color: #7c3aed">shopzyra.com</a>
+      <a href="https://www.shopzyra.site" style="color: #7c3aed">shopzyra.com</a>
     </div>
   </div>
 </div>`
@@ -135,7 +135,7 @@ const Contact = () => {
       <SEOHead 
         title="Contact Us - Zyra"
         description="Get in touch with Zyra's customer support team. We're here to help with your orders, customizations, and any questions you may have."
-        url="https://shopzyra.vercel.app/contact"
+        url="https://www.shopzyra.site/contact"
       />
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/20">
         <Navbar />

@@ -23,11 +23,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let mounted = true;
 
+    // Force refresh session on mount
+    const refreshSession = async () => {
+      try {
+        await supabase.auth.getSession();
+      } catch (err) {
+        console.error('Supabase session refresh error:', err);
+      }
+    };
+    refreshSession();
+
     // Get initial session
     const initializeAuth = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        
         if (mounted) {
           setUser(session?.user ?? null);
           if (session?.user) {

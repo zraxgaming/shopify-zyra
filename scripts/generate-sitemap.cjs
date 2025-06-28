@@ -31,7 +31,7 @@ const staticRoutes = [
   // Add more static routes as needed
 ];
 
-const baseUrl = 'https://shopzyra.vercel.app';
+const baseUrl = 'https://www.shopzyra.site'; // Update to your production URL
 
 function generateSitemap() {
   const urls = staticRoutes.map(route => `  <url>\n    <loc>${baseUrl}${route}</loc>\n    <priority>0.5</priority>\n  </url>`).join('\n');

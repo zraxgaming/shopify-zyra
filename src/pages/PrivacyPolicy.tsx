@@ -1,4 +1,3 @@
-
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -11,7 +10,7 @@ const PrivacyPolicy = () => {
       <SEOHead
         title="Privacy Policy - Zyra Custom Craft"
         description="Learn how Zyra Custom Craft collects, uses, and protects your personal information. Read our comprehensive privacy policy."
-        url="https://shopzyra.vercel.app/privacy"
+        url="https://www.shopzyra.site/privacy"
       />
       <Navbar />
       

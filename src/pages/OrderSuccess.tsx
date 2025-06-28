@@ -89,7 +89,7 @@ const OrderSuccess = () => {
         <SEOHead
           title="Order Confirmed - Zyra Custom Craft"
           description="Thank you for your order at Zyra Custom Craft!"
-          url="https://shopzyra.vercel.app/order-success"
+          url="https://www.shopzyra.site/order-success"
         />
         <Navbar />
         <div className="min-h-screen bg-background py-12">
@@ -109,7 +109,7 @@ const OrderSuccess = () => {
       <SEOHead
         title="Order Confirmed - Zyra Custom Craft"
         description="Thank you for your order at Zyra Custom Craft! Your payment has been processed successfully."
-        url="https://shopzyra.vercel.app/order-success"
+        url="https://www.shopzyra.site/order-success"
       />
       <Navbar />
       <div className="min-h-screen bg-background py-12">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -9,7 +8,7 @@ const Success: React.FC = () => {
   const navigate = useNavigate();
   const params = new URLSearchParams(location.search);
   const orderId = params.get('id');
-  const successUrl = "https://shopzyra.vercel.app/success";
+  const successUrl = "https://www.shopzyra.site/success";
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-50 to-blue-50 dark:from-green-950 dark:to-blue-950">

@@ -171,7 +171,7 @@ const ProductDetail: React.FC = () => {
       <SEOHead
         title={`${product.name} | Zyra Custom Craft`}
         description={product.meta_description || product.short_description || ""}
-        url={`https://shopzyra.vercel.app/product/${product.slug}`}
+        url={`https://www.shopzyra.site/product/${product.slug}`}
         image={selectedImage || productImages[0]}
       />
       <Navbar />
