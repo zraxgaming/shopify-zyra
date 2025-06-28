@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { useUserOrders } from "@/hooks/use-user-orders";
 import { useToast } from "@/hooks/use-toast";
 import { Package, Eye, Loader2 } from "lucide-react";
 import { Order, OrderItem } from "@/types/order";
@@ -12,73 +12,17 @@ import { format } from "date-fns";
 const Orders = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: orders = [], isLoading: loading, isError } = useUserOrders(user?.id);
 
   useEffect(() => {
-    if (!user) {
-      setLoading(false);
-      setOrders([]);
-      return;
-    }
-    fetchOrders();
-  }, [user]);
-
-  const fetchOrders = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('orders')
-        .select(`
-          *,
-          order_items (
-            id,
-            product_id,
-            quantity,
-            price,
-            customization,
-            products:product_id (
-              id,
-              name,
-              images
-            )
-          )
-        `)
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      // Transform the data to match our types
-      const transformedOrders: Order[] = (data || []).map(order => ({
-        ...order,
-        order_items: order.order_items?.map((item: any) => ({
-          ...item,
-          product: {
-            id: item.products?.id || '',
-            name: item.products?.name || 'Unknown Product',
-            images: Array.isArray(item.products?.images) 
-              ? item.products.images 
-              : item.products?.images 
-                ? [item.products.images] 
-                : [],
-            slug: item.products?.slug || ''
-          }
-        })) || []
-      }));
-
-      setOrders(transformedOrders);
-    } catch (error: any) {
-      console.error('Error fetching orders:', error);
+    if (isError) {
       toast({
         title: "Error",
         description: "Failed to load orders",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [isError, toast]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -110,6 +54,20 @@ const Orders = () => {
           <Button onClick={() => window.location.href = '/auth'} className="animate-pulse">
             Sign In
           </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Card className="animate-fade-in">
+        <CardContent className="text-center py-12">
+          <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground animate-bounce" />
+          <h3 className="text-lg font-semibold mb-2">Error loading orders</h3>
+          <p className="text-muted-foreground mb-6">
+            There was a problem loading your order history. Please try again later.
+          </p>
         </CardContent>
       </Card>
     );

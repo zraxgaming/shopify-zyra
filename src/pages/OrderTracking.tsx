@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,62 +21,114 @@ interface Order {
 }
 
 const OrderTracking = () => {
-  const [trackingNumber, setTrackingNumber] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const { toast } = useToast();
+  const [searchType, setSearchType] = useState<'tracking' | 'orderId' | 'email'>("tracking");
+  const [ordersByEmail, setOrdersByEmail] = useState<Order[]>([]);
+  const subscriptionRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!order || !order.id) return;
+    // Subscribe to order updates
+    const channel = supabase
+      .channel('order-tracking')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'orders',
+        filter: `id=eq.${order.id}`
+      }, (payload) => {
+        if (payload.new) {
+          setOrder((prev: any) => ({ ...prev, ...payload.new }));
+        }
+      })
+      .subscribe();
+    subscriptionRef.current = channel;
+    return () => {
+      if (subscriptionRef.current) {
+        supabase.removeChannel(subscriptionRef.current);
+      }
+    };
+  }, [order?.id]);
 
   const handleSearch = async () => {
-    if (!trackingNumber.trim()) {
+    if (!searchValue.trim()) {
       toast({
-        title: "Please enter a tracking number",
+        title: "Please enter a value to search",
         variant: "destructive"
       });
       return;
     }
-
     setIsLoading(true);
     setHasSearched(true);
-    
+    setOrder(null);
+    setOrdersByEmail([]);
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select(`
-          *,
-          order_items (
-            id,
-            quantity,
-            price,
-            products!order_items_product_id_fkey (
-              id,
-              name,
-              images
-            )
-          )
-        `)
-        .eq("tracking_number", trackingNumber.trim())
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          setOrder(null);
-          toast({
-            title: "Order not found",
-            description: "Please check your tracking number and try again.",
-            variant: "destructive"
-          });
-        } else {
-          throw error;
+      let data: any = null, error: any = null;
+      if (searchType === 'tracking') {
+        ({ data, error } = await supabase
+          .from<any, any>("orders")
+          .select(`*, order_items:order_items_order_id_fkey ( id, quantity, price, products!order_items_product_id_fkey ( id, name, images ) )`)
+          .eq("tracking_number", searchValue.trim())
+          .maybeSingle());
+      } else if (searchType === 'orderId') {
+        // Support both raw UUID start and patterns like 'this-7cdcc6c7'
+        let idPart = searchValue.trim();
+        const dashIdx = idPart.indexOf('-');
+        if (dashIdx !== -1 && dashIdx !== 0) {
+          idPart = idPart.slice(dashIdx + 1);
         }
+        ({ data, error } = await supabase
+          .from<any, any>("orders")
+          .select(`*, order_items:order_items_order_id_fkey ( id, quantity, price, products!order_items_product_id_fkey ( id, name, images ) )`)
+          .ilike("id", `${idPart}%`)
+          .maybeSingle());
+      } else if (searchType === 'email') {
+        ({ data, error } = await supabase
+          .from<any, any>("orders")
+          .select(`*, order_items:order_items_order_id_fkey ( id, quantity, price, products!order_items_product_id_fkey ( id, name, images ) )`)
+          .eq("email", searchValue.trim())); // no maybeSingle here
+      }
+      if (error) {
+        console.error('Supabase error:', error);
+        setOrder(null);
+        setOrdersByEmail([]);
+        toast({
+          title: searchType === 'email' ? "No orders found for this email." : "Order not found",
+          description: error.message || "Please check your input and try again.",
+          variant: "destructive"
+        });
+      } else if (!data || (searchType !== 'email' && Object.keys(data).length === 0) || (searchType === 'email' && Array.isArray(data) && data.length === 0)) {
+        setOrder(null);
+        setOrdersByEmail([]);
+        toast({
+          title: "Order not found",
+          description: "No matching order found. Please check your input and try again.",
+          variant: "destructive"
+        });
       } else {
-        setOrder(data);
+        if (searchType === 'email') {
+          if (data && Array.isArray(data) && data.length > 0) {
+            setOrdersByEmail(data as Order[]);
+          } else {
+            setOrdersByEmail([]);
+            toast({
+              title: "No orders found for this email.",
+              variant: "destructive"
+            });
+          }
+        } else {
+          setOrder(data as Order);
+        }
       }
     } catch (error: any) {
       console.error("Error tracking order:", error);
       toast({
         title: "Error",
-        description: "Failed to track order. Please try again.",
+        description: error.message || "Failed to track order. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -123,10 +174,9 @@ const OrderTracking = () => {
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100">Track Your Order</h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Enter your tracking number to see the current status of your order
+              Enter your tracking number, order ID, or email to see the current status of your order
             </p>
           </div>
-
           <Card className="mb-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
@@ -135,11 +185,20 @@ const OrderTracking = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex gap-4">
+              <div className="flex flex-col gap-4 md:flex-row md:gap-4">
+                <select
+                  value={searchType}
+                  onChange={e => setSearchType(e.target.value as any)}
+                  className="border rounded px-2 py-1 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                >
+                  <option value="tracking">Tracking Number</option>
+                  <option value="orderId">Order ID</option>
+                  <option value="email">Email</option>
+                </select>
                 <Input
-                  placeholder="Enter your tracking number..."
-                  value={trackingNumber}
-                  onChange={(e) => setTrackingNumber(e.target.value)}
+                  placeholder={searchType === 'tracking' ? "Enter your tracking number..." : searchType === 'orderId' ? "Enter your order ID..." : "Enter your email..."}
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
                 />
@@ -153,19 +212,38 @@ const OrderTracking = () => {
               </div>
             </CardContent>
           </Card>
-
-          {hasSearched && !order && !isLoading && (
+          {hasSearched && !order && !isLoading && ordersByEmail.length === 0 && (
             <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
               <CardContent className="p-8 text-center">
                 <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2 text-gray-900 dark:text-gray-100">Order Not Found</h3>
                 <p className="text-gray-600 dark:text-gray-400">
-                  We couldn't find an order with that tracking number. Please check the number and try again.
+                  We couldn't find an order with that information. Please check and try again.
                 </p>
               </CardContent>
             </Card>
           )}
-
+          {ordersByEmail.length > 0 && (
+            <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 mb-8">
+              <CardHeader>
+                <CardTitle className="text-gray-900 dark:text-gray-100">Orders for {searchValue}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {ordersByEmail.map((o) => (
+                    <div key={o.id} className="border-b border-gray-200 dark:border-gray-700 pb-4 last:border-b-0 flex flex-col md:flex-row md:items-center md:justify-between">
+                      <div>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">Order #{o.id.slice(0,8)}</span>
+                        <span className={`ml-2 ${getStatusColor(o.status)} px-2 py-1 rounded text-xs`}>{o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span>
+                        <div className="text-gray-600 dark:text-gray-400 text-sm">{o.created_at ? new Date(o.created_at).toLocaleDateString() : 'Unknown'}</div>
+                      </div>
+                      <Button size="sm" className="mt-2 md:mt-0" onClick={() => { setOrder(o); setOrdersByEmail([]); }}>View Details</Button>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
           {order && (
             <div className="space-y-6">
               <Card className="bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">

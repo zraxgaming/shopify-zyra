@@ -10,6 +10,7 @@ import Footer from "@/components/layout/Footer";
 import { Container } from "@/components/ui/container";
 import SEOHead from "@/components/seo/SEOHead";
 import { toast } from "@/components/ui/use-toast";
+import { sendOrderStatusEmail } from '@/utils/emailjs';
 
 const OrderSuccess = () => {
   const { orderId } = useParams();
@@ -26,7 +27,7 @@ const OrderSuccess = () => {
 
   useEffect(() => {
     if (order && order.profiles?.email) {
-      // Send order confirmation email to user
+      // Send order confirmation email to user (legacy)
       import('@/utils/resend').then(({ sendOrderEmail }) => {
         sendOrderEmail({
           to: order.profiles.email,
@@ -42,6 +43,12 @@ const OrderSuccess = () => {
         })
         .then(() => toast({ title: 'Confirmation email sent', description: 'Check your inbox for order details.' }))
         .catch((err) => toast({ title: 'Email failed', description: err.message, variant: 'destructive' }));
+      });
+      // Send order status email using emailjs
+      sendOrderStatusEmail({
+        to: order.profiles.email,
+        order_id: order.id,
+        status: order.status || 'completed'
       });
     }
   }, [order]);

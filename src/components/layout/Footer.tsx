@@ -71,13 +71,13 @@ const Footer = () => {
                 <Link to="/auth" className="text-gray-300 hover:text-white">Sign In</Link>
               </li>
               <li>
-                <Link to="/profile" className="text-gray-300 hover:text-white">My Account</Link>
+                <Link to="/dashboard" className="text-gray-300 hover:text-white">My Account</Link>
               </li>
               <li>
-                <Link to="/cart" className="text-gray-300 hover:text-white">View Cart</Link>
+                <Link to="/order-tracking" className="text-gray-300 hover:text-white">Track Order</Link>
               </li>
               <li>
-                <Link to="/checkout" className="text-gray-300 hover:text-white">Checkout</Link>
+                <Link to="/faq" className="text-gray-300 hover:text-white">Faq</Link>
               </li>
             </ul>
           </div>

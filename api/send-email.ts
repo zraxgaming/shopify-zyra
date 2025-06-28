@@ -1,27 +1,5 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { to, subject, html } = req.body;
-  if (!to || !subject || !html) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  try {
-    // Import here so it only runs on server
-    const { Resend } = await import('resend');
-    const resend = new Resend(process.env.RESEND_API_KEY || 're_5y517rZC_9KDTPreTXvjjbwwnrVqQ3txF');
-    const result = await resend.emails.send({
-      from: 'Zyra <onboarding@resend.dev>',
-      to: [to],
-      subject,
-      html,
-    });
-    return res.status(200).json({ success: true, result });
-  } catch (error: any) {
-    return res.status(500).json({ error: error.message || 'Failed to send email' });
-  }
+// This API route is no longer used since all email sending is handled by EmailJS client-side.
+// You can safely remove this file or leave it as a stub for future use.
+export default function handler(_req: any, res: any) {
+  return res.status(410).json({ error: 'This endpoint is no longer in use. All email is sent via EmailJS.' });
 }

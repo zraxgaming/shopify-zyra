@@ -12,6 +12,7 @@ import OrderSummary from "@/components/admin/order/OrderSummary";
 import PaymentInfo from "@/components/admin/order/PaymentInfo";
 import { OrderDetail } from "@/types/order";
 import { RefreshCw } from "lucide-react";
+import { sendOrderStatusEmail } from '@/utils/emailjs';
 
 const AdminOrderDetails = () => {
   const { id } = useParams();
@@ -132,6 +133,16 @@ const AdminOrderDetails = () => {
         title: "Success",
         description: "Order updated successfully",
       });
+      // Send email if status is updated to completed or shipped
+      if (field === 'status' && (value === 'completed' || value === 'shipped')) {
+        if (order.profiles?.email) {
+          await sendOrderStatusEmail({
+            to: order.profiles.email,
+            order_id: order.id,
+            status: value
+          });
+        }
+      }
     } catch (error) {
       toast({
         title: "Error",

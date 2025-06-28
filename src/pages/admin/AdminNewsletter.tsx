@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Mail, Users, Send, Trash2, Phone } from "lucide-react";
 import SEOHead from "@/components/seo/SEOHead";
 import PhoneCallInterface from "@/components/admin/PhoneCallInterface";
+import { sendNewsletterEmail } from '@/utils/emailjs';
 
 const AdminNewsletter = () => {
   const { toast } = useToast();
@@ -143,9 +143,30 @@ const AdminNewsletter = () => {
 
   const sendCampaign = async (campaignId: string) => {
     if (!confirm('Are you sure you want to send this campaign to all subscribers?')) return;
-
+    setLoading(true);
     try {
-      // In a real implementation, this would trigger the email sending
+      // Fetch campaign details
+      const { data: campaign, error: campaignError } = await supabase
+        .from('email_campaigns')
+        .select('*')
+        .eq('id', campaignId)
+        .single();
+      if (campaignError || !campaign) throw campaignError || new Error('Campaign not found');
+      // Fetch all active subscribers
+      const { data: activeSubscribers, error: subError } = await supabase
+        .from('newsletter_subscriptions')
+        .select('email')
+        .eq('is_active', true);
+      if (subError) throw subError;
+      // Send campaign email to each subscriber using EmailJS newsletter template
+      for (const sub of activeSubscribers) {
+        await sendNewsletterEmail({
+          to: sub.email,
+          message: campaign.content,
+          unsubscribe_link: `${window.location.origin}/unsubscribe?email=${encodeURIComponent(sub.email)}`
+        });
+      }
+      // Mark campaign as sent
       await supabase
         .from('email_campaigns')
         .update({ 
@@ -153,7 +174,6 @@ const AdminNewsletter = () => {
           sent_at: new Date().toISOString()
         })
         .eq('id', campaignId);
-
       await fetchCampaigns();
       toast({
         title: "Campaign Sent! 📧",
@@ -166,6 +186,8 @@ const AdminNewsletter = () => {
         description: "Failed to send campaign",
         variant: "destructive",
       });
+    } finally {
+      setLoading(false);
     }
   };
 

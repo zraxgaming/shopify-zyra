@@ -1,18 +1,19 @@
-
 import React from "react";
 import ProductCard from "./ProductCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { Search, Package, Sparkles } from "lucide-react";
-import { Product } from "@/hooks/use-products";
+import { useShopProducts } from "@/hooks/use-shop-products";
 
 interface ProductGridProps {
-  products: Product[];
-  isLoading: boolean;
+  filters: any; // Define the shape of filters based on your requirements
 }
 
-const ProductGrid: React.FC<ProductGridProps> = ({ products, isLoading }) => {
+const ProductGrid: React.FC<ProductGridProps> = ({ filters }) => {
+  const { data, isLoading } = useShopProducts(filters);
+  const products = (data ?? []) as any[];
+
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

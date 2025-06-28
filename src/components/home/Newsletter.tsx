@@ -1,10 +1,10 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { sendNewsletterEmail } from "@/utils/emailjs";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
@@ -41,23 +41,12 @@ const Newsletter = () => {
           throw error;
         }
       } else {
-        // Send welcome email
-        await supabase.functions.invoke('send-brevo-email', {
-          body: {
-            to: email,
-            subject: 'Welcome to Zyra Newsletter!',
-            content: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2>Welcome to Zyra!</h2>
-                <p>Thank you for subscribing to our newsletter!</p>
-                <p>You'll be the first to know about new products, exclusive offers, and design tips.</p>
-                <p>Stay tuned for amazing content!</p>
-              </div>
-            `,
-            type: 'newsletter-welcome'
-          }
+        // Send welcome email using EmailJS
+        await sendNewsletterEmail({
+          to: email,
+          message: `Thank you for subscribing to our newsletter! You'll be the first to know about new products, exclusive offers, and design tips.`,
+          unsubscribe_link: `${window.location.origin}/unsubscribe?email=${encodeURIComponent(email)}`
         });
-
         toast({
           title: "Successfully subscribed!",
           description: "Thank you for subscribing to our newsletter.",

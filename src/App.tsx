@@ -32,6 +32,8 @@ import Newsletter from "@/pages/Newsletter";
 import NotFound from "@/pages/NotFound";
 import AuthCallback from "@/pages/auth/callback"; // <-- enforce lowercase 'callback'
 import Cart from "@/pages/Cart";
+import FAQ from "@/pages/FAQ";
+import OrderTracking from "@/pages/OrderTracking";
 
 // Admin Pages
 import AdminDashboard from "@/pages/admin/AdminDashboard";
@@ -87,6 +89,7 @@ function App() {
                     <Route path="/privacy" element={<Privacy />} />
                     <Route path="/terms" element={<Terms />} />
                     <Route path="/newsletter" element={<Newsletter />} />
+                    <Route path="/faq" element={<FAQ />} />
                     
                     {/* Auth Pages */}
                     <Route path="/auth" element={<Auth />} />
@@ -102,6 +105,7 @@ function App() {
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/order-success/:orderId" element={<OrderSuccess />} />
                     <Route path="/order-failed" element={<OrderFailed />} />
+                    <Route path="/order-tracking" element={<OrderTracking />} />
                     
                     {/* Admin Routes - Fixed and comprehensive */}
                     <Route path="/admin" element={

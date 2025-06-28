@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Product } from "@/types/product";
 import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/components/cart/CartProvider";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useFeaturedProducts } from "@/hooks/use-featured-products";
 
 interface FeaturedProductsProps {
   category?: string;
@@ -14,31 +14,8 @@ interface FeaturedProductsProps {
 }
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ category, limit = 4 }) => {
-  const [products, setProducts] = useState<Product[] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: products, isLoading: loading, isError } = useFeaturedProducts(category, limit);
   const { addToCart } = useCart();
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const url = `/api/products/featured?limit=${limit}${category ? `&category=${category}` : ''}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setProducts(data);
-      } catch (error) {
-        console.error("Could not fetch featured products:", error);
-        setProducts(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, [category, limit]);
 
   const renderStars = (rating: number | undefined) => {
     if (typeof rating !== 'number' || rating === 0) return <span className="text-sm text-muted-foreground">No reviews yet</span>;
@@ -75,8 +52,12 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ category, limit = 4
     );
   }
 
-  if (!products) {
+  if (isError) {
     return <div className="text-red-500">Failed to load featured products.</div>;
+  }
+
+  if (!products || products.length === 0) {
+    return <div className="text-muted-foreground">No featured products found.</div>;
   }
 
   return (
