@@ -107,7 +107,7 @@ const Contact = () => {
     {
       icon: MapPin,
       title: "Visit Our Store",
-      content: ["123 Custom Street", "Design District", "Dubai, UAE 12345"],
+      content: ["warsan 4", "international city phase 2", "Dubai, UAE 00000"],
       color: "from-purple-600 to-purple-700"
     },
     {
@@ -119,7 +119,7 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email Us",
-      content: ["hello@zyra.com", "support@zyra.com", "orders@zyra.com"],
+      content: ["contact@shopzyra.site"],
       color: "from-indigo-600 to-indigo-700"
     },
     {
