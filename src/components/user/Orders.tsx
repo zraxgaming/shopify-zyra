@@ -112,7 +112,7 @@ const Orders = () => {
                   {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                 </Badge>
                 <p className="text-lg font-bold mt-2 text-primary">
-                  ${order.total_amount.toFixed(2)}
+                  AED {order.total_amount.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -135,7 +135,7 @@ const Orders = () => {
                   <div className="flex-1">
                     <h4 className="font-medium">{item.product.name}</h4>
                     <p className="text-sm text-muted-foreground">
-                      Quantity: {item.quantity} × ${item.price.toFixed(2)}
+                      Quantity: {item.quantity} × AED {item.price.toFixed(2)}
                     </p>
                     {item.customization && Object.keys(item.customization).length > 0 && (
                       <div className="mt-2 p-2 bg-primary/10 rounded text-xs">
@@ -152,7 +152,7 @@ const Orders = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-medium">
-                      ${(item.price * item.quantity).toFixed(2)}
+                      AED {(item.price * item.quantity).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -163,7 +163,12 @@ const Orders = () => {
               <div className="text-sm text-muted-foreground">
                 Payment: {order.payment_method || 'Unknown'}
               </div>
-              <Button variant="outline" size="sm" className="hover:scale-105 transition-transform">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="hover:scale-105 transition-transform"
+                onClick={() => window.location.href = `/order/${order.id}`}
+              >
                 <Eye className="h-4 w-4 mr-2" />
                 View Details
               </Button>

@@ -35,7 +35,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   const total = Math.max(0, subtotal - discount - giftCardAmount);
 
-  // Determine if cart is digital-only
+  // Determine if cart contains digital products
+  const hasDigitalItems = items.some(item => item.is_digital);
   const isDigitalOnly = items.length > 0 && items.every(item => item.is_digital);
 
   const handleCheckout = async () => {
@@ -78,26 +79,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       }
 
       // Handle payment based on method
-      if (paymentMethod === "cash") {
-        // For digital products, redirect immediately after order placement
-        if (digitalItems.length > 0) {
-          // Get the download URL from the first digital product
-          const { data: productData } = await supabase
-            .from('products')
-            .select('meta_description') // Using meta_description to store download URL
-            .eq('id', digitalItems[0].product_id)
-            .single();
-          
-          if (productData?.meta_description) {
-            window.open(productData.meta_description, '_blank');
-          }
-        }
-        
+      if (paymentMethod === "cash" && !hasDigitalItems) {
         toast({ 
           title: "Order Placed!", 
-          description: digitalItems.length > 0 
-            ? "Digital products are available for download." 
-            : "Please pay in store when collecting your order." 
+          description: "Please pay in store when collecting your order." 
         });
         clearCart();
         onPaymentSuccess(order.id);
@@ -251,6 +236,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
               <CreditCard className="h-5 w-5 text-primary" />
               Payment Method
             </h3>
+            
+            {hasDigitalItems && (
+              <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800">
+                🔒 Digital products require secure online payment. Cash on delivery is not available for digital items.
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card 
                 className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
@@ -282,8 +274,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                   paymentMethod === "paypal" 
                     ? "ring-2 ring-primary bg-primary/5" 
                     : "hover:bg-gray-50 dark:hover:bg-gray-800"
-                } ${!isDigitalOnly ? 'pointer-events-none opacity-50' : ''}`}
-                onClick={() => isDigitalOnly && setPaymentMethod("paypal")}
+                }`}
+                onClick={() => setPaymentMethod("paypal")}
               >
                 <CardContent className="p-4 flex items-center gap-3">
                   <input
@@ -291,9 +283,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                     name="payment_method"
                     value="paypal"
                     checked={paymentMethod === "paypal"}
-                    onChange={() => isDigitalOnly && setPaymentMethod("paypal")}
+                    onChange={() => setPaymentMethod("paypal")}
                     className="accent-primary"
-                    disabled={!isDigitalOnly}
                   />
                   <CreditCard className="h-5 w-5 text-primary" />
                   <div>
@@ -303,7 +294,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
                 </CardContent>
               </Card>
 
-              {!isDigitalOnly && (
+              {!hasDigitalItems && (
                 <Card 
                   className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
                     paymentMethod === "cash" 
@@ -375,6 +366,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
             ) : (
               paymentMethod === "ziina" 
                 ? `Pay AED ${total.toFixed(2)} with Ziina`
+                : paymentMethod === "paypal"
+                ? `Pay $${total.toFixed(2)} with PayPal`
                 : `Place Order - Pay Cash on Pickup (AED ${total.toFixed(2)})`
             )}
           </Button>

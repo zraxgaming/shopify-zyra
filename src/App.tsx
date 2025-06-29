@@ -1,240 +1,102 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
+import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/components/cart/CartProvider";
-import { WishlistProvider } from "@/hooks/use-wishlist";
-import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { HelmetProvider } from 'react-helmet-async';
-import AdminRoute from "@/components/admin/AdminRoute";
-import MaintenanceBanner from "@/components/layout/MaintenanceBanner";
-import OnlineStatus from "@/components/layout/OnlineStatus";
-import CxgenieChatWidget from "@/components/layout/CxgenieChatWidget";
-
-// Pages
+import { WishlistProvider } from "@/contexts/WishlistContext";
 import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
-import Product from "@/pages/Product";
+import ProductDetail from "@/pages/ProductDetail";
 import Categories from "@/pages/Categories";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
-import Privacy from "@/pages/Privacy";
-import Terms from "@/pages/Terms";
-import Auth from "@/pages/Auth";
-import Dashboard from "@/pages/Dashboard";
-import Wishlist from "@/pages/Wishlist";
-import Checkout from "@/pages/Checkout";
-import GiftCards from "@/pages/GiftCards";
-import OrderSuccess from "@/pages/OrderSuccess";
-import OrderFailed from "@/pages/OrderFailed";
-import Referrals from "@/pages/Referrals";
-import Newsletter from "@/pages/Newsletter";
-import NotFound from "@/pages/NotFound";
-import AuthCallback from "@/pages/auth/callback"; // <-- enforce lowercase 'callback'
-import Cart from "@/pages/Cart";
 import FAQ from "@/pages/FAQ";
-import OrderTracking from "@/pages/OrderTracking";
-
-// Admin Pages
+import Contact from "@/pages/Contact";
+import Auth from "@/pages/Auth";
+import Account from "@/pages/Account";
+import Checkout from "@/pages/Checkout";
+import Success from "@/pages/Success";
+import Newsletter from "@/pages/Newsletter";
+import Offline from "@/pages/Offline";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
-import ProductNew from "@/pages/admin/ProductNew";
-import ProductEdit from "@/pages/admin/ProductEdit";
-import AdminCategories from "@/pages/admin/AdminCategories";
-import AdminCoupons from "@/pages/admin/AdminCoupons";
-import AdminInventory from "@/pages/admin/AdminInventory";
 import AdminOrders from "@/pages/admin/AdminOrders";
 import AdminUsers from "@/pages/admin/AdminUsers";
-import AdminGiftCards from "@/pages/admin/AdminGiftCards";
-import AdminZiina from "@/pages/admin/AdminZiina";
-import AdminScanner from "@/pages/admin/AdminScanner";
-import AdminBarcodeScanner from "@/pages/admin/AdminBarcodeScanner";
-import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminSettings from "@/pages/admin/AdminSettings";
-import AdminNewsletter from "@/pages/admin/AdminNewsletter";
-import AdminBarcodes from "@/pages/admin/AdminBarcodes";
-import AdminOrderDetails from "@/pages/admin/AdminOrderDetails";
-import AdminOrderEdit from "@/pages/admin/ProductEdit";
+import AdminLayout from "@/components/admin/AdminLayout";
 import AdminProductDetails from "@/pages/admin/AdminProductDetails";
-import OrderRefunds from "@/pages/admin/OrderRefunds";
-import AdminContact from "@/pages/admin/AdminContact";
+import AdminOrderDetails from "@/pages/admin/AdminOrderDetails";
+import ProductDetails from "@/pages/ProductDetails";
+import AdminCategories from "@/pages/admin/AdminCategories";
+import AdminCoupons from "@/pages/admin/AdminCoupons";
+import AdminGiftCards from "@/pages/admin/AdminGiftCards";
+import AdminReviews from "@/pages/admin/AdminReviews";
+import AdminBlogs from "@/pages/admin/AdminBlogs";
+import AdminFaqs from "@/pages/admin/AdminFaqs";
+import AdminContacts from "@/pages/admin/AdminContacts";
+import AdminNewsletter from "@/pages/admin/AdminNewsletter";
+import AdminAppearance from "@/pages/admin/AdminAppearance";
+import AdminAnalytics from "@/pages/admin/AdminAnalytics";
+import OrderDetail from "@/components/user/OrderDetail";
+import AdminRefunds from "@/pages/admin/AdminRefunds";
 
-import "./index.css";
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <HelmetProvider>
-      <ThemeProvider defaultTheme="system" storageKey="zyra-ui-theme">
-        <AuthProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <Router>
-                {/* CXGenie Chat Widget for the appropriate section */}
-                <CxgenieChatWidget />
-                <div className="min-h-screen bg-background page-transition w-full">
-                  <MaintenanceBanner />
-                  <OnlineStatus />
-                  
-                  <Routes>
-                    {/* Always redirect / to /home */}
-                    <Route path="/" element={<Navigate to="/home" replace />} />
-                    
-                    {/* Public Pages */}
-                    <Route path="/home" element={<Home />} />
-                    <Route path="/shop" element={<Shop />} />
-                    <Route path="/product/:slug" element={<Product />} />
-                    <Route path="/categories" element={<Categories />} />
-                    <Route path="/about" element={<About />} />
-                    <Route path="/contact" element={<Contact />} />
-                    <Route path="/privacy" element={<Privacy />} />
-                    <Route path="/terms" element={<Terms />} />
-                    <Route path="/newsletter" element={<Newsletter />} />
-                    <Route path="/faq" element={<FAQ />} />
-                    
-                    {/* Auth Pages */}
-                    <Route path="/auth" element={<Auth />} />
-                    <Route path="/auth/callback" element={<AuthCallback />} />
-                    
-                    {/* User Dashboard - Fixed routing */}
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/account" element={<Navigate to="/dashboard" replace />} />
-                    <Route path="/wishlist" element={<Wishlist />} />
-                    <Route path="/referrals" element={<Referrals />} />
-                    
-                    {/* Shopping & Orders */}
-                    <Route path="/checkout" element={<Checkout />} />
-                    <Route path="/order-success/:orderId" element={<OrderSuccess />} />
-                    <Route path="/order-failed" element={<OrderFailed />} />
-                    <Route path="/order-tracking" element={<OrderTracking />} />
-                    
-                    {/* Admin Routes - Fixed and comprehensive */}
-                    <Route path="/admin" element={
-                      <AdminRoute>
-                        <AdminDashboard />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/dashboard" element={
-                      <AdminRoute>
-                        <AdminDashboard />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/products" element={
-                      <AdminRoute>
-                        <AdminProducts />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/products/new" element={
-                      <AdminRoute>
-                        <ProductNew />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/products/:id" element={
-                      <AdminRoute>
-                        <AdminProductDetails />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/products/:id/edit" element={
-                      <AdminRoute>
-                        <ProductEdit />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/categories" element={
-                      <AdminRoute>
-                        <AdminCategories />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/coupons" element={
-                      <AdminRoute>
-                        <AdminCoupons />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/inventory" element={
-                      <AdminRoute>
-                        <AdminInventory />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/orders" element={
-                      <AdminRoute>
-                        <AdminOrders />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/orders/:id" element={
-                      <AdminRoute>
-                        <AdminOrderDetails />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/orders/:id/edit" element={
-                      <AdminRoute>
-                        <AdminOrderEdit />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/refunds" element={
-                      <AdminRoute>
-                        <OrderRefunds />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/users" element={
-                      <AdminRoute>
-                        <AdminUsers />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/gift-cards" element={
-                      <AdminRoute>
-                        <AdminGiftCards />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/contact" element={
-                      <AdminRoute>
-                        <AdminContact />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/ziina" element={
-                      <AdminRoute>
-                        <AdminZiina />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/scanner" element={
-                      <AdminRoute>
-                        <AdminScanner />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/barcode-scanner" element={
-                      <AdminRoute>
-                        <AdminBarcodeScanner />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/analytics" element={
-                      <AdminRoute>
-                        <AdminAnalytics />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/settings" element={
-                      <AdminRoute>
-                        <AdminSettings />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/newsletter" element={
-                      <AdminRoute>
-                        <AdminNewsletter />
-                      </AdminRoute>
-                    } />
-                    <Route path="/admin/barcodes" element={
-                      <AdminRoute>
-                        <AdminBarcodes />
-                      </AdminRoute>
-                    } />
-                    
-                    {/* 404 Page */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                  
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+          <Router>
+            <AuthProvider>
+              <CartProvider>
+                <WishlistProvider>
                   <Toaster />
-                </div>
-              </Router>
-            </WishlistProvider>
-          </CartProvider>
-        </AuthProvider>
-      </ThemeProvider>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/shop" element={<Shop />} />
+                    <Route path="/product/:slug" element={<ProductDetail />} />
+                    <Route path="/product-details/:slug" element={<ProductDetails />} />
+                    <Route path="/categories" element={<Categories />} />
+                    <Route path="/faq" element={<FAQ />} />
+                    <Route path="/contact" element={<Contact />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/account" element={<Account />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/success" element={<Success />} />
+                    <Route path="/newsletter" element={<Newsletter />} />
+                    <Route path="/offline" element={<Offline />} />
+                    <Route path="/order-success/:orderId" element={<Success />} />
+
+                    {/* Admin Routes - Example with Layout */}
+                    <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
+                    <Route path="/admin/products" element={<AdminLayout><AdminProducts /></AdminLayout>} />
+                    <Route path="/admin/products/:id" element={<AdminLayout><AdminProductDetails /></AdminLayout>} />
+                    <Route path="/admin/orders" element={<AdminLayout><AdminOrders /></AdminLayout>} />
+                    <Route path="/admin/orders/:id" element={<AdminLayout><AdminOrderDetails /></AdminLayout>} />
+                    <Route path="/admin/refunds" element={<AdminLayout><AdminRefunds /></AdminLayout>} />
+                    <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
+                    <Route path="/admin/categories" element={<AdminLayout><AdminCategories /></AdminLayout>} />
+                    <Route path="/admin/coupons" element={<AdminLayout><AdminCoupons /></AdminLayout>} />
+                    <Route path="/admin/gift-cards" element={<AdminLayout><AdminGiftCards /></AdminLayout>} />
+                    <Route path="/admin/reviews" element={<AdminLayout><AdminReviews /></AdminLayout>} />
+                    <Route path="/admin/blogs" element={<AdminLayout><AdminBlogs /></AdminLayout>} />
+                    <Route path="/admin/faqs" element={<AdminLayout><AdminFaqs /></AdminLayout>} />
+                    <Route path="/admin/contacts" element={<AdminLayout><AdminContacts /></AdminLayout>} />
+                    <Route path="/admin/newsletter" element={<AdminLayout><AdminNewsletter /></AdminLayout>} />
+                    <Route path="/admin/appearance" element={<AdminLayout><AdminAppearance /></AdminLayout>} />
+                    <Route path="/admin/analytics" element={<AdminLayout><AdminAnalytics /></AdminLayout>} />
+                    <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
+
+                    <Route path="/order/:id" element={<OrderDetail />} />
+                  </Routes>
+                </WishlistProvider>
+              </CartProvider>
+            </AuthProvider>
+          </Router>
+        </ThemeProvider>
+      </QueryClientProvider>
     </HelmetProvider>
   );
 }
