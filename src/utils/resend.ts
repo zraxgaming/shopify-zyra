@@ -1,6 +1,6 @@
 
 // TODO: Add your Resend API key here
-const RESEND_API_KEY = ""; // Replace with your actual Resend API key
+const RESEND_API_KEY = "re_TnRSeh6X_6AJkMV6wLDCEVqKMKejUw4Yn"; // Replace with your actual Resend API key
 
 export interface EmailData {
   to: string;
