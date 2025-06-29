@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -5,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mail } from "lucide-react";
-import { sendNewsletterEmail } from '@/utils/emailjs';
+import { sendNewsletterEmail } from '@/utils/resend';
 
 const NewsletterSignup = () => {
   const [email, setEmail] = useState("");
@@ -48,12 +49,18 @@ const NewsletterSignup = () => {
           throw error;
         }
       } else {
-        // Send confirmation to user using EmailJS
-        await sendNewsletterEmail({
-          to: email,
-          message: `Thank you for subscribing, ${name || 'friend'}. You'll now receive updates, offers, and news from us.`,
-          unsubscribe_link: `${window.location.origin}/unsubscribe?email=${encodeURIComponent(email)}`
-        });
+        // Send confirmation to user using Resend
+        try {
+          await sendNewsletterEmail(
+            email,
+            `Thank you for subscribing, ${name || 'friend'}. You'll now receive updates, offers, and news from us.`,
+            `https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}`
+          );
+        } catch (emailError) {
+          console.error("Email sending failed:", emailError);
+          // Don't fail the subscription if email fails
+        }
+        
         toast({
           title: "Successfully subscribed!",
           description: "Thank you for subscribing to our newsletter.",

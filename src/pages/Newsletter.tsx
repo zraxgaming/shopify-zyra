@@ -1,10 +1,12 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { sendNewsletterEmail } from '@/utils/emailjs';
+import { sendNewsletterEmail } from '@/utils/resend';
+import SEOHead from '@/components/seo/SEOHead';
 
 const Newsletter: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -36,11 +38,17 @@ const Newsletter: React.FC = () => {
           throw error;
         }
       } else {
-        await sendNewsletterEmail({
-          to: email,
-          message: `Thank you for subscribing to our newsletter! You'll be the first to know about new products, exclusive offers, and design tips.`,
-          unsubscribe_link: `${window.location.origin}/unsubscribe?email=${encodeURIComponent(email)}`
-        });
+        try {
+          await sendNewsletterEmail(
+            email,
+            `Thank you for subscribing to our newsletter! You'll be the first to know about new products, exclusive offers, and design tips.`,
+            `https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}`
+          );
+        } catch (emailError) {
+          console.error("Email sending failed:", emailError);
+          // Don't fail the subscription if email fails
+        }
+        
         toast({
           title: 'Successfully subscribed!',
           description: 'Thank you for subscribing to our newsletter.'
@@ -55,27 +63,34 @@ const Newsletter: React.FC = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-12">
-      <Card>
-        <CardHeader>
-          <CardTitle>Subscribe to our Newsletter</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <Input
-              type="email"
-              placeholder="Your email address"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              disabled={loading}
-            />
-            <Button onClick={handleSubscribe} disabled={loading || !email}>
-              {loading ? 'Subscribing...' : 'Subscribe'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+    <>
+      <SEOHead
+        title="Newsletter - Zyra Custom Craft"
+        description="Subscribe to our newsletter and stay updated with new products, exclusive offers, and design tips from Zyra Custom Craft."
+        url="https://www.shopzyra.site/newsletter"
+      />
+      <div className="max-w-lg mx-auto mt-12">
+        <Card>
+          <CardHeader>
+            <CardTitle>Subscribe to our Newsletter</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <Input
+                type="email"
+                placeholder="Your email address"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                disabled={loading}
+              />
+              <Button onClick={handleSubscribe} disabled={loading || !email}>
+                {loading ? 'Subscribing...' : 'Subscribe'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 };
 

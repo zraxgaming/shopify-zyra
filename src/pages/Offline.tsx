@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { WifiOff } from "lucide-react";
@@ -53,7 +54,7 @@ const Offline: React.FC = () => (
       Oops! No Internet Connection
     </h1>
     <p className="text-lg text-gray-700 dark:text-gray-200 mb-6 text-center max-w-xs animate-fade-in" style={{ animationDelay: "0.25s" }}>
-      It looks like you’re offline. <br />
+      It looks like you're offline. <br />
       Please check your connection and try again.
     </p>
     <Button
