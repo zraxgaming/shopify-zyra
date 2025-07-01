@@ -189,22 +189,35 @@ const AdminNewsletter = () => {
       }
       // Send campaign email to each subscriber using backend API
       try {
-        const response = await fetch('/api/send-email-generic', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            templateType: 'newsletter',
-            emails: activeSubscribers.map((sub: any) => sub.email),
-            subject: campaign.subject,
-            content: campaign.content,
-            html_content: campaign.html_content || '',
-            campaignId: campaign.id,
-            campaignTitle: campaign.title
-          })
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData?.error || 'Failed to send emails via backend API.');
+        for (const sub of activeSubscribers) {
+          const response = await fetch('/api/send-email-generic', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: sub.email,
+              subject: campaign.subject,
+              html: `
+                <div style="background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); padding: 32px 0; min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif;">
+                  <div style="max-width: 480px; margin: 0 auto; background: #fff; border-radius: 16px; box-shadow: 0 4px 24px rgba(80,0,120,0.08); overflow: hidden;">
+                    <div style="background: #7c3aed; padding: 24px 0; text-align: center;">
+                      <img src='https://www.shopzyra.site/favicon.ico' alt='Zyra Logo' style='width:48px;height:48px;border-radius:8px;box-shadow:0 2px 8px #a18cd1;' />
+                      <h1 style="color: #fff; font-size: 2rem; margin: 16px 0 0 0; letter-spacing: 1px;">${campaign.title || 'Newsletter'}</h1>
+                    </div>
+                    <div style="padding: 32px 24px 24px 24px; text-align: center;">
+                      <div style="color: #4b006e; margin-bottom: 16px;">${campaign.html_content || campaign.content || ''}</div>
+                    </div>
+                    <div style="background: #f3e8ff; padding: 16px; text-align: center; color: #7c3aed; font-size: 0.95rem; border-top: 1px solid #e9d5ff;">
+                      <p style="margin:0;">Thank you for being with us!<br/>Zyra Custom Craft</p>
+                    </div>
+                  </div>
+                </div>
+              `
+            })
+          });
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData?.error || 'Failed to send emails via backend API.');
+          }
         }
       } catch (apiError: any) {
         toast({
