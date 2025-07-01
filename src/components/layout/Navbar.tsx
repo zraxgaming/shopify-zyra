@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/components/cart/CartProvider";
-import { useWishlist } from "@/hooks/use-wishlist";
+import { useWishlist } from '@/contexts/WishlistContext';
 import CartDrawer from "@/components/cart/CartDrawer";
 import SearchBar from "@/components/search/SearchBar";
 import ThemeToggle from "@/components/theme/ThemeToggle";
@@ -33,7 +33,7 @@ const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
   const { totalItems } = useCart();
-  const { items: wishlistItems } = useWishlist();
+  const { wishlist: wishlistItems } = useWishlist();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {

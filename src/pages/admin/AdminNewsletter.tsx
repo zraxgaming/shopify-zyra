@@ -11,7 +11,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Mail, Users, Send, Trash2, Phone } from "lucide-react";
 import SEOHead from "@/components/seo/SEOHead";
 import PhoneCallInterface from "@/components/admin/PhoneCallInterface";
-import { sendNewsletterEmail } from '@/utils/emailjs';
 
 const AdminNewsletter = () => {
   const { toast } = useToast();
@@ -151,41 +150,94 @@ const AdminNewsletter = () => {
         .select('*')
         .eq('id', campaignId)
         .single();
-      if (campaignError || !campaign) throw campaignError || new Error('Campaign not found');
+      if (campaignError || !campaign) {
+        toast({
+          title: "Error",
+          description: "Campaign not found.",
+          variant: "destructive",
+        });
+        throw campaignError || new Error('Campaign not found');
+      }
+      if (campaign.status === 'sent') {
+        toast({
+          title: "Already Sent",
+          description: "This campaign has already been sent.",
+          variant: "destructive",
+        });
+        return;
+      }
       // Fetch all active subscribers
       const { data: activeSubscribers, error: subError } = await supabase
         .from('newsletter_subscriptions')
         .select('email')
         .eq('is_active', true);
-      if (subError) throw subError;
-      // Send campaign email to each subscriber using EmailJS newsletter template
-      for (const sub of activeSubscribers) {
-        await sendNewsletterEmail({
-          to: sub.email,
-          message: campaign.content,
-          unsubscribe_link: `${window.location.origin}/unsubscribe?email=${encodeURIComponent(sub.email)}`
+      if (subError) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch subscribers.",
+          variant: "destructive",
         });
+        throw subError;
+      }
+      if (!activeSubscribers || activeSubscribers.length === 0) {
+        toast({
+          title: "No Active Subscribers",
+          description: "There are no active subscribers to send this campaign to.",
+          variant: "destructive",
+        });
+        return;
+      }
+      // Send campaign email to each subscriber using backend API
+      try {
+        const response = await fetch('/api/send-email-generic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            templateType: 'newsletter',
+            emails: activeSubscribers.map((sub: any) => sub.email),
+            subject: campaign.subject,
+            content: campaign.content,
+            html_content: campaign.html_content || '',
+            campaignId: campaign.id,
+            campaignTitle: campaign.title
+          })
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData?.error || 'Failed to send emails via backend API.');
+        }
+      } catch (apiError: any) {
+        toast({
+          title: "Email Sending Failed",
+          description: apiError?.message || "Failed to send emails via backend API.",
+          variant: "destructive",
+        });
+        throw apiError;
       }
       // Mark campaign as sent
-      await supabase
+      const { error: updateError } = await supabase
         .from('email_campaigns')
         .update({ 
           status: 'sent',
           sent_at: new Date().toISOString()
         })
         .eq('id', campaignId);
+      if (updateError) {
+        toast({
+          title: "Database Error",
+          description: "Emails sent, but failed to update campaign status.",
+          variant: "destructive",
+        });
+        throw updateError;
+      }
       await fetchCampaigns();
       toast({
         title: "Campaign Sent! 📧",
-        description: "Email campaign has been sent to all subscribers",
+        description: `Email campaign has been sent to ${activeSubscribers.length} subscribers`,
       });
     } catch (error: any) {
       console.error('Error sending campaign:', error);
-      toast({
-        title: "Error",
-        description: "Failed to send campaign",
-        variant: "destructive",
-      });
+      // ...toast already handled above...
     } finally {
       setLoading(false);
     }
@@ -456,8 +508,13 @@ const AdminNewsletter = () => {
                                 size="sm"
                                 onClick={() => sendCampaign(campaign.id)}
                                 className="bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-300"
+                                disabled={loading}
                               >
-                                <Send className="h-4 w-4 mr-2" />
+                                {loading ? (
+                                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Send className="h-4 w-4 mr-2" />
+                                )}
                                 Send
                               </Button>
                             )}

@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 
 const SimplePWANotifications: React.FC = () => {
@@ -7,14 +6,14 @@ const SimplePWANotifications: React.FC = () => {
     if ('Notification' in window) {
       // Check permission status
       if (Notification.permission === 'default') {
-        console.log('Notification permission not set, user can be prompted');
+        // Permission not set, user can be prompted
       } else if (Notification.permission === 'granted') {
-        console.log('Notification permission granted');
+        // Permission granted
       } else if (Notification.permission === 'denied') {
-        console.log('Notification permission denied');
+        // Permission denied
       }
     } else {
-      console.log('This browser does not support desktop notification');
+      // This browser does not support desktop notification
     }
   }, []);
 

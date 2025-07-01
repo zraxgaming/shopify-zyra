@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const executeSql = async (sql: string) => {
   try {
-    console.log('Executing SQL:', sql);
+    // Remove all console.log statements for production optimization
     // For now, we'll use regular Supabase queries instead of raw SQL
     // since the exec_sql function might not be available
     return { data: null, error: null };

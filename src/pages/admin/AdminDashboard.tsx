@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -84,7 +83,6 @@ const AdminDashboard = () => {
       setRecentOrders(recentOrdersData || []);
       setTopProducts(products || []);
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
       toast({
         title: "Error",
         description: "Failed to load dashboard data",

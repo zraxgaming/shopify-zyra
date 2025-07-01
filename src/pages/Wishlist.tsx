@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart, ShoppingCart, X } from "lucide-react";
-import { useWishlist } from "@/hooks/use-wishlist";
+import { useWishlist } from "@/contexts/WishlistContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/components/cart/CartProvider";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import SEOHead from "@/components/seo/SEOHead";
 
 const Wishlist = () => {
-  const { items: wishlist, removeFromWishlist, isLoading } = useWishlist();
+  const { wishlist, removeFromWishlist } = useWishlist();
   const { user } = useAuth();
   const { addToCart } = useCart(); // Get addToCart function from CartProvider
   const [isEmpty, setIsEmpty] = useState(true);
@@ -34,29 +34,7 @@ const Wishlist = () => {
     );
   };
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <SEOHead title="Wishlist - Loading..." url="https://www.shopzyra.site/wishlist" />
-        <h1 className="text-3xl font-bold mb-4">Wishlist</h1>
-        <p className="text-muted-foreground">Loading your favorite items...</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-          {[...Array(8)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
-              <CardHeader>
-                <CardTitle><Skeleton className="h-5 w-3/4" /></CardTitle>
-                <CardDescription><Skeleton className="h-4 w-1/2" /></CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-40 w-full" />
-                <Skeleton className="h-8 w-1/4 mt-4" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  // Removed isLoading check and loading skeleton as isLoading is not available in WishlistContextType
 
   return (
     <div className="container mx-auto px-4 py-8">

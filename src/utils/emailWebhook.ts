@@ -1,3 +1,5 @@
+// This file is now deprecated. All email sending is handled by /api/send-email-generic.
+// You can safely remove this file.
 
 export interface EmailData {
   email: string;
@@ -31,43 +33,17 @@ export const sendOrderConfirmationEmail = async (
   customerEmail: string,
   orderDetails: any
 ): Promise<boolean> => {
-  const emailData: EmailData = {
-    email: customerEmail,
-    subject: `Order Confirmation - Order #${orderDetails.id.slice(-8)}`,
-    html_content: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #7c3aed; margin: 0;">Zyra Custom Craft</h1>
-          <p style="color: #666; margin: 5px 0 0 0;">Thank you for your order!</p>
-        </div>
-        
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-          <h2 style="color: #333; margin-top: 0;">Order Details</h2>
-          <p><strong>Order Number:</strong> #${orderDetails.id.slice(-8)}</p>
-          <p><strong>Total:</strong> $${orderDetails.total_amount}</p>
-          <p><strong>Status:</strong> ${orderDetails.status}</p>
-        </div>
-        
-        <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px;">
-          <h3 style="color: #333; margin-top: 0;">Items Ordered</h3>
-          ${orderDetails.items?.map((item: any) => `
-            <div style="border-bottom: 1px solid #f3f4f6; padding: 10px 0;">
-              <p style="margin: 0; font-weight: bold;">${item.name}</p>
-              <p style="margin: 5px 0; color: #666;">Quantity: ${item.quantity} | Price: $${item.price}</p>
-              ${item.customization?.text ? `<p style="margin: 5px 0; color: #7c3aed;">Custom Text: ${item.customization.text}</p>` : ''}
-            </div>
-          `).join('') || ''}
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px; padding: 20px; background: #7c3aed; color: white; border-radius: 8px;">
-          <p style="margin: 0; font-size: 16px;">We'll send you tracking information once your order ships!</p>
-        </div>
-      </div>
-    `,
-    content: `Thank you for your order! Order #${orderDetails.id.slice(-8)} has been confirmed. Total: $${orderDetails.total_amount}`
-  };
-
-  return sendEmailViaWebhook(emailData);
+  const res = await fetch('/api/send-email-generic', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: customerEmail,
+      templateType: 'orderPlaced',
+      data: { userName: orderDetails.userName, orderId: orderDetails.id }
+    })
+  });
+  if (!res.ok) throw new Error('Failed to send order confirmation email');
+  return true;
 };
 
 export const sendNewsletterEmail = async (
@@ -75,28 +51,15 @@ export const sendNewsletterEmail = async (
   subject: string,
   content: string
 ): Promise<boolean> => {
-  const emailData: EmailData = {
-    email,
-    subject,
-    html_content: `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <div style="text-align: center; margin-bottom: 30px;">
-          <h1 style="color: #7c3aed; margin: 0;">Zyra Custom Craft</h1>
-        </div>
-        
-        <div style="background: #fff; padding: 20px; border-radius: 8px; line-height: 1.6;">
-          ${content.replace(/\n/g, '<br>')}
-        </div>
-        
-        <div style="text-align: center; margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-          <p style="margin: 0; color: #666; font-size: 14px;">
-            You're receiving this because you subscribed to our newsletter.
-          </p>
-        </div>
-      </div>
-    `,
-    content
-  };
-
-  return sendEmailViaWebhook(emailData);
+  const res = await fetch('/api/send-email-generic', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: email,
+      templateType: 'newsletterSubscribed',
+      data: { userName: email.split('@')[0], message: content }
+    })
+  });
+  if (!res.ok) throw new Error('Failed to send newsletter email');
+  return true;
 };

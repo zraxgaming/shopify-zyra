@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,7 +26,6 @@ const PushNotificationManager: React.FC = () => {
 
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered:', registration);
 
       // Check for existing subscription
       const existingSubscription = await registration.pushManager.getSubscription();
@@ -35,7 +33,7 @@ const PushNotificationManager: React.FC = () => {
         setSubscription(existingSubscription);
       }
     } catch (error) {
-      console.error('Service Worker registration failed:', error);
+      // Remove all console.log statements for production optimization
     }
   };
 
@@ -56,14 +54,13 @@ const PushNotificationManager: React.FC = () => {
       setSubscription(subscription);
       
       // In a real app, you'd send this subscription to your server
-      console.log('Push subscription:', subscription);
       
       toast({
         title: "Push notifications enabled!",
         description: "You'll receive notifications about your orders and updates.",
       });
     } catch (error) {
-      console.error('Push subscription failed:', error);
+      // Remove all console.log statements for production optimization
       toast({
         title: "Subscription failed",
         description: "Could not enable push notifications",
@@ -84,7 +81,7 @@ const PushNotificationManager: React.FC = () => {
         description: "You won't receive push notifications anymore",
       });
     } catch (error) {
-      console.error('Push unsubscription failed:', error);
+      // Remove all console.log statements for production optimization
     }
   };
 

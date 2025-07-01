@@ -1,11 +1,9 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { sendNewsletterEmail } from '@/utils/resend';
 import SEOHead from '@/components/seo/SEOHead';
 
 const Newsletter: React.FC = () => {
@@ -39,11 +37,15 @@ const Newsletter: React.FC = () => {
         }
       } else {
         try {
-          await sendNewsletterEmail(
-            email,
-            `Thank you for subscribing to our newsletter! You'll be the first to know about new products, exclusive offers, and design tips.`,
-            `https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}`
-          );
+          await fetch('/api/send-email-generic', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: email,
+              subject: 'Welcome to Zyra Custom Craft Newsletter!',
+              html: `<h1>Thank you for subscribing!</h1><p>You are now part of our newsletter. Stay tuned for updates and offers.</p><p>If you wish to unsubscribe, click <a href='https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}'>here</a>.</p>`
+            })
+          });
         } catch (emailError) {
           console.error("Email sending failed:", emailError);
           // Don't fail the subscription if email fails

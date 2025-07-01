@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, Heart, ShoppingCart, ArrowRight, Sparkles } from 'lucide-react';
 import { useCart } from '@/components/cart/CartProvider';
-import { useWishlist } from '@/hooks/use-wishlist';
+import { useWishlist } from '@/contexts/WishlistContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Product } from '@/types/product';
@@ -47,7 +47,7 @@ const Index = () => {
 
       setProducts(transformedProducts);
     } catch (error) {
-      console.error('Error fetching featured products:', error);
+      // Remove all console.log statements for production optimization
     } finally {
       setLoading(false);
     }
@@ -71,7 +71,15 @@ const Index = () => {
 
   const handleAddToWishlist = async (productId: string) => {
     try {
-      await addToWishlist(productId);
+      const product = products.find(p => p.id === productId);
+      if (!product) return;
+      addToWishlist({
+        product_id: product.id,
+        name: product.name,
+        price: product.price,
+        image_url: product.image_url,
+        id: ''
+      });
     } catch (error) {
       console.error('Error adding to wishlist:', error);
     }

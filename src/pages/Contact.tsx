@@ -1,108 +1,13 @@
-import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { sendOrderEmail } from '@/utils/resend';
-import { MapPin, Phone, Mail, Clock, Send, MessageSquare, Heart } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, MessageSquare, Heart } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 import ContactForm from "@/components/contact/ContactForm";
 
 const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    subject: "",
-    message: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
-      toast({
-        title: 'All fields required',
-        description: 'Please fill in all required fields.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      // Send to admin
-      await sendOrderEmail({
-        to: 'zainabusal113@gmail.com',
-        subject: `Contact Form: ${formData.subject || 'No Subject'}`,
-        html: `
-<div style="font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom right, #6c4dc1, #b974e6); padding: 24px; color: #ffffff;">
-  <div style="max-width: 600px; margin: auto; background: #ffffff; color: #333333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
-    <div style="background-color: #7c3aed; padding: 20px; text-align: center">
-      <img src="https://www.shopzyra.site/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
-      <h2 style="margin: 0; font-size: 20px; color: #ffffff">📩 New Contact Message</h2>
-    </div>
-    <div style="padding: 24px; font-size: 15px">
-      <p><strong>Name:</strong> ${formData.name}</p>
-      <p><strong>Email:</strong> ${formData.email}</p>
-      <p><strong>Message:</strong><br>${formData.message}</p>
-    </div>
-    <div style="background-color: #f9f9f9; text-align: center; font-size: 13px; color: #888; padding: 16px;">
-      Sent from <a href="mailto:${formData.email}" style="color: #7c3aed">${formData.email}</a>
-    </div>
-  </div>
-</div>`
-      });
-      // Send thank you to user
-      await sendOrderEmail({
-        to: formData.email,
-        subject: 'Thank you for contacting Zyra',
-        html: `
-<div style="font-family: 'Segoe UI', sans-serif; background: linear-gradient(to bottom right, #6c4dc1, #b974e6); padding: 24px; color: #ffffff;">
-  <div style="max-width: 600px; margin: auto; background: #ffffff; color: #333333; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);">
-    <div style="background-color: #7c3aed; padding: 20px; text-align: center">
-      <img src="https://www.shopzyra.site/favicon.ico" alt="Zyra Logo" style="height: 40px; margin-bottom: 8px" />
-      <h2 style="margin: 0; font-size: 20px; color: #ffffff">Thank you for contacting Zyra!</h2>
-    </div>
-    <div style="padding: 24px; font-size: 15px">
-      <p>Hi ${formData.name || 'there'},</p>
-      <p>Thank you for reaching out to us. We have received your message and will get back to you as soon as possible.</p>
-      <p style="margin-top: 32px">– The Zyra Team</p>
-    </div>
-    <div style="background-color: #f9f9f9; text-align: center; font-size: 13px; color: #888; padding: 16px;">
-      <a href="https://www.shopzyra.site" style="color: #7c3aed">shopzyra.com</a>
-    </div>
-  </div>
-</div>`
-      });
-      toast({
-        title: 'Message sent!',
-        description: 'Your message has been sent. We will get back to you soon.',
-      });
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    } catch (error: any) {
-      toast({
-        title: 'Failed to send',
-        description: error.message || 'Could not send your message.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }));
-  };
-
   const contactInfo = [
     {
       icon: MapPin,

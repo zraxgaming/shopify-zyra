@@ -104,12 +104,31 @@ const AdminOrders = () => {
 
       if (error) throw error;
 
+      // Find the updated order and its user email
+      const updatedOrder = orders.find(order => order.id === orderId);
+      const userEmail = updatedOrder?.profiles?.email;
+      const userName = updatedOrder?.profiles?.full_name || 'Customer';
+
       // Update local state
       setOrders(prevOrders =>
         prevOrders.map(order =>
           order.id === orderId ? { ...order, status: newStatus } : order
         )
       );
+
+      // Send email notification if user email exists
+      if (userEmail) {
+        fetch('/api/send-email-generic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: userEmail,
+            subject: `Your order status has changed to ${newStatus}`,
+            text: `Hello ${userName}, your order status is now: ${newStatus}.`,
+            html: `<p>Hello ${userName},</p><p>Your order status is now: <strong>${newStatus}</strong>.</p><p>Thank you for shopping with us!</p>`
+          })
+        });
+      }
 
       toast({
         title: "Order Updated",

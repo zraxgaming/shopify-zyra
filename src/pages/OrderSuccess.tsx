@@ -10,7 +10,6 @@ import Footer from "@/components/layout/Footer";
 import { Container } from "@/components/ui/container";
 import SEOHead from "@/components/seo/SEOHead";
 import { toast } from "@/components/ui/use-toast";
-import { sendOrderStatusEmail } from '@/utils/emailjs';
 
 const OrderSuccess = () => {
   const { orderId } = useParams();
@@ -24,34 +23,6 @@ const OrderSuccess = () => {
     }
     localStorage.removeItem('pending_payment');
   }, [orderId]);
-
-  useEffect(() => {
-    if (order && order.profiles?.email) {
-      // Send order confirmation email to user (legacy)
-      import('@/utils/resend').then(({ sendOrderEmail }) => {
-        sendOrderEmail({
-          to: order.profiles.email,
-          subject: `Order Confirmation - Zyra Custom Craft #${order.id.slice(-8)}`,
-          html: `<div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:20px;">
-            <h2 style="color:#7c3aed;">Thank you for your order!</h2>
-            <p>Your order <b>#${order.id.slice(-8)}</b> has been received and is being processed.</p>
-            <p><b>Total:</b> $${order.total_amount.toFixed(2)}</p>
-            <p>We'll notify you when your order ships.</p>
-            <hr />
-            <p style="font-size:13px;color:#888;">Zyra Custom Craft</p>
-          </div>`
-        })
-        .then(() => toast({ title: 'Confirmation email sent', description: 'Check your inbox for order details.' }))
-        .catch((err) => toast({ title: 'Email failed', description: err.message, variant: 'destructive' }));
-      });
-      // Send order status email using emailjs
-      sendOrderStatusEmail({
-        to: order.profiles.email,
-        order_id: order.id,
-        status: order.status || 'completed'
-      });
-    }
-  }, [order]);
 
   const fetchOrderDetails = async () => {
     try {
@@ -76,6 +47,39 @@ const OrderSuccess = () => {
 
       if (error) throw error;
       setOrder(data);
+
+      // Send order confirmation email if not already sent
+      type ShippingAddress = {
+        email?: string;
+        firstName?: string;
+        [key: string]: any;
+      };
+      let shipping: ShippingAddress = {};
+      if (data?.shipping_address) {
+        if (typeof data.shipping_address === 'string') {
+          try {
+            shipping = JSON.parse(data.shipping_address) as ShippingAddress;
+          } catch {
+            shipping = {};
+          }
+        } else {
+          shipping = data.shipping_address as ShippingAddress;
+        }
+      }
+      const userEmail = shipping.email;
+      const userName = shipping.firstName || 'Customer';
+      if (userEmail) {
+        fetch('/api/send-email-generic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: userEmail,
+            subject: 'Order Confirmation - Zyra Custom Craft',
+            text: `Hello ${userName}, your order (${data.id}) has been placed successfully.`,
+            html: `<p>Hello ${userName},</p><p>Thank you for your order <strong>#${data.id.slice(-8)}</strong>! We have received your order and will process it soon.</p><p>You can view your order status in your account dashboard.</p><p>Thank you for shopping with us!</p>`
+          })
+        });
+      }
     } catch (error) {
       console.error('Error fetching order:', error);
     } finally {

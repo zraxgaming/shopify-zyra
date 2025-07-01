@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -92,7 +91,7 @@ export const useAnalytics = (dateRange?: { start: Date; end: Date }) => {
 export const useTrackPageView = () => {
   // Simple page tracking hook
   const trackPageView = (path: string) => {
-    console.log('Page view tracked:', path);
+    // Remove all console.log statements for production optimization
   };
 
   return { trackPageView };

@@ -69,8 +69,6 @@ const ZiinaPayment: React.FC<ZiinaPaymentProps> = ({
         };
       }
 
-      console.log("Initiating Ziina Payment with payload:", body);
-
       const response = await fetch(ziinaEndpoint, {
         method: 'POST',
         headers: {

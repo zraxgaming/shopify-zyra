@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,7 +105,6 @@ const ProductManager = () => {
 
   const handleEdit = (product: Product) => {
     // For now, just show the product data in console
-    console.log('Edit product:', product);
     toast({
       title: "Edit Product",
       description: "Product editing interface coming soon",

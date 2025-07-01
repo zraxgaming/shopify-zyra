@@ -40,7 +40,23 @@ const Register = () => {
     try {
       // Simulate registration
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
+      // Send welcome email via Resend API
+      try {
+        await fetch('/api/send-email-generic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: formData.email,
+            subject: 'Welcome to Zyra!',
+            text: 'Thank you for signing up at Zyra.',
+            html: '<h1>Thank you for signing up at Zyra.</h1>'
+          })
+        });
+      } catch (e) {
+        // Optionally log or toast error
+      }
+
       toast({
         title: "Account created successfully",
         description: "Welcome to Zyra!",

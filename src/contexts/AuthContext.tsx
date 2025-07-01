@@ -100,6 +100,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       password,
     });
     if (error) throw error;
+
+    // Send suspicious login notification (customize condition as needed)
+    try {
+      await fetch('/api/send-email-generic', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: email,
+          subject: 'New Login Detected - Zyra Custom Craft',
+          text: `A new login to your account was detected. If this wasn't you, please reset your password immediately.`,
+          html: `<p>A new login to your Zyra Custom Craft account was detected.</p><p>If this wasn't you, please <a href='https://www.shopzyra.site/reset-password'>reset your password</a> immediately.</p>`
+        })
+      });
+    } catch (e) {
+      // Do not block login on email failure
+      console.error('Failed to send suspicious login email:', e);
+    }
   };
 
   const signUp = async (email: string, password: string, metadata?: any) => {

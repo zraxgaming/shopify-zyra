@@ -32,8 +32,6 @@ const ProductDetails = () => {
           .eq('slug', slug)
           .maybeSingle();
 
-        console.log("ProductDetails fetch result:", { data, error });
-
         if (error) throw error;
         
         // Transform the data to match our Product interface
