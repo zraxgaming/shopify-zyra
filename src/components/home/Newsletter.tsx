@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { sendNewsletterEmail } from "@/utils/resend";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
@@ -41,18 +40,21 @@ const Newsletter = () => {
           throw error;
         }
       } else {
-        // Send welcome email using Resend
+        // Send welcome email using backend API
         try {
-          await sendNewsletterEmail(
-            email,
-            `Thank you for subscribing to our newsletter! You'll be the first to know about new products, exclusive offers, and design tips.`,
-            `https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}`
-          );
+          await fetch('/api/send-email-generic', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              to: email,
+              subject: 'Welcome to Zyra Custom Craft Newsletter!',
+              html: `<h1>Thank you for subscribing!</h1><p>You are now part of our newsletter. Stay tuned for updates and offers.</p><p>If you wish to unsubscribe, click <a href='https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}'>here</a>.</p>`
+            })
+          });
         } catch (emailError) {
           console.error("Email sending failed:", emailError);
           // Don't fail the subscription if email fails
         }
-        
         toast({
           title: "Successfully subscribed!",
           description: "Thank you for subscribing to our newsletter.",
