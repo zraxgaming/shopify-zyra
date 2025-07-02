@@ -103,6 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Send suspicious login notification (customize condition as needed)
     try {
+      const { zyraEmailTemplate } = await import('@/utils/emailTemplate');
       await fetch('/api/send-email-generic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -110,7 +111,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           to: email,
           subject: 'New Login Detected - Zyra Custom Craft',
           text: `A new login to your account was detected. If this wasn't you, please reset your password immediately.`,
-          html: `<p>A new login to your Zyra Custom Craft account was detected.</p><p>If this wasn't you, please <a href='https://www.shopzyra.site/reset-password'>reset your password</a> immediately.</p>`
+          html: zyraEmailTemplate({
+            title: 'Suspicious Login Detected',
+            body: `<p style='font-size:1.1rem;color:#6b21a8;'>A new login to your Zyra Custom Craft account was detected.</p><p>If this wasn't you, please <a href='https://www.shopzyra.site/reset-password' style='color:#7c3aed;text-decoration:underline;'>reset your password</a> immediately.</p>`,
+            ctaText: 'Reset Password',
+            ctaUrl: 'https://www.shopzyra.site/reset-password'
+          })
         })
       });
     } catch (e) {

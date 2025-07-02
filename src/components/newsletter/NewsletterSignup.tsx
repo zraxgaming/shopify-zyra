@@ -69,6 +69,7 @@ const NewsletterSignup = () => {
       } else {
         // Send confirmation to user using backend API
         try {
+          const { zyraEmailTemplate } = await import('@/utils/emailTemplate');
           await fetch('/api/send-email-generic', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -76,7 +77,12 @@ const NewsletterSignup = () => {
               to: email,
               subject: "Welcome to the Zyra Newsletter!",
               text: `Thank you for subscribing, ${name || 'friend'}. You'll now receive updates, offers, and news from us.`,
-              html: zyraEmailTemplate({ name, email }),
+              html: zyraEmailTemplate({
+                title: 'Newsletter Subscription',
+                body: `<p style='font-size:1.1rem;color:#6b21a8;'>Hello${name ? ` <b>${name}</b>` : ''},</p><p style='font-size:1.1rem;color:#4b006e;'>Thank you for subscribing to the Zyra newsletter!<br>You’ll now receive updates from Zyra Custom Craft.</p>`,
+                ctaText: 'Unsubscribe',
+                ctaUrl: `https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}`
+              }),
             })
           });
         } catch (emailError) {
