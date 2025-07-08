@@ -39,11 +39,11 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    const { to, subject, text, html, from } = body;
+    const { to, subject, html, from } = body;
     
     // Validate required fields
-    if (!to || !subject || (!text && !html)) {
-      console.error('Missing required fields:', { to: !!to, subject: !!subject, text: !!text, html: !!html });
+    if (!to || !subject || (!html)) {
+      console.error('Missing required fields:', { to: !!to, subject: !!subject, html: !!html });
       return res.status(400).json({ error: 'Missing required fields: to, subject, and text or html' });
     }
 
@@ -61,7 +61,6 @@ export default async function handler(req: any, res: any) {
       from: from || 'Zyra Custom Craft <contact@shopzyra.site>',
       to: Array.isArray(to) ? to : [to],
       subject,
-      ...(text && { text }),
       ...(html && { html })
     };
 
