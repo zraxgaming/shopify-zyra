@@ -33,7 +33,7 @@ const Newsletter = () => {
         ctaUrl: 'https://www.shopzyra.site/shop'
       });
 
-      // Direct API call for testing - equivalent to your Node.js request example
+      // Direct API call to Resend - bypass backend completely
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -50,24 +50,13 @@ const Newsletter = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Direct email API error:', response.status, errorText);
-        
-        // In development, log the email that would be sent
-        if (import.meta.env.DEV) {
-          console.log('Development mode: Email would be sent to:', email);
-          console.log('Email content preview:', emailHtml.substring(0, 200) + '...');
-        }
+        console.error('Direct Resend API error:', response.status, errorText);
       } else {
         const responseData = await response.json();
-        console.log('Email sent successfully:', responseData);
+        console.log('✅ Email sent successfully via direct API:', responseData);
       }
     } catch (emailError) {
-      console.error("Email sending failed:", emailError);
-      
-      // In development, this is expected to fail
-      if (import.meta.env.DEV) {
-        console.log('Development mode: Email would be sent in production to:', email);
-      }
+      console.error("❌ Direct email sending failed:", emailError);
       // Don't throw - let the subscription succeed even if email fails
     }
   };
