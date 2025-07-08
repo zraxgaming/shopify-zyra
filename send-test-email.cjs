@@ -6,7 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config({ path: '.env.local' });
 }
 
-const resend = new Resend("re_3ZYY9s3W_HuQbhTk4BDEPrrTUB37HyKan");
+const resend = new Resend("re_NnTZvVdb_MNZFrw9c8x6EWrBkkDFmoFZN");
 
 (async function() {
   try {

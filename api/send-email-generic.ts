@@ -1,6 +1,4 @@
-import { Resend } from 'resend';
-
-// Vercel serverless function for sending emails
+// Vercel serverless function for sending emails via Resend REST API
 export default async function handler(req: any, res: any) {
   // Add comprehensive logging for debugging
   console.log('Email API called - Method:', req.method);
@@ -41,7 +39,7 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    const { to, subject, text, html } = body;
+    const { to, subject, text, html, from } = body;
     
     // Validate required fields
     if (!to || !subject || (!text && !html)) {
@@ -56,28 +54,41 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ error: 'Email service not configured' });
     }
 
-    // Initialize Resend
-    const resend = new Resend(apiKey);
-    
     console.log('Sending email to:', to, 'with subject:', subject);
     
-    // Send email
-    const { data, error } = await resend.emails.send({
-      from: 'Zyra Custom Craft <onboarding@resend.dev>',
+    // Prepare email payload
+    const emailPayload = {
+      from: from || 'Zyra Custom Craft <contact@shopzyra.site>',
       to: Array.isArray(to) ? to : [to],
       subject,
-      text,
-      html,
+      ...(text && { text }),
+      ...(html && { html })
+    };
+
+    console.log('Email payload:', emailPayload);
+
+    // Send email using Resend REST API
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(emailPayload)
     });
 
-    if (error) {
-      console.error('Resend API error:', error);
+    const responseData = await response.text();
+    
+    if (!response.ok) {
+      console.error('Resend API error:', response.status, responseData);
       return res.status(500).json({ 
         error: 'Failed to send email', 
-        details: error.message || error 
+        details: responseData,
+        status: response.status
       });
     }
 
+    const data = JSON.parse(responseData);
     console.log('Email sent successfully:', data);
     return res.status(200).json({ success: true, data });
     
