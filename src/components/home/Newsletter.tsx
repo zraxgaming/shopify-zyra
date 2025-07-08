@@ -50,9 +50,15 @@ const Newsletter = () => {
         // In development, log the email that would be sent
         if (import.meta.env.DEV) {
           console.log('Development mode: Email would be sent to:', email);
-          console.log('Email content:', emailHtml);
+          console.log('Email content preview:', emailHtml.substring(0, 200) + '...');
         }
-        throw new Error(`Email API failed: ${response.status}`);
+        
+        // Don't throw in development, but do throw in production so user knows about the issue
+        if (!import.meta.env.DEV) {
+          throw new Error(`Email service temporarily unavailable`);
+        }
+      } else {
+        console.log('Email sent successfully to:', email);
       }
     } catch (emailError) {
       console.error("Email sending failed:", emailError);
