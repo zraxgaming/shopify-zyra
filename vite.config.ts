@@ -10,8 +10,23 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
-      '/api': 'http://localhost:3000', // Change 3000 to your backend port if different
-    },
+      // Proxy API requests to Vercel dev server
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+        configure: (proxy, options) => {
+          proxy.on('error', (err, req, res) => {
+            console.log('Proxy error:', err);
+            // Fallback: continue without email in development
+            if (res.writeHead && !res.headersSent) {
+              res.writeHead(503, { 'Content-Type': 'application/json' });
+              res.end(JSON.stringify({ error: 'API temporarily unavailable in development' }));
+            }
+          });
+        }
+      }
+    }
   },
   plugins: [
     react(),

@@ -19,6 +19,25 @@ import Checkout from "@/pages/Checkout";
 import Success from "@/pages/Success";
 import Newsletter from "@/pages/Newsletter";
 import Offline from "@/pages/Offline";
+import About from "@/pages/About";
+import OrderTracking from "@/pages/OrderTracking";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
+import Profile from "@/pages/Profile";
+import Wishlist from "@/pages/Wishlist";
+import Cart from "@/pages/Cart";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import GiftCards from "@/pages/GiftCards";
+import Referrals from "@/pages/Referrals";
+import CategoryPage from "@/pages/CategoryPage";
+import NotFound from "@/pages/NotFound";
+import Dashboard from "@/pages/Dashboard";
+import Products from "@/pages/Products";
+import ProductCustomizer from "@/pages/ProductCustomizer";
+import Unsubscribe from "@/pages/Unsubscribe";
+import OrderConfirmation from "@/pages/OrderConfirmation";
+import OrderFailed from "@/pages/OrderFailed";
 import AdminDashboard from "@/pages/admin/AdminDashboard";
 import AdminProducts from "@/pages/admin/AdminProducts";
 import AdminOrders from "@/pages/admin/AdminOrders";
@@ -55,18 +74,37 @@ function App() {
                   <Toaster />
                   <Routes>
                     <Route path="/" element={<Home />} />
+                    <Route path="/home" element={<Home />} />
                     <Route path="/shop" element={<Shop />} />
+                    <Route path="/products" element={<Products />} />
                     <Route path="/product/:slug" element={<ProductDetail />} />
                     <Route path="/product-details/:slug" element={<ProductDetails />} />
+                    <Route path="/customize/:productId" element={<ProductCustomizer />} />
                     <Route path="/categories" element={<Categories />} />
+                    <Route path="/category/:slug" element={<CategoryPage />} />
+                    <Route path="/about" element={<About />} />
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/auth" element={<Auth />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
                     <Route path="/account" element={<Account />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/cart" element={<Cart />} />
                     <Route path="/checkout" element={<Checkout />} />
                     <Route path="/success" element={<Success />} />
                     <Route path="/newsletter" element={<Newsletter />} />
+                    <Route path="/unsubscribe" element={<Unsubscribe />} />
                     <Route path="/offline" element={<Offline />} />
+                    <Route path="/order-tracking" element={<OrderTracking />} />
+                    <Route path="/order-confirmation/:orderId" element={<OrderConfirmation />} />
+                    <Route path="/order-failed/:orderId" element={<OrderFailed />} />
+                    <Route path="/terms" element={<Terms />} />
+                    <Route path="/privacy" element={<Privacy />} />
+                    <Route path="/gift-cards" element={<GiftCards />} />
+                    <Route path="/referrals" element={<Referrals />} />
                     <Route path="/order-success/:orderId" element={<Success />} />
 
                     {/* Admin Routes - Example with Layout */}
@@ -90,6 +128,9 @@ function App() {
                     <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
 
                     <Route path="/order/:id" element={<OrderDetail />} />
+                    
+                    {/* 404 Not Found Route - Must be last */}
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                 </WishlistProvider>
               </CartProvider>
