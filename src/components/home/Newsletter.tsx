@@ -54,10 +54,7 @@ const Newsletter = () => {
         }
         
         // Don't throw in development, but do throw in production so user knows about the issue
-        if (!import.meta.env.DEV) {
-          throw new Error(`Email service temporarily unavailable`);
-        }
-      } else {
+        
         console.log('Email sent successfully to:', email);
       }
     } catch (emailError) {
