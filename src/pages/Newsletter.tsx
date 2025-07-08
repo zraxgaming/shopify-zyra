@@ -5,7 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import SEOHead from '@/components/seo/SEOHead';
-import { Resend } from 'resend';
+import { zyraEmailTemplate } from '@/utils/emailTemplate';
 
 
 const Newsletter: React.FC = () => {
@@ -38,28 +38,61 @@ const Newsletter: React.FC = () => {
           throw error;
         }
       } else {
-        var request = require('request');
-var options = {
-  'method': 'POST',
-  'url': 'https://api.resend.com/emails',
-  'headers': {
-    'Authorization': 'Bearer re_3ZYY9s3W_HuQbhTk4BDEPrrTUB37HyKan',
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({
-    "from": "Acme <contact@shopzyra.site>",
-    "to": [
-      "contact@shopzyra.site"
-    ],
-    "subject": "hello world",
-    "html": "<p>Zain,it works!</p>"
-  })
+        // Send welcome email using the backend API
+        const emailHtml = zyraEmailTemplate({
+          title: 'Welcome to Zyra Custom Craft!',
+          body: `
+            <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
+              Thank you for subscribing to our newsletter! 🎉
+            </p>
+            <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
+              You'll be the first to know about new products, exclusive offers, and design tips.
+            </p>
+            <p style="color:#666;font-size:14px;line-height:1.6;">
+              If you wish to unsubscribe, 
+              <a href="https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}" style="color:#7c3aed;text-decoration:underline;">
+                click here
+              </a>.
+            </p>
+          `,
+          ctaText: 'Start Shopping',
+          ctaUrl: 'https://www.shopzyra.site/shop'
+        });
 
-};
-request(options, function (error, response) {
-  if (error) throw new Error(error);
-  console.log(response.body);
-});
+        try {
+          // Direct API call for testing - equivalent to your Node.js request example
+          const response = await fetch('https://api.resend.com/emails', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer re_3ZYY9s3W_HuQbhTk4BDEPrrTUB37HyKan',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              from: "Zyra Custom Craft <contact@shopzyra.site>",
+              to: [email],
+              subject: "Welcome to Zyra Custom Craft Newsletter!",
+              html: emailHtml
+            })
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Direct email API error:', response.status, errorText);
+            // Don't throw - let the subscription succeed even if email fails
+          } else {
+            const responseData = await response.json();
+            console.log('Welcome email sent successfully:', responseData);
+          }
+        } catch (emailError) {
+          console.error("Email sending failed:", emailError);
+          // Don't throw - let the subscription succeed even if email fails
+        }
+
+        toast({
+          title: 'Successfully subscribed!',
+          description: 'Thank you for subscribing to our newsletter.',
+        });
+        setEmail('');
       }
     } catch (e: any) {
       toast({ title: 'Error', description: e.message || 'Failed to subscribe. Please try again.', variant: 'destructive' });
