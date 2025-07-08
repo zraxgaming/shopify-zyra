@@ -48,7 +48,7 @@ export default async function handler(req: any, res: any) {
     }
 
     // Check for API key
-    const apiKey = process.env.RESEND_API_KEY;
+    const apiKey = process.env.local.RESEND_API_KEY;
     if (!apiKey) {
       console.error('RESEND_API_KEY environment variable not set');
       return res.status(500).json({ error: 'Email service not configured' });
