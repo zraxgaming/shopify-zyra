@@ -33,29 +33,33 @@ const Newsletter = () => {
         ctaUrl: 'https://www.shopzyra.site/shop'
       });
 
-      const response = await fetch('/api/send-email-generic', {
+      // Direct API call for testing - equivalent to your Node.js request example
+      const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Authorization': 'Bearer re_3ZYY9s3W_HuQbhTk4BDEPrrTUB37HyKan',
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
-          to: email,
-          subject: 'Welcome to Zyra Custom Craft Newsletter!',
+          from: "Zyra Custom Craft <contact@shopzyra.site>",
+          to: [email],
+          subject: "Welcome to Zyra Custom Craft Newsletter!",
           html: emailHtml
         })
       });
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Email API error:', errorText);
+        console.error('Direct email API error:', response.status, errorText);
         
         // In development, log the email that would be sent
         if (import.meta.env.DEV) {
           console.log('Development mode: Email would be sent to:', email);
           console.log('Email content preview:', emailHtml.substring(0, 200) + '...');
         }
-        
-        // Don't throw in development, but do throw in production so user knows about the issue
-        
-        console.log('Email sent successfully to:', email);
+      } else {
+        const responseData = await response.json();
+        console.log('Email sent successfully:', responseData);
       }
     } catch (emailError) {
       console.error("Email sending failed:", emailError);
