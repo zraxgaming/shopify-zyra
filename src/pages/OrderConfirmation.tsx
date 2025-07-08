@@ -1,352 +1,293 @@
+
 import React, { useEffect, useState } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, ShoppingBag, ArrowRight, Package, Truck, CreditCard, MapPin, User, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { format } from "date-fns";
 import SEOHead from "@/components/seo/SEOHead";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { Download, ExternalLink, Package, CheckCircle } from "lucide-react";
+
+interface OrderItem {
+  id: string;
+  product_id: string;
+  quantity: number;
+  price: number;
+  product: {
+    id: string;
+    name: string;
+    images: string[];
+    is_digital: boolean;
+    link: string;
+  };
+}
+
+interface Order {
+  id: string;
+  total_amount: number;
+  status: string;
+  payment_status: string;
+  created_at: string;
+  order_items: OrderItem[];
+}
 
 const OrderConfirmation = () => {
-  const { orderId } = useParams<{ orderId: string }>();
-  const navigate = useNavigate();
+  const { orderId } = useParams();
+  const [searchParams] = useSearchParams();
+  const isDigital = searchParams.get('digital') === 'true';
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-  const [order, setOrder] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchOrder = async () => {
-      if (!orderId) {
-        navigate("/");
-        return;
-      }
-      try {
-        const { data, error } = await supabase
-          .from("orders")
-          .select(`
-            *,
-            order_items (
-              *,
-              products (
-                name,
-                images
-              )
-            ),
-            profiles (
-              display_name,
-              first_name,
-              last_name,
-              email,
-              phone
-            )
-          `)
-          .eq("id", orderId)
-          .single();
-        if (error) throw error;
-        setOrder(data);
-      } catch (error: any) {
-        console.error("Error fetching order:", error);
-        toast({
-          title: "Error fetching order",
-          description: "Could not find your order. You may have been redirected.",
-          variant: "destructive",
-        });
-        navigate("/");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchOrder();
-  }, [orderId, navigate, toast]);
+    if (orderId) {
+      fetchOrder();
+    }
+  }, [orderId]);
 
-  if (isLoading) {
+  const fetchOrder = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('orders')
+        .select(`
+          *,
+          order_items (
+            *,
+            product:products (
+              id,
+              name,
+              images,
+              is_digital,
+              link
+            )
+          )
+        `)
+        .eq('id', orderId)
+        .single();
+
+      if (error) throw error;
+      setOrder(data);
+    } catch (error: any) {
+      console.error('Error fetching order:', error);
+      toast({
+        title: "Error",
+        description: "Could not load order details",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDigitalDownload = (productLink: string, productName: string) => {
+    if (productLink) {
+      window.open(productLink, '_blank');
+      toast({
+        title: "Download Started",
+        description: `Opening download for ${productName}`,
+      });
+    } else {
+      toast({
+        title: "Download Unavailable",
+        description: "Download link is not available for this product",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="container max-w-6xl py-16 flex justify-center animate-fade-in">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary"></div>
-      </div>
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+        <Footer />
+      </>
     );
   }
 
   if (!order) {
     return (
-      <div className="container max-w-6xl py-16 animate-fade-in">
-        <Card className="text-center p-8">
-          <CardContent>
-            <Package className="h-16 w-16 mx-auto mb-4 text-muted-foreground" />
-            <h1 className="text-2xl font-bold mb-2">Order Not Found</h1>
-            <p className="text-muted-foreground mb-6">
-              We couldn't find the order you're looking for.
-            </p>
-            <Button onClick={() => navigate("/")} className="hover:scale-105 transition-transform">
-              Return Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <Card>
+            <CardContent className="text-center py-8">
+              <p className="text-muted-foreground">Order not found</p>
+            </CardContent>
+          </Card>
+        </div>
+        <Footer />
+      </>
     );
   }
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "processing": return <Clock className="h-5 w-5" />;
-      case "shipped": return <Truck className="h-5 w-5" />;
-      case "delivered": return <Package className="h-5 w-5" />;
-      default: return <CheckCircle className="h-5 w-5" />;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "pending": return "bg-yellow-100 text-yellow-800 border-yellow-200";
-      case "processing": return "bg-blue-100 text-blue-800 border-blue-200";
-      case "shipped": return "bg-purple-100 text-purple-800 border-purple-200";
-      case "delivered": return "bg-green-100 text-green-800 border-green-200";
-      default: return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
+  const digitalItems = order.order_items.filter(item => item.product.is_digital);
+  const physicalItems = order.order_items.filter(item => !item.product.is_digital);
 
   return (
     <>
-      <SEOHead 
-        title={`Order Confirmation #${order.id.slice(-8)}`}
-        description="Your order has been confirmed. View order details and tracking information."
+      <SEOHead
+        title={`Order Confirmation #${order.id.slice(0, 8)} - Zyra Digital Products`}
+        description="Your order has been confirmed. Access your digital products and track your order status."
+        url={`https://www.shopzyra.site/order-confirmation/${order.id}`}
       />
+      <Navbar />
       
-      <div className="container max-w-6xl py-16 animate-fade-in">
-        {/* Success Header */}
-        <div className="text-center mb-12 animate-scale-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
-            <CheckCircle className="h-12 w-12 text-green-600" />
+      <div className="min-h-screen bg-background py-12">
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Success Header */}
+          <div className="text-center mb-8">
+            <div className="mb-4">
+              <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
+            </div>
+            <h1 className="text-3xl font-bold text-green-600 mb-2">
+              Order Confirmed!
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Thank you for your purchase. Your order #{order.id.slice(0, 8)} has been confirmed.
+            </p>
           </div>
-          <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
-            Order Confirmed! 🎉
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Thank you for your order! We've received your order and will begin processing it right away.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Order Summary */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Order Info Card */}
-            <Card className="animate-slide-in-right" style={{ animationDelay: "200ms" }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Order Summary */}
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <Package className="h-6 w-6 text-primary" />
-                  Order Details
+                <CardTitle className="flex items-center gap-2">
+                  <Package className="h-5 w-5" />
+                  Order Summary
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Order Number</h3>
-                      <p className="font-semibold text-lg">#{order.id.slice(-8)}</p>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Date Placed</h3>
-                      <p className="font-semibold">{format(new Date(order.created_at), "MMMM d, yyyy 'at' h:mm a")}</p>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Order Status</h3>
-                      <Badge className={`${getStatusColor(order.status)} border`}>
-                        {getStatusIcon(order.status)}
-                        <span className="ml-2 capitalize">{order.status}</span>
-                      </Badge>
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Total Amount</h3>
-                      <p className="font-bold text-2xl text-primary">${order.total_amount.toFixed(2)}</p>
-                    </div>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between">
+                  <span>Order ID:</span>
+                  <span className="font-mono">#{order.id.slice(0, 8)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Date:</span>
+                  <span>{new Date(order.created_at).toLocaleDateString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Status:</span>
+                  <Badge variant="secondary">
+                    {order.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span>Payment:</span>
+                  <Badge variant="outline">
+                    {order.payment_status}
+                  </Badge>
+                </div>
+                <div className="border-t pt-4">
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total:</span>
+                    <span>${order.total_amount.toFixed(2)}</span>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Order Items */}
-            <Card className="animate-slide-in-right" style={{ animationDelay: "400ms" }}>
+            {/* Digital Downloads */}
+            {digitalItems.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Download className="h-5 w-5" />
+                    Digital Downloads
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Your digital products are ready for download. Click the buttons below to access your files.
+                  </p>
+                  
+                  {digitalItems.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <img 
+                          src={item.product.images?.[0] || '/placeholder.svg'} 
+                          alt={item.product.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                        <div>
+                          <p className="font-medium">{item.product.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Qty: {item.quantity}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <Button
+                        onClick={() => handleDigitalDownload(item.product.link, item.product.name)}
+                        disabled={!item.product.link}
+                        size="sm"
+                        className="flex items-center gap-2"
+                      >
+                        <ExternalLink className="h-4 w-4" />
+                        Download
+                      </Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Physical Items */}
+          {physicalItems.length > 0 && (
+            <Card className="mt-6">
               <CardHeader>
-                <CardTitle>Items Ordered</CardTitle>
+                <CardTitle>Physical Items</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  {order.order_items.map((item: any, index: number) => (
-                    <div 
-                      key={item.id} 
-                      className="flex items-center gap-4 p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
-                      style={{ animationDelay: `${(index + 1) * 100}ms` }}
-                    >
-                      <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                        {item.products?.images && item.products.images.length > 0 ? (
-                          <img
-                            src={item.products.images[0]}
-                            alt={item.products?.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                            <Package className="h-6 w-6 text-gray-400" />
-                          </div>
-                        )}
+                <p className="text-muted-foreground mb-4">
+                  Your physical items will be processed and shipped soon. You'll receive tracking information via email.
+                </p>
+                
+                <div className="space-y-3">
+                  {physicalItems.map((item) => (
+                    <div key={item.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <img 
+                          src={item.product.images?.[0] || '/placeholder.svg'} 
+                          alt={item.product.name}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                        <div>
+                          <p className="font-medium">{item.product.name}</p>
+                          <p className="text-sm text-muted-foreground">
+                            Qty: {item.quantity} × ${item.price.toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{item.products?.name || 'Product'}</h4>
-                        <p className="text-muted-foreground">Quantity: {item.quantity}</p>
-                        {item.customization && (
-                          <p className="text-sm text-muted-foreground">Customized</p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">${(item.price * item.quantity).toFixed(2)}</p>
-                        <p className="text-sm text-muted-foreground">${item.price.toFixed(2)} each</p>
-                      </div>
+                      <p className="font-medium">
+                        ${(item.price * item.quantity).toFixed(2)}
+                      </p>
                     </div>
                   ))}
                 </div>
-
-                <div className="border-t pt-4 mt-6">
-                  <div className="flex justify-between items-center text-lg font-bold">
-                    <span>Total</span>
-                    <span className="text-primary">${order.total_amount.toFixed(2)}</span>
-                  </div>
-                </div>
               </CardContent>
             </Card>
+          )}
 
-            {/* Payment Info */}
-            <Card className="animate-slide-in-right" style={{ animationDelay: "600ms" }}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <CreditCard className="h-6 w-6 text-primary" />
-                  Payment Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Payment Method</h3>
-                    <p className="font-semibold capitalize">{order.payment_method?.replace('_', ' ')}</p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Payment Status</h3>
-                    <Badge variant={order.payment_status === 'paid' ? 'default' : 'secondary'}>
-                      {order.payment_status?.charAt(0).toUpperCase() + order.payment_status?.slice(1)}
-                    </Badge>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Customer Info */}
-            <Card className="animate-slide-in-right" style={{ animationDelay: "800ms" }}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <User className="h-6 w-6 text-primary" />
-                  Customer Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Name</h3>
-                    <p className="font-semibold">
-                      {order.profiles?.display_name || 
-                       `${order.profiles?.first_name || ''} ${order.profiles?.last_name || ''}`.trim() ||
-                       'Customer'}
-                    </p>
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Email</h3>
-                    <p className="font-semibold">{order.profiles?.email || 'N/A'}</p>
-                  </div>
-                  {order.profiles?.phone && (
-                    <div>
-                      <h3 className="text-sm font-medium text-muted-foreground">Phone</h3>
-                      <p className="font-semibold">{order.profiles.phone}</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Shipping Info */}
-            {order.shipping_address && (
-              <Card className="animate-slide-in-right" style={{ animationDelay: "1000ms" }}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <MapPin className="h-6 w-6 text-primary" />
-                    Shipping Address
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {typeof order.shipping_address === 'string' ? (
-                      <p>{order.shipping_address}</p>
-                    ) : (
-                      <>
-                        <p className="font-semibold">{order.shipping_address.name || order.shipping_address.fullName}</p>
-                        <p>{order.shipping_address.street || order.shipping_address.addressLine1}</p>
-                        {(order.shipping_address.addressLine2) && (
-                          <p>{order.shipping_address.addressLine2}</p>
-                        )}
-                        <p>
-                          {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.zipCode}
-                        </p>
-                        <p>{order.shipping_address.country}</p>
-                        {order.shipping_address.phone && (
-                          <p className="text-sm text-muted-foreground">{order.shipping_address.phone}</p>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Tracking Info */}
-            {order.tracking_number && (
-              <Card className="animate-slide-in-right" style={{ animationDelay: "1200ms" }}>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-3">
-                    <Truck className="h-6 w-6 text-primary" />
-                    Tracking Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div>
-                    <h3 className="text-sm font-medium text-muted-foreground">Tracking Number</h3>
-                    <p className="font-mono font-semibold text-lg">{order.tracking_number}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Actions */}
-            <div className="space-y-3 animate-slide-in-right" style={{ animationDelay: "1400ms" }}>
-              <Link to="/shop" className="block">
-                <Button variant="outline" className="w-full hover:scale-105 transition-transform">
-                  <ShoppingBag className="mr-2 h-4 w-4" />
-                  Continue Shopping
-                </Button>
-              </Link>
-              <Link to="/dashboard" className="block">
-                <Button className="w-full hover:scale-105 transition-transform">
-                  View All Orders
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
+          {/* Actions */}
+          <div className="mt-8 text-center space-x-4">
+            <Button onClick={() => window.location.href = '/dashboard'}>
+              View My Orders
+            </Button>
+            <Button variant="outline" onClick={() => window.location.href = '/shop'}>
+              Continue Shopping
+            </Button>
           </div>
         </div>
       </div>
+      
+      <Footer />
     </>
   );
 };

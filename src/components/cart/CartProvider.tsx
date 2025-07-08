@@ -1,389 +1,244 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  useContext,
-  ReactNode,
-  useRef,
-} from "react";
-import { useAuth } from "@/contexts/AuthContext";
+
+import React, { createContext, useContext, useReducer, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
-// Define the types
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
-
-export interface CartItem {
+interface CartItem {
   id: string;
   product_id: string;
-  user_id: string;
-  quantity: number;
+  name: string;
   price: number;
+  quantity: number;
   image_url: string;
-  name?: string;
-  customization?: Json;
+  customization?: any;
   is_digital?: boolean;
 }
 
-interface CartContextType {
-  cart: CartItem[];
+interface CartState {
   items: CartItem[];
-  addToCart: (
-    product: Omit<CartItem, "id" | "quantity" | "user_id">,
-    quantity: number,
-    customization?: Json
-  ) => Promise<void>;
-  removeFromCart: (id: string) => Promise<void>;
-  updateCartItem: (id: string, quantity: number) => Promise<void>;
-  clearCart: () => Promise<void>;
-  totalItems: () => number;
-  totalPrice: () => number;
   isLoading: boolean;
-  subtotal: number;
-  discount: number;
-  giftCardAmount: number;
-  setCoupon: (coupon: any) => void;
-  setGiftCard: (giftCard: any) => void;
-  coupon: any;
-  giftCard: any;
+}
+
+type CartAction = 
+  | { type: 'SET_ITEMS'; payload: CartItem[] }
+  | { type: 'ADD_ITEM'; payload: CartItem }
+  | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
+  | { type: 'REMOVE_ITEM'; payload: string }
+  | { type: 'CLEAR_CART' }
+  | { type: 'SET_LOADING'; payload: boolean };
+
+const cartReducer = (state: CartState, action: CartAction): CartState => {
+  switch (action.type) {
+    case 'SET_ITEMS':
+      return { ...state, items: action.payload };
+    case 'ADD_ITEM':
+      const existingItem = state.items.find(item => item.product_id === action.payload.product_id);
+      if (existingItem) {
+        return {
+          ...state,
+          items: state.items.map(item =>
+            item.product_id === action.payload.product_id
+              ? { ...item, quantity: item.quantity + action.payload.quantity }
+              : item
+          )
+        };
+      }
+      return { ...state, items: [...state.items, action.payload] };
+    case 'UPDATE_QUANTITY':
+      return {
+        ...state,
+        items: state.items.map(item =>
+          item.id === action.payload.id
+            ? { ...item, quantity: action.payload.quantity }
+            : item
+        )
+      };
+    case 'REMOVE_ITEM':
+      return {
+        ...state,
+        items: state.items.filter(item => item.id !== action.payload)
+      };
+    case 'CLEAR_CART':
+      return { ...state, items: [] };
+    case 'SET_LOADING':
+      return { ...state, isLoading: action.payload };
+    default:
+      return state;
+  }
+};
+
+interface CartContextType {
+  items: CartItem[];
+  isLoading: boolean;
+  addItem: (item: Omit<CartItem, 'id'>) => Promise<void>;
+  updateQuantity: (id: string, quantity: number) => Promise<void>;
+  removeItem: (id: string) => Promise<void>;
+  clearCart: () => Promise<void>;
+  totalItems: number;
+  totalPrice: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-interface CartProviderProps {
-  children: ReactNode;
-}
-
-const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
+export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [state, dispatch] = useReducer(cartReducer, { items: [], isLoading: false });
   const { user } = useAuth();
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [coupon, setCoupon] = useState<any>(null);
-  const [giftCard, setGiftCard] = useState<any>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
+  // Load cart on mount and user change
   useEffect(() => {
-    let cancelled = false;
-    const poll = () => {
-      if (user) {
-        loadCartFromDb();
-      }
-    };
-    if (user) {
-      loadCartFromDb();
-      intervalRef.current = setInterval(poll, 5000);
-    } else {
-      setCart([]);
-      setCoupon(null);
-      setGiftCard(null);
-    }
-    return () => {
-      cancelled = true;
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    }
+    loadCart();
   }, [user]);
 
-  // always ensure customization is loaded/saved properly
-  const loadCartFromDb = async () => {
-    setIsLoading(true);
+  const loadCart = async () => {
+    dispatch({ type: 'SET_LOADING', payload: true });
+    
     try {
-      const { data: dbCart, error } = await supabase
-        .from("cart_items")
-        .select("*, product:is_digital") // join product for is_digital
-        .eq("user_id", user?.id);
-      if (!error && dbCart) {
-        setCart(
-          dbCart.map((item: any) => ({
-            ...item,
-            price: typeof item.price === "number" ? item.price : 0,
-            image_url: typeof item.image_url === "string" ? item.image_url : "",
-            name: typeof item.name === "string" ? item.name : "",
-            customization: item.customization ?? {},
-            is_digital: typeof item.is_digital === 'boolean' ? item.is_digital : (item.product?.is_digital ?? false),
-          }))
-        );
-      } else if (error) {
-        toast({
-          title: "Cart Load Error",
-          description: error.message || "Failed to load cart from server.",
-          variant: "destructive",
-        });
+      if (user) {
+        // Load from database for logged-in users
+        const { data, error } = await supabase
+          .from('cart_items')
+          .select('*')
+          .eq('user_id', user.id);
+
+        if (error) throw error;
+        dispatch({ type: 'SET_ITEMS', payload: data || [] });
+      } else {
+        // Load from localStorage for guests
+        const savedCart = localStorage.getItem('zyra_cart');
+        if (savedCart) {
+          const items = JSON.parse(savedCart);
+          dispatch({ type: 'SET_ITEMS', payload: items });
+        }
       }
-    } catch (err) {
-      console.error("Error loading cart from database:", err);
+    } catch (error) {
+      console.error('Error loading cart:', error);
       toast({
-        title: "Cart Load Error",
-        description: err.message || "Failed to load cart from server.",
+        title: "Cart Loading Error",
+        description: "Could not load your cart items",
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      dispatch({ type: 'SET_LOADING', payload: false });
     }
   };
 
-  const addToCart = async (
-    product,
-    quantity,
-    customization = {}
-  ) => {
-    if (!user) {
-      toast({
-        title: "Login Required",
-        description: "Please log in to add items to your cart.",
-        variant: "destructive",
-      });
-      return;
-    }
-    // Digital/physical product cart rules
-    const isDigital = product.is_digital;
-    const cartHasDigital = cart.some(item => item.is_digital);
-    const cartHasPhysical = cart.some(item => !item.is_digital);
-    if (isDigital && cartHasPhysical) {
-      toast({
-        title: "Cart Rule",
-        description: "Digital products can only be bought with other digital products.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (!isDigital && cartHasDigital) {
-      toast({
-        title: "Cart Rule",
-        description: "Physical products cannot be added to a cart with digital products.",
-        variant: "destructive",
-      });
-      return;
-    }
-    // Check product stock from Supabase directly for freshness
-    let productRes = await supabase
-      .from("products")
-      .select("id, stock_quantity")
-      .eq("id", product.product_id)
-      .maybeSingle();
-
-    const maxStock =
-      typeof productRes.data?.stock_quantity === "number"
-        ? productRes.data?.stock_quantity
-        : 99;
-
-    // Check how much is in cart for this customization
-    const itemInCart = cart.find(
-      (item) =>
-        item.product_id === product.product_id &&
-        JSON.stringify(item.customization || {}) ===
-          JSON.stringify(customization || {})
-    );
-    const cartQty = itemInCart ? itemInCart.quantity : 0;
-    const totalDesired = cartQty + quantity;
-
-    if (totalDesired > maxStock) {
-      toast({
-        title: "Stock Limit",
-        description: "Cannot add more than available stock.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (
-      product.name?.toLowerCase().includes("custom") &&
-      (!customization || Object.keys(customization).length === 0)
-    ) {
-      toast({
-        title: "Customization Required",
-        description: "Please provide customization details for this product.",
-        variant: "destructive",
-      });
-      return;
-    }
+  const saveCart = async (items: CartItem[]) => {
     try {
-      const { data, error } = await supabase
-        .from("cart_items")
-        .insert([
-          {
-            product_id: product.product_id,
-            user_id: user.id,
-            quantity: quantity,
-            price: product.price,
-            image_url: product.image_url,
-            name: product.name,
-            customization: customization,
-          },
-        ])
-        .select()
-        .single();
-      if (error) {
-        toast({
-          title: "Add to Cart Failed",
-          description: error.message || "Could not add item to cart.",
-          variant: "destructive",
-        });
-        return;
-      }
-      setCart((prevCart) => [
-        ...prevCart,
-        {
-          ...data,
-          price: data.price || 0,
-          image_url: data.image_url || "",
-          name: data.name || "",
-          customization: data.customization ?? {},
-          is_digital: typeof product.is_digital === 'boolean' ? product.is_digital : false,
+      if (user) {
+        // Save to database for logged-in users
+        // First, clear existing cart items
+        await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user.id);
+
+        // Then insert new items
+        if (items.length > 0) {
+          const { error } = await supabase
+            .from('cart_items')
+            .insert(
+              items.map(item => ({
+                user_id: user.id,
+                product_id: item.product_id,
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                image_url: item.image_url,
+                customization: item.customization
+              }))
+            );
+
+          if (error) throw error;
         }
-      ]);
-    } catch (err) {
-      console.error("Error adding to cart:", err);
+      } else {
+        // Save to localStorage for guests
+        localStorage.setItem('zyra_cart', JSON.stringify(items));
+      }
+    } catch (error) {
+      console.error('Error saving cart:', error);
       toast({
-        title: "Add to Cart Failed",
-        description: err.message || "Could not add item to cart.",
+        title: "Cart Save Error",
+        description: "Could not save your cart",
         variant: "destructive",
       });
     }
   };
 
-  const removeFromCart = async (id: string) => {
-    try {
-      const { error } = await supabase.from("cart_items").delete().eq("id", id);
-      if (error) {
-        toast({
-          title: "Remove from Cart Failed",
-          description: error.message || "Could not remove item from cart.",
-          variant: "destructive",
-        });
-        return;
-      }
-      setCart((prevCart) => prevCart.filter((item) => item.id !== id));
-    } catch (err) {
-      console.error("Error removing from cart:", err);
-      toast({
-        title: "Remove from Cart Failed",
-        description: err.message || "Could not remove item from cart.",
-        variant: "destructive",
-      });
+  const addItem = async (newItem: Omit<CartItem, 'id'>) => {
+    const item = { ...newItem, id: crypto.randomUUID() };
+    dispatch({ type: 'ADD_ITEM', payload: item });
+    
+    const updatedItems = [...state.items];
+    const existingIndex = updatedItems.findIndex(i => i.product_id === item.product_id);
+    
+    if (existingIndex >= 0) {
+      updatedItems[existingIndex].quantity += item.quantity;
+    } else {
+      updatedItems.push(item);
     }
+    
+    await saveCart(updatedItems);
+    
+    toast({
+      title: "Added to Cart",
+      description: `${item.name} has been added to your cart`,
+    });
   };
 
-  const updateCartItem = async (id: string, quantity: number) => {
-    try {
-      const item = cart.find((it) => it.id === id);
-      if (!item) return;
-      // Fetch latest product stock
-      let productRes = await supabase
-        .from("products")
-        .select("stock_quantity")
-        .eq("id", item.product_id)
-        .maybeSingle();
-      const maxStock =
-        typeof productRes.data?.stock_quantity === "number"
-          ? productRes.data?.stock_quantity
-          : 99;
-      if (quantity > maxStock) {
-        toast({
-          title: "Stock Limit",
-          description: "Cannot set quantity above available stock.",
-          variant: "destructive",
-        });
-        return;
-      }
-      const { error } = await supabase
-        .from("cart_items")
-        .update({ quantity })
-        .eq("id", id);
-      if (error) {
-        toast({
-          title: "Update Cart Failed",
-          description: error.message || "Could not update cart item.",
-          variant: "destructive",
-        });
-        return;
-      }
-      setCart((prevCart) =>
-        prevCart.map((item) => (item.id === id ? { ...item, quantity } : item))
-      );
-    } catch (err) {
-      console.error("Error updating cart item:", err);
-      toast({
-        title: "Update Cart Failed",
-        description: err.message || "Could not update cart item.",
-        variant: "destructive",
-      });
+  const updateQuantity = async (id: string, quantity: number) => {
+    if (quantity <= 0) {
+      await removeItem(id);
+      return;
     }
+    
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
+    const updatedItems = state.items.map(item =>
+      item.id === id ? { ...item, quantity } : item
+    );
+    await saveCart(updatedItems);
+  };
+
+  const removeItem = async (id: string) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: id });
+    const updatedItems = state.items.filter(item => item.id !== id);
+    await saveCart(updatedItems);
+    
+    toast({
+      title: "Removed from Cart",
+      description: "Item has been removed from your cart",
+    });
   };
 
   const clearCart = async () => {
-    try {
-      const { error } = await supabase
-        .from("cart_items")
-        .delete()
-        .eq("user_id", user?.id);
-      if (error) {
-        toast({
-          title: "Clear Cart Failed",
-          description: error.message || "Could not clear cart.",
-          variant: "destructive",
-        });
-        return;
-      }
-      setCart([]);
-    } catch (err) {
-      console.error("Error clearing cart:", err);
-      toast({
-        title: "Clear Cart Failed",
-        description: err.message || "Could not clear cart.",
-        variant: "destructive",
-      });
-    }
+    dispatch({ type: 'CLEAR_CART' });
+    await saveCart([]);
   };
 
-  const subtotal = cart.reduce((acc, item) => acc + item.quantity * item.price, 0);
-  const discount = coupon
-    ? coupon.discount_type === "percentage"
-      ? subtotal * coupon.discount_value / 100
-      : coupon.discount_value
-    : 0;
-  const giftCardAmount = giftCard ? Math.min(giftCard.amount, subtotal - discount) : 0;
-  const totalCartPrice = () => subtotal - discount - giftCardAmount;
+  const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-  const totalItems = () => {
-    return cart.reduce((acc, item) => acc + item.quantity, 0);
-  };
-
-  const value: CartContextType = {
-    cart,
-    items: cart,
-    addToCart,
-    removeFromCart,
-    updateCartItem,
-    clearCart,
-    totalItems,
-    totalPrice: totalCartPrice,
-    isLoading,
-    subtotal,
-    discount,
-    giftCardAmount,
-    setCoupon,
-    setGiftCard,
-    coupon,
-    giftCard,
-  };
-
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={{
+      items: state.items,
+      isLoading: state.isLoading,
+      addItem,
+      updateQuantity,
+      removeItem,
+      clearCart,
+      totalItems,
+      totalPrice
+    }}>
+      {children}
+    </CartContext.Provider>
+  );
 };
 
-const useCart = () => {
+export const useCart = () => {
   const context = useContext(CartContext);
-  if (context === undefined) {
-    throw new Error("useCart must be used within a CartProvider");
+  if (!context) {
+    throw new Error('useCart must be used within a CartProvider');
   }
   return context;
 };
-
-export { CartProvider, useCart };
-
-// ... NOTE: This file is getting long, consider refactoring if more cart logic is needed!

@@ -1,286 +1,204 @@
+
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Container } from "@/components/ui/container";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Award, ShoppingBag, Heart, Star, Sparkles, Shield, Zap, Globe } from "lucide-react";
+import SEOHead from "@/components/seo/SEOHead";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import SEOHead from "@/components/seo/SEOHead";
+import { Sparkles, Download, Zap, Shield, Users, Award } from "lucide-react";
 
 const About = () => {
-  const stats = [
-    { icon: Users, label: "Happy Customers", value: "50,000+", color: "text-blue-600" },
-    { icon: Award, label: "Products Delivered", value: "100,000+", color: "text-green-600" },
-    { icon: ShoppingBag, label: "Orders Placed", value: "75,000+", color: "text-purple-600" },
-    { icon: Heart, label: "5-Star Reviews", value: "45,000+", color: "text-pink-600" }
+  const features = [
+    {
+      icon: <Download className="h-8 w-8 text-primary" />,
+      title: "Instant Downloads",
+      description: "Get your digital products immediately after purchase with secure download links."
+    },
+    {
+      icon: <Zap className="h-8 w-8 text-primary" />,
+      title: "High Quality",
+      description: "All our digital products are professionally crafted and thoroughly tested."
+    },
+    {
+      icon: <Shield className="h-8 w-8 text-primary" />,
+      title: "Secure Payments",
+      description: "Safe and secure transactions with PayPal and Ziina payment processing."
+    },
+    {
+      icon: <Users className="h-8 w-8 text-primary" />,
+      title: "Community Driven",
+      description: "Built by creators, for creators. Join our growing community of digital enthusiasts."
+    }
   ];
 
-  const values = [
-    {
-      icon: Star,
-      title: "Premium Quality",
-      description: "We source only the finest materials and work with top-tier manufacturers to ensure every product meets our exacting standards.",
-      gradient: "from-yellow-500 to-orange-500"
-    },
-    {
-      icon: Sparkles,
-      title: "Endless Customization",
-      description: "Your imagination is the only limit. Our advanced customization platform allows you to create truly unique products.",
-      gradient: "from-purple-500 to-pink-500"
-    },
-    {
-      icon: Shield,
-      title: "Customer Trust",
-      description: "We protect your data, secure your payments, and stand behind every product with our comprehensive guarantee.",
-      gradient: "from-blue-500 to-cyan-500"
-    },
-    {
-      icon: Zap,
-      title: "Lightning Fast",
-      description: "From order to delivery, we've optimized every step to get your custom creations to you as quickly as possible.",
-      gradient: "from-green-500 to-emerald-500"
-    }
+  const stats = [
+    { number: "10K+", label: "Digital Products" },
+    { number: "25K+", label: "Happy Customers" },
+    { number: "99%", label: "Satisfaction Rate" },
+    { number: "24/7", label: "Support Available" }
   ];
 
   return (
     <>
-      <SEOHead 
-        title="About Zyra - Custom, Digital, and Coding Products | Our Story, Mission & Values"
-        description="Learn about Zyra's journey, mission, and values. Zyra delivers customizable, digital, and coding products worldwide—quality, innovation, and customer satisfaction for all creators."
+      <SEOHead
+        title="About Zyra Digital Products - Premium Digital Resources"
+        description="Learn about Zyra Digital Products - your trusted source for high-quality digital templates, graphics, fonts, and creative resources for designers and businesses."
         url="https://www.shopzyra.site/about"
-        image="https://www.shopzyra.site/favicon.ico"
-        keywords="Zyra, custom products, digital products, coding files, programming, personalized gifts, company mission, values, global reach, customer satisfaction, innovation, software, code, templates"
       />
-      <script type="application/ld+json">{JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'AboutPage',
-        'name': 'About Zyra',
-        'description': "Learn about Zyra's journey, mission, and values. Zyra delivers customizable, digital, and coding products worldwide—quality, innovation, and customer satisfaction for all creators.",
-        'url': 'https://www.shopzyra.site/about',
-        'mainEntity': {
-          '@type': 'Organization',
-          'name': 'Zyra',
-          'url': 'https://www.shopzyra.site',
-          'logo': 'https://www.shopzyra.site/icon-512.png',
-          'sameAs': [
-            'https://www.instagram.com/shopzyra',
-            'https://twitter.com/shopzyra',
-            'https://www.facebook.com/shopzyra'
-          ],
-          'description': 'Custom, digital, and coding products for everyone, delivered worldwide.'
-        }
-      })}</script>
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900/20">
-        <Navbar />
+      <Navbar />
+      
+      <div className="min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="pt-20 pb-16 bg-gradient-to-br from-purple-600/10 via-transparent to-pink-600/10">
-          <Container>
-            <div className="text-center mb-16 animate-fade-in">
-              <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 rounded-full mb-8 animate-bounce-in shadow-2xl">
-                <Heart className="h-12 w-12 text-white animate-pulse" />
-              </div>
-              <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-800 bg-clip-text text-transparent animate-text-shimmer">
-                About Zyra
-              </h1>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto animate-slide-in-up leading-relaxed" style={{animationDelay: '0.2s'}}>
-                Zyra is your trusted partner for customizable, digital, and coding products—serving creators, developers, and gift-givers worldwide. Since 2020, we've empowered 50,000+ customers in 25+ countries to design, download, and own products that reflect their unique stories: from personalized gifts and home decor to digital downloads, programming resources, and code templates. Our mission is to make high-quality personalization and digital creation accessible to everyone. Whether you want a one-of-a-kind gift, a digital asset, or a coding tool, Zyra delivers quality, endless customization, and a seamless experience from design to delivery.
-              </p>
-            </div>
-          </Container>
+        <section className="relative py-20 bg-gradient-to-br from-primary/5 via-background to-purple-500/5">
+          <div className="max-w-6xl mx-auto px-4 text-center">
+            <Badge className="mb-6 bg-primary/10 text-primary hover:bg-primary/20">
+              <Sparkles className="h-4 w-4 mr-2" />
+              About Zyra Digital Products
+            </Badge>
+            
+            <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Empowering Creativity Through Digital Innovation
+            </h1>
+            
+            <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+              At Zyra Digital Products, we're passionate about providing creators, designers, and businesses 
+              with premium digital resources that inspire and accelerate their projects.
+            </p>
+          </div>
         </section>
 
         {/* Stats Section */}
-        <Container className="pb-20">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-20">
-            {stats.map((stat, index) => (
-              <Card key={index} className="text-center hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-scale-in border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm" style={{animationDelay: `${index * 0.1}s`}}>
-                <CardContent className="p-8">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900/50 dark:to-pink-900/50 rounded-2xl mb-4 shadow-lg">
-                    <stat.icon className={`h-8 w-8 ${stat.color} animate-float`} />
+        <section className="py-16 bg-muted/30">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-4xl font-bold text-primary mb-2">
+                    {stat.number}
                   </div>
-                  <div className="text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    {stat.value}
-                  </div>
-                  <div className="text-gray-600 dark:text-gray-400 font-medium">
+                  <div className="text-muted-foreground font-medium">
                     {stat.label}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Story Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
-            <div className="animate-slide-in-left">
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Our Story
-              </h2>
-              <div className="space-y-4 text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-                <p>
-                  Founded in 2020 with a simple mission: to make premium customization accessible to everyone. What started as a small team of designers and engineers has grown into a global platform serving customers worldwide.
-                </p>
-                <p>
-                  We believe that every product should tell a story - your story. Whether it's a personalized gift for a loved one or a custom piece that reflects your unique style, we're here to bring your vision to life with exceptional quality and attention to detail.
-                </p>
-                <p>
-                  Today, we're proud to offer thousands of customizable products, working with carefully selected suppliers and using cutting-edge technology to ensure every order exceeds expectations.
-                </p>
-              </div>
-            </div>
-            <div className="animate-slide-in-right">
-              <div className="bg-gradient-to-br from-purple-100 via-white to-pink-100 dark:from-purple-900/30 dark:via-gray-800 dark:to-pink-900/30 rounded-3xl p-8 shadow-2xl">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">2020</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Founded</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-pink-600 dark:text-pink-400 mb-2">25+</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Countries</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">50K+</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Customers</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-3xl font-bold text-green-600 dark:text-green-400 mb-2">100K+</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">Orders</div>
-                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
+        </section>
 
-          {/* Values Section */}
-          <div className="mb-20">
-            <div className="text-center mb-16 animate-fade-in">
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Our Values
-              </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                These core principles guide everything we do, from product design to customer service.
+        {/* Story Section */}
+        <section className="py-20">
+          <div className="max-w-4xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Our Story</h2>
+              <p className="text-lg text-muted-foreground">
+                Born from a passion for digital creativity and innovation
+              </p>
+            </div>
+            
+            <Card className="p-8">
+              <CardContent className="prose prose-lg max-w-none">
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  Zyra Digital Products was founded with a simple yet powerful mission: to democratize access 
+                  to high-quality digital resources. We believe that creativity shouldn't be limited by budget 
+                  or access to expensive tools.
+                </p>
+                
+                <p className="text-muted-foreground leading-relaxed mb-6">
+                  What started as a small collection of templates has grown into a comprehensive marketplace 
+                  featuring thousands of digital products including graphics, fonts, templates, stock photos, 
+                  educational resources, and creative tools.
+                </p>
+                
+                <p className="text-muted-foreground leading-relaxed">
+                  Today, we're proud to serve a global community of creators, from individual freelancers 
+                  to major corporations, helping them bring their visions to life with our carefully curated 
+                  digital products.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section className="py-20 bg-muted/30">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl font-bold mb-4">Why Choose Zyra?</h2>
+              <p className="text-lg text-muted-foreground">
+                We're committed to providing the best digital product experience
               </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {values.map((value, index) => (
-                <Card key={index} className="hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 animate-scale-in border-0 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm overflow-hidden" style={{animationDelay: `${index * 0.15}s`}}>
-                  <CardHeader className="pb-4">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-14 h-14 bg-gradient-to-br ${value.gradient} rounded-2xl flex items-center justify-center shadow-xl`}>
-                        <value.icon className="h-7 w-7 text-white animate-pulse" />
+              {features.map((feature, index) => (
+                <Card key={index} className="p-6 hover:shadow-lg transition-shadow">
+                  <CardContent className="p-0">
+                    <div className="flex items-start space-x-4">
+                      <div className="flex-shrink-0">
+                        {feature.icon}
                       </div>
-                      <CardTitle className="text-2xl text-gray-900 dark:text-white">
-                        {value.title}
-                      </CardTitle>
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">
+                          {feature.title}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          {feature.description}
+                        </p>
+                      </div>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-gray-600 dark:text-gray-300 leading-relaxed text-lg">
-                      {value.description}
-                    </p>
                   </CardContent>
                 </Card>
               ))}
             </div>
           </div>
+        </section>
 
-          {/* Mission Statement */}
-          <Card className="bg-gradient-to-br from-purple-600 via-purple-700 to-pink-600 border-0 shadow-2xl animate-scale-in text-white overflow-hidden">
-            <CardContent className="p-12 text-center relative">
-              <div className="absolute inset-0 bg-black/10"></div>
-              <div className="relative z-10">
-                <Sparkles className="h-16 w-16 mx-auto mb-6 animate-float" />
-                <h3 className="text-4xl font-bold mb-6 animate-text-shimmer">
-                  Our Mission
-                </h3>
-                <p className="text-xl leading-relaxed max-w-4xl mx-auto animate-fade-in">
-                  To empower individuals and businesses to express their unique identity through premium customizable products, while maintaining the highest standards of quality, sustainability, and customer satisfaction. We believe everyone deserves products that are as unique as they are.
-                </p>
-                <div className="flex items-center justify-center gap-6 mt-8">
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-lg px-4 py-2">
-                    <Star className="h-4 w-4 mr-2" />
-                    Premium Quality
-                  </Badge>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-lg px-4 py-2">
-                    <Globe className="h-4 w-4 mr-2" />
-                    Global Reach
-                  </Badge>
-                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30 text-lg px-4 py-2">
-                    <Heart className="h-4 w-4 mr-2" />
-                    Customer First
-                  </Badge>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </Container>
-
-        {/* FAQ Section for SEO (with FAQPage schema) */}
-        <React.Fragment>
-          <Container>
-            <h2 className="text-3xl font-bold mb-8 text-center bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">Frequently Asked Questions</h2>
-            <div className="max-w-2xl mx-auto space-y-6">
-              <div>
-                <h3 className="font-semibold text-lg">What makes Zyra different from other product and digital marketplaces?</h3>
-                <p className="text-gray-700 dark:text-gray-300">Zyra offers advanced customization, premium materials, and a passion for customer satisfaction. Our platform provides more options, faster delivery, and a global reach for both physical and digital products—including code, templates, and software tools.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">How do I create or purchase a personalized or digital product?</h3>
-                <p className="text-gray-700 dark:text-gray-300">Choose a product or digital file, use our customization tools or download options, and place your order. Our team ensures every detail is perfect before shipping or delivering your digital asset.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">What types of digital and coding products does Zyra offer?</h3>
-                <p className="text-gray-700 dark:text-gray-300">We offer digital downloads, including code snippets, programming templates, software tools, and more—alongside our physical product catalog.</p>
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Is my data and payment information safe?</h3>
-                <p className="text-gray-700 dark:text-gray-300">Absolutely. Zyra uses industry-leading security protocols to protect your data and ensure safe, secure transactions every time.</p>
-              </div>
+        {/* Mission Section */}
+        <section className="py-20">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <div className="mb-8">
+              <Award className="h-16 w-16 text-primary mx-auto mb-6" />
+              <h2 className="text-3xl font-bold mb-4">Our Mission</h2>
             </div>
-            <script type="application/ld+json">{JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'FAQPage',
-              'mainEntity': [
-                {
-                  '@type': 'Question',
-                  'name': 'What makes Zyra different from other product and digital marketplaces?',
-                  'acceptedAnswer': {
-                    '@type': 'Answer',
-                    'text': 'Zyra offers advanced customization, premium materials, and a passion for customer satisfaction. Our platform provides more options, faster delivery, and a global reach for both physical and digital products—including code, templates, and software tools.'
-                  }
-                },
-                {
-                  '@type': 'Question',
-                  'name': 'How do I create or purchase a personalized or digital product?',
-                  'acceptedAnswer': {
-                    '@type': 'Answer',
-                    'text': 'Choose a product or digital file, use our customization tools or download options, and place your order. Our team ensures every detail is perfect before shipping or delivering your digital asset.'
-                  }
-                },
-                {
-                  '@type': 'Question',
-                  'name': 'What types of digital and coding products does Zyra offer?',
-                  'acceptedAnswer': {
-                    '@type': 'Answer',
-                    'text': 'We offer digital downloads, including code snippets, programming templates, software tools, and more—alongside our physical product catalog.'
-                  }
-                },
-                {
-                  '@type': 'Question',
-                  'name': 'Is my data and payment information safe?',
-                  'acceptedAnswer': {
-                    '@type': 'Answer',
-                    'text': 'Absolutely. Zyra uses industry-leading security protocols to protect your data and ensure safe, secure transactions every time.'
-                  }
-                }
-              ]
-            })}</script>
-          </Container>
-        </React.Fragment>
-        
-        <Footer />
+            
+            <Card className="p-8 bg-gradient-to-br from-primary/5 to-purple-500/5">
+              <CardContent className="p-0">
+                <p className="text-xl text-muted-foreground leading-relaxed">
+                  To empower creators worldwide by providing instant access to premium digital resources 
+                  that inspire innovation, enhance productivity, and bring creative visions to life. 
+                  We're building the future of digital creativity, one download at a time.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+
+        {/* CTA Section */}
+        <section className="py-20 bg-gradient-to-r from-primary/10 to-purple-500/10">
+          <div className="max-w-4xl mx-auto px-4 text-center">
+            <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+            <p className="text-lg text-muted-foreground mb-8">
+              Join thousands of creators who trust Zyra for their digital product needs
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a 
+                href="/shop" 
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-6 py-2"
+              >
+                Explore Products
+              </a>
+              <a 
+                href="/contact" 
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-6 py-2"
+              >
+                Contact Us
+              </a>
+            </div>
+          </div>
+        </section>
       </div>
+      
+      <Footer />
     </>
   );
 };

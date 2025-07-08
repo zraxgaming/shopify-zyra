@@ -1,34 +1,29 @@
 
 import React from "react";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import Hero from "@/components/home/Hero";
 import FeaturedProducts from "@/components/home/FeaturedProducts";
-import CategoryShowcase from "@/components/home/CategoryShowcase";
-import About from "@/components/home/About";
+import Categories from "@/components/home/Categories";
 import Newsletter from "@/components/home/Newsletter";
+import Footer from "@/components/layout/Footer";
 import SEOHead from "@/components/seo/SEOHead";
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-background">
-      <SEOHead 
-        title="Premium Custom Products & Personalized Gifts"
-        description="Discover exceptional custom products and personalized gifts at Zyra Custom Craft. From custom printing to bespoke designs, we create unique items tailored to your vision."
-        keywords="custom products, personalized gifts, custom printing, bespoke design, unique items, custom craft, personalized products"
+    <>
+      <SEOHead
+        title="Zyra - Premium Digital Products, Templates & Creative Resources"
+        description="Discover thousands of high-quality digital products at Zyra. Download premium templates, graphics, fonts, stock photos, and creative resources instantly. Perfect for designers, businesses, and creators."
+        url="https://www.shopzyra.site"
+        keywords="digital products, templates, graphics, fonts, stock photos, design resources, instant download, creative assets, Zyra"
       />
       <Navbar />
-      
-      <main className="animate-fade-in">
-        <Hero />
-        <FeaturedProducts />
-        <CategoryShowcase />
-        <About />
-        <Newsletter />
-      </main>
-      
+      <Hero />
+      <FeaturedProducts />
+      <Categories />
+      <Newsletter />
       <Footer />
-    </div>
+    </>
   );
 };
 

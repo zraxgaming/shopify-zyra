@@ -1,253 +1,185 @@
-import React, { useState } from "react";
+
+import React from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import SEOHead from "@/components/seo/SEOHead";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { Container } from "@/components/ui/container";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Search, HelpCircle, ChevronDown, ChevronRight } from "lucide-react";
-import SEOHead from "@/components/seo/SEOHead";
 
 const FAQ = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [openItems, setOpenItems] = useState<number[]>([]);
-
-  const toggleItem = (index: number) => {
-    setOpenItems(prev => 
-      prev.includes(index) 
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
-    );
-  };
-
   const faqCategories = [
     {
-      category: "Orders & Shipping",
-      color: "from-blue-600 to-purple-600",
-      questions: [
+      title: "Digital Products",
+      items: [
         {
-          question: "How long does shipping take?",
-          answer: "Standard shipping takes 3-5 business days within the US. International shipping takes 7-14 business days. Express shipping options are available for faster delivery."
+          question: "What types of digital products do you offer?",
+          answer: "We offer a wide range of digital products including templates, graphics, fonts, digital art, stock photos, software tools, educational courses, and digital resources for creative professionals."
+        },
+        {
+          question: "How do I download my digital products?",
+          answer: "After purchase, you'll receive an email with download links. You can also access your digital products anytime from your account dashboard under 'My Orders'. Digital products are available for immediate download after payment confirmation."
+        },
+        {
+          question: "Can I get a refund for digital products?",
+          answer: "Due to the nature of digital products, refunds are generally not available once the product has been downloaded. However, we may consider refunds on a case-by-case basis for technical issues or if the product doesn't match its description."
+        },
+        {
+          question: "Are there any usage restrictions on digital products?",
+          answer: "Usage rights vary by product. Most of our digital products come with commercial licenses, but please check the specific license terms included with each product. Some items may be for personal use only."
+        },
+        {
+          question: "What if my download link doesn't work?",
+          answer: "If you're having trouble with download links, please contact our support team immediately. We'll resend the links or provide alternative download methods. Download links are typically valid for 30 days."
+        }
+      ]
+    },
+    {
+      title: "Orders & Payment",
+      items: [
+        {
+          question: "What payment methods do you accept?",
+          answer: "We accept PayPal and Ziina for all purchases. For digital products, only PayPal and Ziina payments are accepted to ensure secure transactions and instant delivery."
+        },
+        {
+          question: "Is my payment information secure?",
+          answer: "Yes, we use industry-standard encryption and work with trusted payment processors. We never store your payment information on our servers - all transactions are processed securely through PayPal or Ziina."
         },
         {
           question: "Can I track my order?",
-          answer: "Yes! Once your order ships, you'll receive a tracking number via email. You can also track your order in your account dashboard."
+          answer: "For physical products, you'll receive tracking information once your order ships. For digital products, you can access them immediately after payment in your account dashboard."
         },
         {
-          question: "What are your shipping costs?",
-          answer: "Shipping costs vary by location and speed. Standard US shipping is $5.99, free on orders over $50. International rates start at $12.99."
-        },
-        {
-          question: "Do you ship internationally?",
-          answer: "Yes, we ship to over 100 countries worldwide. Shipping costs and delivery times vary by destination."
+          question: "How long does processing take?",
+          answer: "Digital products are available immediately after payment confirmation. Physical products typically process within 1-2 business days before shipping."
         }
       ]
     },
     {
-      category: "Customization",
-      color: "from-purple-600 to-pink-600",
-      questions: [
+      title: "Account & Technical",
+      items: [
         {
-          question: "What products can be customized?",
-          answer: "Most of our products offer customization options including phone cases, mugs, t-shirts, hoodies, and accessories. Look for the 'Customizable' badge on product pages."
+          question: "Do I need an account to make a purchase?",
+          answer: "Yes, an account is required to purchase and access digital products. This ensures you can always re-download your purchases and manage your orders easily."
         },
         {
-          question: "What file formats do you accept for custom images?",
-          answer: "We accept JPG, PNG, SVG, and PDF files. For best quality, use high-resolution images (300 DPI or higher)."
+          question: "I forgot my password, how do I reset it?",
+          answer: "Click on 'Forgot Password' on the login page and enter your email address. We'll send you a reset link to create a new password."
         },
         {
-          question: "Can I preview my custom design before ordering?",
-          answer: "Absolutely! Our live preview tool shows exactly how your design will look on the product before you add it to cart."
+          question: "Can I change my email address?",
+          answer: "Yes, you can update your email address in your account settings. Make sure to use an email you have access to, as order confirmations and download links will be sent there."
         },
         {
-          question: "Are there any restrictions on custom text or images?",
-          answer: "We don't allow copyrighted content, offensive material, or low-quality images. Our team reviews all custom orders to ensure quality standards."
+          question: "Why can't I access my digital products?",
+          answer: "Make sure you're logged into the correct account. If you're still having issues, check your email for the download links or contact our support team for assistance."
         }
       ]
     },
     {
-      category: "Returns & Refunds",
-      color: "from-pink-600 to-red-600",
-      questions: [
+      title: "Shipping & Delivery",
+      items: [
         {
-          question: "What's your return policy?",
-          answer: "We offer 30-day returns for non-customized items in original condition. Custom products have a 7-day return window for manufacturing defects only."
+          question: "Do you offer international shipping?",
+          answer: "Currently, we primarily focus on digital products which are available worldwide instantly. For physical products, shipping availability depends on your location. Please check at checkout."
         },
         {
-          question: "How do I start a return?",
-          answer: "Log into your account, go to 'My Orders', and click 'Return Item' next to the product. Follow the prompts to generate a return label."
+          question: "How much does shipping cost?",
+          answer: "Shipping costs vary based on your location and the items ordered. You'll see the exact shipping cost at checkout before completing your purchase."
         },
         {
-          question: "When will I receive my refund?",
-          answer: "Refunds are processed within 3-5 business days after we receive your returned item. The refund will appear on your original payment method within 5-10 business days."
-        },
-        {
-          question: "Who pays for return shipping?",
-          answer: "We provide free return labels for defective items. For other returns, customers are responsible for return shipping costs."
+          question: "Can I change my shipping address after ordering?",
+          answer: "Contact us immediately if you need to change your shipping address. We can update it if the order hasn't been processed yet."
         }
       ]
     },
     {
-      category: "Account & Payment",
-      color: "from-green-600 to-blue-600",
-      questions: [
+      title: "Support & Contact",
+      items: [
         {
-          question: "What payment methods do you accept?",
-          answer: "We accept all major credit cards, PayPal, Ziina, Apple Pay, and Google Pay. All transactions are secured with SSL encryption."
+          question: "How can I contact customer support?",
+          answer: "You can reach our support team through the contact form on our website, or email us directly. We typically respond within 24 hours during business days."
         },
         {
-          question: "Do I need an account to place an order?",
-          answer: "You can checkout as a guest, but creating an account lets you track orders, save designs, and access exclusive member benefits."
+          question: "What if I have a technical issue with a digital product?",
+          answer: "If you encounter technical issues with any digital product, please contact our support team with details about the problem. We'll work to resolve it quickly or provide a suitable alternative."
         },
         {
-          question: "How do I reset my password?",
-          answer: "Click 'Forgot Password' on the login page, enter your email, and we'll send you a reset link. The link expires in 24 hours for security."
-        },
-        {
-          question: "Can I change my order after placing it?",
-          answer: "You can modify or cancel orders within 1 hour of placement. After that, contact our support team and we'll do our best to help."
+          question: "Can you create custom digital products?",
+          answer: "While we focus on ready-made digital products, we may consider custom requests depending on the scope and requirements. Please contact us with your specific needs."
         }
       ]
     }
   ];
 
-  const filteredFAQs = faqCategories.map(category => ({
-    ...category,
-    questions: category.questions.filter(
-      faq => 
-        faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  })).filter(category => category.questions.length > 0);
-
   return (
     <>
       <SEOHead
-        title="FAQ - Zyra Custom Craft"
-        description="Find answers to common questions about orders, shipping, customization, and more at Zyra Custom Craft."
+        title="FAQ - Frequently Asked Questions | Zyra Digital Products"
+        description="Find answers to common questions about Zyra digital products, downloads, payments, and more. Get help with your digital product purchases."
         url="https://www.shopzyra.site/faq"
-        keywords="faq, help, support, shipping, order, customization, zyra, custom craft"
-        section="FAQ"
       />
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="relative py-20 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-purple-500/5 to-pink-500/5"></div>
-        <Container className="relative z-10">
-          <div className="text-center max-w-3xl mx-auto animate-fade-in">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="relative">
-                <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-purple-500/20 to-pink-500/20 rounded-full blur-xl animate-pulse"></div>
-                <div className="relative bg-gradient-to-br from-primary/10 to-purple-500/10 p-4 rounded-2xl border border-primary/20 backdrop-blur-sm">
-                  <HelpCircle className="h-10 w-10 text-primary animate-pulse" />
-                </div>
-              </div>
-            </div>
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-primary via-purple-600 to-pink-600 bg-clip-text text-transparent mb-6 animate-scale-in">
-              Frequently Asked Questions
-            </h1>
-            <p className="text-xl text-muted-foreground leading-relaxed animate-slide-in-right">
-              Find quick answers to common questions about our products, shipping, returns, and more. 
-              Can't find what you're looking for? Contact our support team.
+      <div className="min-h-screen bg-background">
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl font-bold mb-4">Frequently Asked Questions</h1>
+            <p className="text-xl text-muted-foreground">
+              Find answers to common questions about our digital products and services
             </p>
           </div>
-        </Container>
-      </section>
 
-      {/* Search Section */}
-      <section className="py-8 bg-muted/30">
-        <Container>
-          <div className="max-w-2xl mx-auto animate-fade-in">
-            <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search frequently asked questions..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 pr-4 py-3 text-lg bg-background/80 backdrop-blur-sm border-2 border-border/50 focus:border-primary/50 transition-all duration-300 focus:scale-[1.02]"
-              />
-            </div>
-          </div>
-        </Container>
-      </section>
-
-      {/* FAQ Content */}
-      <section className="py-16">
-        <Container>
-          <div className="space-y-12">
-            {filteredFAQs.map((category, categoryIndex) => (
-              <div key={categoryIndex} className="animate-fade-in" style={{ animationDelay: `${categoryIndex * 100}ms` }}>
-                <div className="text-center mb-8">
-                  <Badge className={`mb-4 bg-gradient-to-r ${category.color} text-white`}>
-                    {category.category}
-                  </Badge>
-                  <h2 className="text-3xl font-bold text-foreground">{category.category}</h2>
-                </div>
-                
-                <div className="max-w-4xl mx-auto space-y-4">
-                  {category.questions.map((faq, index) => {
-                    const globalIndex = categoryIndex * 100 + index;
-                    const isOpen = openItems.includes(globalIndex);
-                    
-                    return (
-                      <Card 
+          <div className="space-y-8">
+            {faqCategories.map((category, categoryIndex) => (
+              <Card key={categoryIndex}>
+                <CardHeader>
+                  <CardTitle className="text-2xl">{category.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Accordion type="single" collapsible className="w-full">
+                    {category.items.map((faq, index) => (
+                      <AccordionItem 
                         key={index} 
-                        className="bg-card/50 backdrop-blur-sm border border-border/50 hover:shadow-lg transition-all duration-300 animate-slide-in-right"
-                        style={{ animationDelay: `${index * 50}ms` }}
+                        value={`${categoryIndex}-${index}`}
                       >
-                        <Collapsible open={isOpen} onOpenChange={() => toggleItem(globalIndex)}>
-                          <CollapsibleTrigger className="w-full">
-                            <CardContent className="p-6">
-                              <div className="flex items-center justify-between text-left">
-                                <h3 className="text-lg font-semibold text-foreground pr-4">
-                                  {faq.question}
-                                </h3>
-                                <div className="flex-shrink-0">
-                                  {isOpen ? (
-                                    <ChevronDown className="h-5 w-5 text-primary transition-transform duration-200" />
-                                  ) : (
-                                    <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform duration-200" />
-                                  )}
-                                </div>
-                              </div>
-                            </CardContent>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <CardContent className="px-6 pb-6 pt-0">
-                              <div className="border-t border-border/50 pt-4">
-                                <p className="text-muted-foreground leading-relaxed">
-                                  {faq.answer}
-                                </p>
-                              </div>
-                            </CardContent>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </Card>
-                    );
-                  })}
-                </div>
-              </div>
+                        <AccordionTrigger className="text-left font-medium">
+                          {faq.question}
+                        </AccordionTrigger>
+                        <AccordionContent className="text-muted-foreground">
+                          {faq.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </CardContent>
+              </Card>
             ))}
           </div>
 
-          {filteredFAQs.length === 0 && (
-            <div className="text-center py-12 animate-fade-in">
-              <HelpCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-2xl font-semibold mb-2 text-foreground">No results found</h3>
+          <Card className="mt-12">
+            <CardContent className="text-center py-8">
+              <h3 className="text-xl font-semibold mb-4">
+                Still have questions?
+              </h3>
               <p className="text-muted-foreground mb-6">
-                We couldn't find any FAQs matching your search. Try different keywords or contact our support team.
+                Can't find what you're looking for? We're here to help!
               </p>
-              <Badge className="bg-gradient-to-r from-primary to-purple-600">
-                Contact Support for Help
-              </Badge>
-            </div>
-          )}
-        </Container>
-      </section>
-
+              <a 
+                href="/contact" 
+                className="inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+              >
+                Contact Support
+              </a>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      
       <Footer />
     </>
   );

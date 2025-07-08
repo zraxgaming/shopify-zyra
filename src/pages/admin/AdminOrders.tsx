@@ -8,6 +8,7 @@ import { Package, Eye, Edit, Truck, CheckCircle, XCircle, Clock } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { sendEmail, emailTemplates } from "@/services/emailService";
 
 interface Order {
   id: string;
@@ -20,6 +21,7 @@ interface Order {
   delivery_type: string;
   created_at: string;
   updated_at: string;
+  tracking_number?: string;
   payment_intent_id?: string;
   profiles?: {
     id: string;
@@ -92,14 +94,20 @@ const AdminOrders = () => {
     }
   };
 
-  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+  const updateOrderStatus = async (orderId: string, newStatus: string, trackingNumber?: string) => {
     try {
+      const updateData: any = {
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      };
+
+      if (trackingNumber) {
+        updateData.tracking_number = trackingNumber;
+      }
+
       const { error } = await supabase
         .from('orders')
-        .update({ 
-          status: newStatus,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', orderId);
 
       if (error) throw error;
@@ -112,33 +120,28 @@ const AdminOrders = () => {
       // Update local state
       setOrders(prevOrders =>
         prevOrders.map(order =>
-          order.id === orderId ? { ...order, status: newStatus } : order
+          order.id === orderId ? { ...order, status: newStatus, tracking_number: trackingNumber } : order
         )
       );
 
       // Send email notification if user email exists
       if (userEmail) {
-        const { zyraEmailTemplate } = await import('@/utils/emailTemplate');
-        fetch('/api/send-email-generic', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            to: userEmail,
-            subject: `Your order status has changed to ${newStatus}`,
-            text: `Hello ${userName}, your order status is now: ${newStatus}.`,
-            html: zyraEmailTemplate({
-              title: 'Order Status Updated',
-              body: `<p style=\"font-size: 1.1rem; color: #6b21a8; margin-bottom: 16px;\">Hello <b>${userName}</b>,</p><p style=\"color: #4b006e; margin-bottom: 16px;\">Your order status is now: <b style='color:#7c3aed'>${newStatus}</b>.</p>`,
-              ctaText: 'View My Orders',
-              ctaUrl: 'https://www.shopzyra.site/dashboard'
-            })
-          })
+        const emailTemplate = emailTemplates.orderStatusUpdate(
+          orderId,
+          newStatus,
+          trackingNumber
+        );
+
+        await sendEmail({
+          to: userEmail,
+          subject: `Order Status Update - ${newStatus.replace('_', ' ')}`,
+          ...emailTemplate
         });
       }
 
       toast({
         title: "Order Updated",
-        description: `Order status changed to ${newStatus}`,
+        description: `Order status changed to ${newStatus}${userEmail ? ' and email sent' : ''}`,
       });
     } catch (error: any) {
       console.error('Error updating order:', error);
@@ -196,7 +199,7 @@ const AdminOrders = () => {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-6 p-6">
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Package className="h-8 w-8" />
@@ -220,7 +223,7 @@ const AdminOrders = () => {
         </div>
 
         <div className="grid gap-4">
-          {filteredOrders.map((order, index) => (
+          {filteredOrders.map((order) => (
             <Card key={order.id} className="hover:shadow-lg transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -256,10 +259,12 @@ const AdminOrders = () => {
                         <span className="font-medium">Date:</span>{' '}
                         {new Date(order.created_at).toLocaleDateString()}
                       </div>
-                    </div>
-                    <div>
-                      <span className="font-medium">Payment Intent:</span>{' '}
-                      <span className="font-mono text-xs">{order.payment_intent_id || "—"}</span>
+                      {order.tracking_number && (
+                        <div>
+                          <span className="font-medium">Tracking:</span>{' '}
+                          {order.tracking_number}
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -288,15 +293,6 @@ const AdminOrders = () => {
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       View
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => navigate(`/admin/orders/${order.id}/edit`)}
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
                     </Button>
                   </div>
                 </div>
