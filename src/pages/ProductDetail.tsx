@@ -28,7 +28,7 @@ const ProductDetail: React.FC = () => {
   const [customImagePreview, setCustomImagePreview] = useState<string | null>(null);
 
   const { toast } = useToast();
-  const { addToCart } = useCart();
+  const { addItem } = useCart();
   const [customizationModalOpen, setCustomizationModalOpen] = useState(false);
   const [pendingCustomization, setPendingCustomization] = useState<any>(null);
 
@@ -88,16 +88,14 @@ const ProductDetail: React.FC = () => {
   const handleCustomizationSave = async (options: { text: string; imageBase64?: string }) => {
     setPendingCustomization(options);
     if (!product) return;
-    await addToCart(
-      {
-        product_id: product.id,
-        name: product.name,
-        price: product.price,
-        image_url: selectedImage ?? "/placeholder-product.jpg",
-      },
-      quantity,
-      options
-    );
+    await addItem({
+      product_id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      image_url: selectedImage ?? "/placeholder-product.jpg",
+      customization: options
+    });
     toast({
       title: "Added to cart!",
       description: `${quantity} ${product.name} (Customized) added!`
@@ -110,15 +108,13 @@ const ProductDetail: React.FC = () => {
       return;
     }
     if (product) {
-      addToCart(
-        {
-          product_id: product.id,
-          name: product.name,
-          price: product.price,
-          image_url: selectedImage ?? "/placeholder-product.jpg",
-        },
-        quantity
-      );
+      addItem({
+        product_id: product.id,
+        name: product.name,
+        price: product.price,
+        quantity: quantity,
+        image_url: selectedImage ?? "/placeholder-product.jpg",
+      });
       toast({ title: "Added to cart!", description: `${quantity} ${product.name} added!` });
     }
   };

@@ -15,7 +15,7 @@ interface FeaturedProductsProps {
 
 const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ category, limit = 4 }) => {
   const { data: products, isLoading: loading, isError } = useFeaturedProducts(category, limit);
-  const { addToCart } = useCart();
+  const { addItem } = useCart();
 
   const renderStars = (rating: number | undefined) => {
     if (typeof rating !== 'number' || rating === 0) return <span className="text-sm text-muted-foreground">No reviews yet</span>;
@@ -92,12 +92,13 @@ const FeaturedProducts: React.FC<FeaturedProductsProps> = ({ category, limit = 4
             <span className="text-xl font-bold text-primary">AED {product.price.toFixed(2)}</span>
             <Button onClick={(e) => {
               e.preventDefault();
-              addToCart({
+              addItem({
                 product_id: product.id,
                 name: product.name,
                 price: product.price,
+                quantity: 1,
                 image_url: product.images[0] || "/placeholder-product.jpg"
-              }, 1);
+              });
             }} variant="outline">Add to Cart</Button>
           </CardFooter>
         </Card>

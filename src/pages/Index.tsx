@@ -16,7 +16,7 @@ import SEOHead from '@/components/seo/SEOHead';
 const Index = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const { addToCart, cart } = useCart();
+  const { addItem, items } = useCart();
   const { addToWishlist, isInWishlist } = useWishlist();
   const { toast } = useToast();
 
@@ -54,15 +54,13 @@ const Index = () => {
   };
 
   const handleAddToCart = (product: Product) => {
-    addToCart(
-      {
-        product_id: product.id,
-        name: product.name,
-        price: product.price,
-        image_url: product.image_url,
-      },
-      1
-    );
+    addItem({
+      product_id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image_url: product.image_url,
+    });
     toast({
       title: "Added to cart!",
       description: `${product.name} has been added to your cart.`,
@@ -166,7 +164,7 @@ const Index = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {products.map((product, index) => {
-                const isInCart = !!cart.find(item => item.product_id === product.id);
+                const isInCart = !!items.find(item => item.product_id === product.id);
                 return (
                   <Card 
                     key={product.id} 

@@ -25,7 +25,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
   disabled = false,
   className = "",
 }) => {
-  const { cart, addToCart } = useCart();
+  const { items, addItem } = useCart();
   const { toast } = useToast();
 
   // Get latest stock for the product
@@ -36,7 +36,7 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
 
   const [quantity, setQuantity] = useState(1);
 
-  const existingItem = cart.find((item) => item.product_id === product.id);
+  const existingItem = items.find((item) => item.product_id === product.id);
   const cartQuantity = existingItem ? existingItem.quantity : 0;
   const remainingStock = maxStock - cartQuantity;
 
@@ -79,15 +79,13 @@ const AddToCartButton: React.FC<AddToCartButtonProps> = ({
     }
 
     flyImage();
-    await addToCart(
-      {
-        product_id: product.id,
-        name: product.name,
-        price: product.price,
-        image_url: product.images[0] || "/placeholder-product.jpg"
-      },
-      quantity
-    );
+    await addItem({
+      product_id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: quantity,
+      image_url: product.images[0] || "/placeholder-product.jpg"
+    });
 
     toast({
       title: "Added to cart",

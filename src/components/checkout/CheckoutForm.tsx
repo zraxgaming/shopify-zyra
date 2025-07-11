@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { sendEmail, emailTemplates } from "@/services/emailService";
+import { sendResendEmail, emailTemplates } from "@/services/resendService";
 import AddressForm from "./AddressForm";
 import PaymentMethods from "./PaymentMethods";
 import DigitalPaymentMethods from "./DigitalPaymentMethods";
@@ -119,7 +119,7 @@ const CheckoutForm = () => {
           isDigitalOnly
         );
 
-        await sendEmail({
+        await sendResendEmail({
           to: userEmail,
           subject: 'Order Confirmation - Zyra Digital Products',
           ...emailTemplate
@@ -175,7 +175,15 @@ const CheckoutForm = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-6">
           {!isDigitalOnly && (
-            <AddressForm onAddressChange={setShippingAddress} />
+          <AddressForm 
+            shippingInfo={shippingAddress || {
+              firstName: '', lastName: '', email: '', phone: '',
+              address: '', city: '', state: '', zipCode: '', country: ''
+            }}
+            onShippingInfoChange={(field, value) => 
+              setShippingAddress(prev => ({ ...prev, [field]: value }))
+            }
+          />
           )}
           
           {isDigitalOnly ? (
@@ -185,8 +193,13 @@ const CheckoutForm = () => {
             />
           ) : (
             <PaymentMethods 
-              selectedMethod={paymentMethod}
-              onMethodChange={setPaymentMethod}
+              total={totalPrice}
+              onPaymentSuccess={(orderId) => navigate(`/order-confirmation/${orderId}`)}
+              orderData={{
+                user_id: user.id,
+                items: items,
+                ...shippingAddress
+              }}
             />
           )}
         </div>

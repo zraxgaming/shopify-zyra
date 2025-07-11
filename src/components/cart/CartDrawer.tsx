@@ -11,7 +11,7 @@ interface CartDrawerProps {
 }
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
-  const { cart, updateCartItem, removeFromCart, totalItems, totalPrice } = useCart();
+  const { items, updateQuantity, removeItem, totalItems, totalPrice } = useCart();
 
   // Get each item's available stock if present, fallback 99
   return (
@@ -20,12 +20,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
-            Shopping Cart ({totalItems()})
+            Shopping Cart ({totalItems})
           </SheetTitle>
         </SheetHeader>
         
         <div className="mt-6 space-y-4">
-          {cart.length === 0 ? (
+          {items.length === 0 ? (
             <div className="text-center py-8">
               <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <p className="text-muted-foreground">Your cart is empty</p>
@@ -33,7 +33,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
           ) : (
             <>
               <div className="space-y-4 max-h-[60vh] overflow-y-auto">
-                {cart.map((item) => {
+                {items.map((item) => {
                   // optional: get stock_quantity for product? can be passed in via API, or else 99
                   // For this demo fall back to 99 (should ideally refetch live on product change)
                   const maxStock = typeof (item as any).stock_quantity === "number"
@@ -58,7 +58,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => updateCartItem(item.id, Math.max(0, item.quantity - 1))}
+                          onClick={() => updateQuantity(item.id, Math.max(0, item.quantity - 1))}
                           disabled={item.quantity <= 1}
                         >
                           <Minus className="h-3 w-3" />
@@ -68,7 +68,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                           variant="outline"
                           size="sm"
                           onClick={() =>
-                            updateCartItem(
+                            updateQuantity(
                               item.id,
                               item.quantity + 1 > maxStock ? maxStock : item.quantity + 1
                             )
@@ -80,7 +80,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => removeFromCart(item.id)}
+                          onClick={() => removeItem(item.id)}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -93,7 +93,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
               <div className="border-t pt-4">
                 <div className="flex justify-between items-center mb-4">
                   <span className="font-semibold">
-                    Total: ${totalPrice().toFixed(2)}
+                    Total: ${totalPrice.toFixed(2)}
                   </span>
                 </div>
                 <div className="space-y-2">

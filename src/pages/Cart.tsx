@@ -8,22 +8,22 @@ import { useCart } from "@/components/cart/CartProvider";
 import { useNavigate } from "react-router-dom";
 
 const Cart = () => {
-  const { cart, updateCartItem, removeFromCart, totalPrice } = useCart();
+  const { items, updateQuantity, removeItem, totalPrice } = useCart();
   const navigate = useNavigate();
 
-  const subtotal = totalPrice();
+  const subtotal = totalPrice;
   const tax = subtotal * 0.08; // 8% tax rate
   const total = subtotal + tax;
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity < 1) {
-      removeFromCart(id);
+      removeItem(id);
     } else {
-      updateCartItem(id, newQuantity);
+      updateQuantity(id, newQuantity);
     }
   };
 
-  if (cart.length === 0) {
+  if (items.length === 0) {
     return (
       <>
         <Navbar />
@@ -84,7 +84,7 @@ const Cart = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
             <div className="space-y-4">
-              {cart.map((item) => (
+              {items.map((item) => (
                 <div
                   key={item.id}
                   className="flex items-center gap-4 p-6 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 animate-fade-in"
@@ -151,7 +151,7 @@ const Cart = () => {
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 mt-2"
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => removeItem(item.id)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

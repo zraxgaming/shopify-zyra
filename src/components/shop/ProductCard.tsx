@@ -30,7 +30,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const imageUrl = Array.isArray(product.images) && product.images.length > 0 
     ? product.images[0] 
     : '/placeholder-product.jpg';
-  const { cart } = useCart();
+  const { items } = useCart();
   const [animating, setAnimating] = useState(false);
 
   const handleAddToCartAnim = () => {

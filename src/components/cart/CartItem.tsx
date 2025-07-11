@@ -17,13 +17,13 @@ interface CartItemProps {
 }
 
 const CartItem: React.FC<CartItemProps> = ({ item }) => {
-  const { updateCartItem, removeFromCart } = useCart();
+  const { updateQuantity, removeItem } = useCart();
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) {
-      removeFromCart(item.id);
+      removeItem(item.id);
     } else {
-      updateCartItem(item.id, newQuantity);
+      updateQuantity(item.id, newQuantity);
     }
   };
 
@@ -89,7 +89,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
           variant="ghost"
           size="icon"
           className="h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-          onClick={() => removeFromCart(item.id)}
+          onClick={() => removeItem(item.id)}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
