@@ -8,7 +8,7 @@ import { Package, Eye, Edit, Truck, CheckCircle, XCircle, Clock } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import EmailService from "@/services/emailService";
+import BackendEmailService from "@/services/backendEmailService";
 
 interface Order {
   id: string;
@@ -115,7 +115,6 @@ const AdminOrders = () => {
       // Find the updated order and its user email
       const updatedOrder = orders.find(order => order.id === orderId);
       const userEmail = updatedOrder?.profiles?.email;
-      const userName = updatedOrder?.profiles?.full_name || 'Customer';
 
       // Update local state
       setOrders(prevOrders =>
@@ -127,10 +126,10 @@ const AdminOrders = () => {
       // Send email notification if user email exists
       if (userEmail) {
         // Get user's name for the email
-        const userName = order.profiles?.display_name || order.profiles?.full_name || 
-          `${order.profiles?.first_name || ''} ${order.profiles?.last_name || ''}`.trim() || 'Customer';
+        const userName = updatedOrder?.profiles?.display_name || updatedOrder?.profiles?.full_name || 
+          `${updatedOrder?.profiles?.first_name || ''} ${updatedOrder?.profiles?.last_name || ''}`.trim() || 'Customer';
 
-        const result = await EmailService.sendOrderStatusUpdate(
+        const result = await BackendEmailService.sendOrderStatusUpdate(
           orderId,
           userName,
           userEmail,

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import EmailService from "@/services/emailService";
+import BackendEmailService from "@/services/backendEmailService";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
@@ -13,8 +13,8 @@ const Newsletter = () => {
 
   const sendWelcomeEmail = async (email: string) => {
     try {
-      // Use the EmailService to send newsletter welcome email
-      const result = await EmailService.sendNewsletterWelcome(email);
+      // Use the BackendEmailService to send newsletter welcome email via API
+      const result = await BackendEmailService.sendNewsletterWelcome(email);
       
       if (result.success) {
         console.log('✅ Newsletter welcome email sent successfully:', result.id);

@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import EmailService from "@/services/emailService";
+import BackendEmailService from "@/services/backendEmailService";
 import AddressForm from "./AddressForm";
 import PaymentMethods from "./PaymentMethods";
 import DigitalPaymentMethods from "./DigitalPaymentMethods";
@@ -120,7 +120,7 @@ const CheckoutForm = () => {
           price: item.price
         }));
 
-        const result = await EmailService.sendOrderConfirmation(
+        const result = await BackendEmailService.sendOrderConfirmation(
           order.id.slice(0, 8), // Use short order number
           userName,
           userEmail,
