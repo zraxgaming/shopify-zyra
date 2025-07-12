@@ -7,7 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { sendResendEmail, emailTemplates } from "@/services/resendService";
+import EmailService from "@/services/emailService";
 import AddressForm from "./AddressForm";
 import PaymentMethods from "./PaymentMethods";
 import DigitalPaymentMethods from "./DigitalPaymentMethods";
@@ -113,17 +113,25 @@ const CheckoutForm = () => {
       const userName = userProfile.data?.first_name || 'Customer';
 
       if (userEmail) {
-        const emailTemplate = emailTemplates.orderConfirmation(
-          order.id,
+        // Prepare order items for the email
+        const orderItems = items.map(item => ({
+          name: item.name,
+          quantity: item.quantity || 1,
+          price: item.price
+        }));
+
+        const result = await EmailService.sendOrderConfirmation(
+          order.id.slice(0, 8), // Use short order number
+          userName,
+          userEmail,
+          orderItems,
           totalPrice,
-          isDigitalOnly
+          isDigitalOnly ? undefined : shippingAddress?.formatted_address
         );
 
-        await sendResendEmail({
-          to: userEmail,
-          subject: 'Order Confirmation - Zyra Digital Products',
-          ...emailTemplate
-        });
+        if (!result.success) {
+          console.error('Failed to send order confirmation email:', result.error);
+        }
       }
 
       await clearCart();

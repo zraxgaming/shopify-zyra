@@ -31,24 +31,25 @@ type CartAction =
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'SET_ITEMS':
-      return { ...state, items: action.payload };
+      return { ...state, items: action.payload || [] };
     case 'ADD_ITEM':
-      const existingItem = state.items.find(item => item.product_id === action.payload.product_id);
+      const currentItems = state.items || [];
+      const existingItem = currentItems.find(item => item.product_id === action.payload.product_id);
       if (existingItem) {
         return {
           ...state,
-          items: state.items.map(item =>
+          items: currentItems.map(item =>
             item.product_id === action.payload.product_id
               ? { ...item, quantity: item.quantity + action.payload.quantity }
               : item
           )
         };
       }
-      return { ...state, items: [...state.items, action.payload] };
+      return { ...state, items: [...currentItems, action.payload] };
     case 'UPDATE_QUANTITY':
       return {
         ...state,
-        items: state.items.map(item =>
+        items: (state.items || []).map(item =>
           item.id === action.payload.id
             ? { ...item, quantity: action.payload.quantity }
             : item
@@ -57,7 +58,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case 'REMOVE_ITEM':
       return {
         ...state,
-        items: state.items.filter(item => item.id !== action.payload)
+        items: (state.items || []).filter(item => item.id !== action.payload)
       };
     case 'CLEAR_CART':
       return { ...state, items: [] };
@@ -216,8 +217,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await saveCart([]);
   };
 
-  const totalItems = state.items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalItems = state.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const totalPrice = state.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
 
   return (
     <CartContext.Provider value={{

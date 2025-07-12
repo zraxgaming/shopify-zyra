@@ -12,6 +12,9 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
   const { items, updateQuantity, removeItem, totalItems, totalPrice } = useCart();
+  
+  // Ensure totalItems is always a number
+  const cartItemCount = typeof totalItems === 'number' ? totalItems : 0;
 
   // Get each item's available stock if present, fallback 99
   return (
@@ -20,7 +23,7 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ isOpen, onClose }) => {
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <ShoppingCart className="h-5 w-5" />
-            Shopping Cart ({totalItems})
+            Shopping Cart ({cartItemCount})
           </SheetTitle>
         </SheetHeader>
         

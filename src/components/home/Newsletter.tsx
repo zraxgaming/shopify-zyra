@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { zyraEmailTemplate } from "@/utils/emailTemplate";
+import EmailService from "@/services/emailService";
 
 const Newsletter = () => {
   const [email, setEmail] = useState("");
@@ -13,50 +13,16 @@ const Newsletter = () => {
 
   const sendWelcomeEmail = async (email: string) => {
     try {
-      const emailHtml = zyraEmailTemplate({
-        title: 'Welcome to Zyra Custom Craft!',
-        body: `
-          <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-            Thank you for subscribing to our newsletter! 🎉
-          </p>
-          <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-            You'll be the first to know about new products, exclusive offers, and design tips.
-          </p>
-          <p style="color:#666;font-size:14px;line-height:1.6;">
-            If you wish to unsubscribe, 
-            <a href="https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}" style="color:#7c3aed;text-decoration:underline;">
-              click here
-            </a>.
-          </p>
-        `,
-        ctaText: 'Start Shopping',
-        ctaUrl: 'https://www.shopzyra.site/shop'
-      });
-
-      // Direct API call to Resend - bypass backend completely
-      const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-          'Authorization': 'Bearer re_3ZYY9s3W_HuQbhTk4BDEPrrTUB37HyKan',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          from: "Zyra Custom Craft <contact@shopzyra.site>",
-          to: [email],
-          subject: "Welcome to Zyra Custom Craft Newsletter!",
-          html: emailHtml
-        })
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Direct Resend API error:', response.status, errorText);
+      // Use the EmailService to send newsletter welcome email
+      const result = await EmailService.sendNewsletterWelcome(email);
+      
+      if (result.success) {
+        console.log('✅ Newsletter welcome email sent successfully:', result.id);
       } else {
-        const responseData = await response.json();
-        console.log('✅ Email sent successfully via direct API:', responseData);
+        console.error('❌ Newsletter welcome email failed:', result.error);
       }
     } catch (emailError) {
-      console.error("❌ Direct email sending failed:", emailError);
+      console.error("❌ Newsletter welcome email sending failed:", emailError);
       // Don't throw - let the subscription succeed even if email fails
     }
   };
@@ -96,7 +62,7 @@ const Newsletter = () => {
         
         toast({
           title: "Successfully subscribed!",
-          description: "Thank you for subscribing to our newsletter.",
+          description: "Thank you for subscribing to our newsletter. Check your email for a welcome message!",
         });
         setEmail("");
       }

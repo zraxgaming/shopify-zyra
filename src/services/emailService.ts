@@ -1,139 +1,274 @@
 
-import { zyraEmailTemplate } from '@/utils/emailTemplate';
+// Email service for sending various types of emails using Resend SDK directly
+import { Resend } from 'resend';
+import { NewsletterWelcomeEmail } from '@/components/emails/NewsletterWelcomeEmail';
+import { WelcomeSignupEmail } from '@/components/emails/WelcomeSignupEmail';
+import { UnsubscribeEmail } from '@/components/emails/UnsubscribeEmail';
+import { OrderConfirmationEmail } from '@/components/emails/OrderConfirmationEmail';
+import { OrderStatusEmail } from '@/components/emails/OrderStatusEmail';
+import { NewsletterCampaignEmail } from '@/components/emails/NewsletterCampaignEmail';
+import { supabase } from '@/integrations/supabase/client';
 
-const RESEND_API_KEY = 're_3ZYY9s3W_HuQbhTk4BDEPrrTUB37HyKan';
-
-interface EmailOptions {
-  to: string;
-  subject: string;
-  title: string;
-  body: string;
-  ctaText?: string;
-  ctaUrl?: string;
+interface EmailServiceResponse {
+  success: boolean;
+  id?: string;
+  error?: string;
 }
 
-export const sendEmail = async (options: EmailOptions) => {
-  try {
-    const emailHtml = zyraEmailTemplate({
-      title: options.title,
-      body: options.body,
-      ctaText: options.ctaText,
-      ctaUrl: options.ctaUrl
-    });
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
 
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: "Zyra Digital Products <contact@shopzyra.site>",
-        to: [options.to],
-        subject: options.subject,
-        html: emailHtml
-      })
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Email send error:', response.status, errorText);
-      return { success: false, error: errorText };
+export class EmailService {
+  private static getResend(): Resend {
+    const apiKey = import.meta.env.VITE_RESEND_API_KEY;
+    if (!apiKey) {
+      throw new Error('VITE_RESEND_API_KEY is not configured');
     }
-
-    const responseData = await response.json();
-    console.log('✅ Email sent successfully:', responseData);
-    return { success: true, data: responseData };
-  } catch (error) {
-    console.error("❌ Email sending failed:", error);
-    return { success: false, error: error.message };
+    return new Resend(apiKey);
   }
-};
 
-export const emailTemplates = {
-  welcome: (name: string) => ({
-    title: 'Welcome to Zyra Digital Products!',
-    body: `
-      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Hello <strong>${name}</strong>,
-      </p>
-      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Welcome to Zyra Digital Products! We're excited to have you join our community.
-      </p>
-      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Discover amazing digital products, templates, and resources to enhance your projects.
-      </p>
-    `,
-    ctaText: 'Start Shopping',
-    ctaUrl: 'https://www.shopzyra.site/shop'
-  }),
+  // Newsletter welcome email
+  static async sendNewsletterWelcome(email: string): Promise<EmailServiceResponse> {
+    try {
+      const resend = this.getResend();
+      const result = await resend.emails.send({
+        from: 'Zyra Custom Craft <contact@shopzyra.site>',
+        to: [email],
+        subject: 'Welcome to Zyra Custom Craft Newsletter!',
+        react: NewsletterWelcomeEmail({ email }),
+      });
 
-  orderConfirmation: (orderId: string, total: number, isDigital: boolean) => ({
-    title: 'Order Confirmed!',
-    body: `
-      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Your order <strong>#${orderId.slice(0, 8)}</strong> has been confirmed!
-      </p>
-      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Total: <strong>$${total}</strong>
-      </p>
-      ${isDigital ? `
-        <p style="color:#7c3aed;font-size:16px;line-height:1.6;margin-bottom:16px;">
-          <strong>Digital Products:</strong> Your download links are available in your account.
-        </p>
-      ` : `
-        <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-          We'll send you tracking information once your order ships.
-        </p>
-      `}
-    `,
-    ctaText: 'View Order',
-    ctaUrl: `https://www.shopzyra.site/order/${orderId}`
-  }),
+      if (result.error) {
+        console.error('Newsletter welcome email error:', result.error);
+        return { success: false, error: result.error.message };
+      }
 
-  orderStatusUpdate: (orderId: string, status: string, trackingNumber?: string) => ({
-    title: 'Order Status Update',
-    body: `
-      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Your order <strong>#${orderId.slice(0, 8)}</strong> status has been updated to:
-      </p>
-      <p style="color:#7c3aed;font-size:18px;font-weight:bold;margin-bottom:16px;">
-        ${status.replace('_', ' ').toUpperCase()}
-      </p>
-      ${trackingNumber ? `
-        <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-          Tracking Number: <strong>${trackingNumber}</strong>
-        </p>
-      ` : ''}
-    `,
-    ctaText: 'Track Order',
-    ctaUrl: 'https://www.shopzyra.site/order-tracking'
-  }),
+      return { success: true, id: result.data?.id };
+    } catch (error: any) {
+      console.error('Newsletter welcome email failed:', error);
+      return { success: false, error: error.message };
+    }
+  }
 
-  newsletterWelcome: (email: string) => ({
-    title: 'Welcome to Zyra Newsletter!',
-    body: `
-      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Thank you for subscribing to our newsletter! 🎉
-      </p>
-      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        You'll be the first to know about new digital products, exclusive offers, and industry insights.
-      </p>
-      <p style="color:#666;font-size:14px;line-height:1.6;">
-        If you wish to unsubscribe, 
-        <a href="https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}" style="color:#7c3aed;text-decoration:underline;">
-          click here
-        </a>.
-      </p>
-    `,
-    ctaText: 'Shop Digital Products',
-    ctaUrl: 'https://www.shopzyra.site/shop'
-  }),
+  // Account signup welcome email
+  static async sendWelcomeSignup(email: string, firstName?: string): Promise<EmailServiceResponse> {
+    try {
+      const resend = this.getResend();
+      const result = await resend.emails.send({
+        from: 'Zyra Custom Craft <contact@shopzyra.site>',
+        to: [email],
+        subject: 'Welcome to Zyra Custom Craft!',
+        react: WelcomeSignupEmail({ email, firstName }),
+      });
 
-  newsletterCampaign: (title: string, content: string) => ({
-    title,
-    body: content,
-    ctaText: 'Visit Store',
-    ctaUrl: 'https://www.shopzyra.site/shop'
-  })
-};
+      if (result.error) {
+        console.error('Welcome signup email error:', result.error);
+        return { success: false, error: result.error.message };
+      }
+
+      return { success: true, id: result.data?.id };
+    } catch (error: any) {
+      console.error('Welcome signup email failed:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Unsubscribe confirmation email
+  static async sendUnsubscribeConfirmation(email: string): Promise<EmailServiceResponse> {
+    try {
+      const resend = this.getResend();
+      const result = await resend.emails.send({
+        from: 'Zyra Custom Craft <contact@shopzyra.site>',
+        to: [email],
+        subject: 'You have been unsubscribed',
+        react: UnsubscribeEmail({ email }),
+      });
+
+      if (result.error) {
+        console.error('Unsubscribe email error:', result.error);
+        return { success: false, error: result.error.message };
+      }
+
+      return { success: true, id: result.data?.id };
+    } catch (error: any) {
+      console.error('Unsubscribe email failed:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Order confirmation email
+  static async sendOrderConfirmation(
+    orderNumber: string,
+    customerName: string,
+    customerEmail: string,
+    items: OrderItem[],
+    total: number,
+    shippingAddress?: string
+  ): Promise<EmailServiceResponse> {
+    try {
+      const resend = this.getResend();
+      const result = await resend.emails.send({
+        from: 'Zyra Custom Craft <contact@shopzyra.site>',
+        to: [customerEmail],
+        subject: `Order Confirmation - #${orderNumber}`,
+        react: OrderConfirmationEmail({ 
+          orderNumber, 
+          customerName, 
+          customerEmail, 
+          items, 
+          total, 
+          shippingAddress 
+        }),
+      });
+
+      if (result.error) {
+        console.error('Order confirmation email error:', result.error);
+        return { success: false, error: result.error.message };
+      }
+
+      return { success: true, id: result.data?.id };
+    } catch (error: any) {
+      console.error('Order confirmation email failed:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Order status update email
+  static async sendOrderStatusUpdate(
+    orderNumber: string,
+    customerName: string,
+    customerEmail: string,
+    status: 'processing' | 'shipped' | 'delivered' | 'cancelled',
+    trackingNumber?: string
+  ): Promise<EmailServiceResponse> {
+    try {
+      const resend = this.getResend();
+      
+      const getSubject = (status: string, orderNumber: string) => {
+        switch (status) {
+          case 'processing': return `Order #${orderNumber} is being processed`;
+          case 'shipped': return `Order #${orderNumber} has shipped`;
+          case 'delivered': return `Order #${orderNumber} has been delivered`;
+          case 'cancelled': return `Order #${orderNumber} has been cancelled`;
+          default: return `Update for Order #${orderNumber}`;
+        }
+      };
+
+      const result = await resend.emails.send({
+        from: 'Zyra Custom Craft <contact@shopzyra.site>',
+        to: [customerEmail],
+        subject: getSubject(status, orderNumber),
+        react: OrderStatusEmail({ 
+          orderNumber, 
+          customerName, 
+          status, 
+          trackingNumber 
+        }),
+      });
+
+      if (result.error) {
+        console.error('Order status email error:', result.error);
+        return { success: false, error: result.error.message };
+      }
+
+      return { success: true, id: result.data?.id };
+    } catch (error: any) {
+      console.error('Order status email failed:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  // Newsletter campaign (admin only)
+  static async sendNewsletterCampaign(
+    title: string,
+    content: string,
+    adminEmail: string,
+    ctaText?: string,
+    ctaUrl?: string,
+    imageUrl?: string
+  ): Promise<EmailServiceResponse> {
+    try {
+      // Simple admin check
+      const envAdminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+      if (adminEmail !== envAdminEmail) {
+        return { success: false, error: 'Unauthorized' };
+      }
+
+      // Get all active newsletter subscribers
+      const { data: subscribers, error: subError } = await supabase
+        .from('newsletter_subscriptions')
+        .select('email')
+        .eq('is_active', true);
+
+      if (subError) {
+        console.error('Error fetching subscribers:', subError);
+        return { success: false, error: 'Failed to fetch subscribers' };
+      }
+
+      if (!subscribers || subscribers.length === 0) {
+        return { success: true, id: 'No active subscribers found' };
+      }
+
+      const resend = this.getResend();
+      
+      // Send emails in batches to avoid rate limits
+      const batchSize = 10;
+      let successCount = 0;
+      let failureCount = 0;
+      
+      for (let i = 0; i < subscribers.length; i += batchSize) {
+        const batch = subscribers.slice(i, i + batchSize);
+        
+        const batchPromises = batch.map(async (subscriber) => {
+          try {
+            const result = await resend.emails.send({
+              from: 'Zyra Custom Craft <contact@shopzyra.site>',
+              to: [subscriber.email],
+              subject: title,
+              react: NewsletterCampaignEmail({ 
+                title, 
+                content, 
+                ctaText, 
+                ctaUrl, 
+                imageUrl,
+                unsubscribeEmail: subscriber.email
+              }),
+            });
+            
+            if (result.error) {
+              console.error(`Failed to send to ${subscriber.email}:`, result.error);
+              return false;
+            }
+            return true;
+          } catch (error) {
+            console.error(`Failed to send to ${subscriber.email}:`, error);
+            return false;
+          }
+        });
+
+        const batchResults = await Promise.all(batchPromises);
+        successCount += batchResults.filter(Boolean).length;
+        failureCount += batchResults.filter(r => !r).length;
+
+        // Add delay between batches to respect rate limits
+        if (i + batchSize < subscribers.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      return { 
+        success: true, 
+        id: `${successCount} emails sent successfully, ${failureCount} failed`
+      };
+
+    } catch (error: any) {
+      console.error('Newsletter campaign failed:', error);
+      return { success: false, error: error.message };
+    }
+  }
+}
+
+export default EmailService;

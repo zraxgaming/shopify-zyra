@@ -8,7 +8,7 @@ import { Package, Eye, Edit, Truck, CheckCircle, XCircle, Clock } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-import { sendEmail, emailTemplates } from "@/services/emailService";
+import EmailService from "@/services/emailService";
 
 interface Order {
   id: string;
@@ -126,17 +126,21 @@ const AdminOrders = () => {
 
       // Send email notification if user email exists
       if (userEmail) {
-        const emailTemplate = emailTemplates.orderStatusUpdate(
+        // Get user's name for the email
+        const userName = order.profiles?.display_name || order.profiles?.full_name || 
+          `${order.profiles?.first_name || ''} ${order.profiles?.last_name || ''}`.trim() || 'Customer';
+
+        const result = await EmailService.sendOrderStatusUpdate(
           orderId,
-          newStatus,
+          userName,
+          userEmail,
+          newStatus as 'processing' | 'shipped' | 'delivered' | 'cancelled',
           trackingNumber
         );
 
-        await sendEmail({
-          to: userEmail,
-          subject: `Order Status Update - ${newStatus.replace('_', ' ')}`,
-          ...emailTemplate
-        });
+        if (!result.success) {
+          console.error('Failed to send order status email:', result.error);
+        }
       }
 
       toast({
