@@ -400,7 +400,7 @@ const OrderTracking = () => {
               )}
             </div>
           )}
-        </div>
+  </main>
       </Container>
       <Footer />
     </>
