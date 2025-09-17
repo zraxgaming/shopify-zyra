@@ -4,8 +4,13 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types.js';
 
 // WARNING: Do not hardcode sensitive keys. Use environment variables instead.
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://rbnbififhmiqwexebzuw.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+// Support both Vite (import.meta.env) and Node (process.env) for env vars
+const SUPABASE_URL = typeof window === 'undefined'
+  ? process.env.NEXT_PUBLIC_SUPABASE_URL || "https://rbnbififhmiqwexebzuw.supabase.co"
+  : import.meta.env.VITE_SUPABASE_URL || "https://rbnbififhmiqwexebzuw.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = typeof window === 'undefined'
+  ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+  : import.meta.env.VITE_SUPABASE_ANON_KEY || "";
 
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
