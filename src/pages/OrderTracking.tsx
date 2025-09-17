@@ -1,5 +1,5 @@
+
 import Head from 'next/head';
-import dayjs from 'dayjs';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,40 +12,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { Search, Package, Truck, CheckCircle, Clock } from 'lucide-react';
 import { requestZiinaRefund } from '@/services/ziinaService';
-
-interface Order {
-  id: string;
-  status: string;
-  total_amount: number;
-  created_at: string;
-  tracking_number: string | null;
-  shipping_address: any;
-  order_items: any[];
-  payment_intent_id?: string;
-  currency_code?: string;
-}
-
-// Only one OrderTracking component and logic should exist in this file. All duplicate code removed. The above implementation is now the only export.
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Container } from "@/components/ui/container";
-import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { Search, Package, Truck, CheckCircle, Clock } from "lucide-react";
-
-interface Order {
-  id: string;
-  status: string;
-  total_amount: number;
-  created_at: string;
-  tracking_number: string | null;
-  shipping_address: any;
-  order_items: any[];
-}
+import type { Order } from '@/types/order';
 
 const OrderTracking = () => {
   const [searchValue, setSearchValue] = useState("");
