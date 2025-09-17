@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
-import { WelcomeSignupEmail } from '../src/components/emails/WelcomeSignupEmail';
+import { WelcomeSignupEmail } from '../src/components/emails/WelcomeSignupEmail.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

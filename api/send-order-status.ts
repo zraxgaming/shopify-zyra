@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
-import { OrderStatusEmail } from '../src/components/emails/OrderStatusEmail';
+import { OrderStatusEmail } from '../src/components/emails/OrderStatusEmail.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

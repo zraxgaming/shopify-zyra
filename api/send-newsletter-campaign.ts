@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
-import { NewsletterCampaignEmail } from '../src/components/emails/NewsletterCampaignEmail';
-import { supabase } from '../src/integrations/supabase/client';
+import { NewsletterCampaignEmail } from '../src/components/emails/NewsletterCampaignEmail.js';
+import { supabase } from '../src/integrations/supabase/client.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

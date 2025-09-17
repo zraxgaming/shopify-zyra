@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { NewsletterWelcomeEmail } from '../src/components/emails/NewsletterWelcomeEmail';
+import { NewsletterWelcomeEmail } from '../src/components/emails/NewsletterWelcomeEmail.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 

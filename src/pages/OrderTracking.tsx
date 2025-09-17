@@ -15,6 +15,25 @@ import { requestZiinaRefund } from '@/services/ziinaService';
 import type { Order } from '@/types/order';
 
 const OrderTracking = () => {
+  // SEO structured data for order tracking page
+  const seoJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    'name': 'Track Your Order',
+    'description': 'Track your order status, request refunds, and get real-time updates. Zyra Custom Craft - customer-first, fast, and secure.',
+    'url': 'https://www.shopzyra.site/order-tracking',
+    'publisher': {
+      '@type': 'Organization',
+      'name': 'Zyra Custom Craft',
+      'url': 'https://www.shopzyra.site',
+      'logo': {
+        '@type': 'ImageObject',
+        'url': 'https://www.shopzyra.site/favicon.ico',
+        'width': 512,
+        'height': 512
+      }
+    }
+  };
   const [searchValue, setSearchValue] = useState("");
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -162,48 +181,74 @@ const OrderTracking = () => {
 
   return (
     <>
+      <Head>
+        <title>Track Your Order | Zyra Custom Craft</title>
+        <meta name="description" content="Track your order status, request refunds, and get real-time updates. Zyra Custom Craft - customer-first, fast, and secure." />
+        <meta name="robots" content="index, follow" />
+        <meta property="og:title" content="Track Your Order | Zyra Custom Craft" />
+        <meta property="og:description" content="Track your order status, request refunds, and get real-time updates. Zyra Custom Craft - customer-first, fast, and secure." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.shopzyra.site/order-tracking" />
+        <meta property="og:image" content="https://www.shopzyra.site/favicon.ico" />
+        <meta property="og:site_name" content="Zyra Custom Craft" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Track Your Order | Zyra Custom Craft" />
+        <meta name="twitter:description" content="Track your order status, request refunds, and get real-time updates. Zyra Custom Craft - customer-first, fast, and secure." />
+        <meta name="twitter:image" content="https://www.shopzyra.site/favicon.ico" />
+        <link rel="canonical" href="https://www.shopzyra.site/order-tracking" />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(seoJsonLd) }} />
+      </Head>
       <Navbar />
       <Container className="py-12">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
+        <main className="max-w-2xl mx-auto" aria-label="Order Tracking">
+          <header className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-2 text-gray-900 dark:text-gray-100">Track Your Order</h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Enter your tracking number, order ID, or email to see the current status of your order
+              Enter your tracking number, order ID, or email to see the current status of your order.
             </p>
-          </div>
-          <Card className="mb-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
+          </header>
+          <Card className="mb-8 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700" aria-label="Order Tracking Form">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-gray-100">
-                <Search className="h-5 w-5" />
-                Order Tracking
+                <Search className="h-5 w-5" aria-hidden="true" />
+                <span>Order Tracking</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-col gap-4 md:flex-row md:gap-4">
+              <form className="flex flex-col gap-4 md:flex-row md:gap-4" onSubmit={e => { e.preventDefault(); handleSearch(); }} role="search">
+                <label htmlFor="searchType" className="sr-only">Search Type</label>
                 <select
+                  id="searchType"
                   value={searchType}
                   onChange={e => setSearchType(e.target.value as any)}
                   className="border rounded px-2 py-1 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                  aria-label="Search by"
                 >
                   <option value="tracking">Tracking Number</option>
                   <option value="orderId">Order ID</option>
                   <option value="email">Email</option>
                 </select>
+                <label htmlFor="order-search" className="sr-only">{searchType === 'tracking' ? 'Tracking Number' : searchType === 'orderId' ? 'Order ID' : 'Email'}</label>
                 <Input
+                  id="order-search"
                   placeholder={searchType === 'tracking' ? "Enter your tracking number..." : searchType === 'orderId' ? "Enter your order ID..." : "Enter your email..."}
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                   className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
+                  aria-label={searchType === 'tracking' ? 'Tracking Number' : searchType === 'orderId' ? 'Order ID' : 'Email'}
+                  autoComplete="off"
                 />
                 <Button 
+                  type="submit"
                   onClick={handleSearch}
                   disabled={isLoading}
                   className="bg-zyra-purple hover:bg-zyra-dark-purple text-white"
+                  aria-label="Track Order"
                 >
                   {isLoading ? "Searching..." : "Track"}
                 </Button>
-              </div>
+              </form>
             </CardContent>
           </Card>
           {hasSearched && !order && !isLoading && ordersByEmail.length === 0 && (

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
-import { UnsubscribeEmail } from '../src/components/emails/UnsubscribeEmail';
+import { UnsubscribeEmail } from '../src/components/emails/UnsubscribeEmail.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
