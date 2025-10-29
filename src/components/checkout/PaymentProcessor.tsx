@@ -89,10 +89,10 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
 
       // Update gift card balance if applied
       if (appliedGiftCard) {
-        const usedAmount = Math.min(appliedGiftCard.amount, finalAmount);
+        const usedAmount = Math.min(appliedGiftCard.current_amount, finalAmount);
         await supabase
           .from('gift_cards')
-          .update({ amount: appliedGiftCard.amount - usedAmount })
+          .update({ current_amount: appliedGiftCard.current_amount - usedAmount })
           .eq('id', appliedGiftCard.id);
       }
 
@@ -129,7 +129,7 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
         await supabase
           .from('orders')
           .update({
-            notes: JSON.stringify({ ziina_payment_id: ziinaData.id })
+            payment_intent_id: ziinaData.id
           })
           .eq('id', order.id);
 

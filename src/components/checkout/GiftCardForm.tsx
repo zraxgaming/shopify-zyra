@@ -42,7 +42,7 @@ const GiftCardForm: React.FC<GiftCardFormProps> = ({
         .from('gift_cards')
         .select('*')
         .eq('code', giftCardCode.trim().toUpperCase())
-        .eq('is_active', true)
+        .eq('status', 'active')
         .single();
 
       if (error || !giftCard) {
@@ -53,14 +53,14 @@ const GiftCardForm: React.FC<GiftCardFormProps> = ({
         throw new Error('This gift card has expired');
       }
 
-      if (giftCard.amount <= 0) {
+      if (giftCard.current_amount <= 0) {
         throw new Error('This gift card has no remaining balance');
       }
 
       onGiftCardApply(giftCard);
       setGiftCardCode("");
       
-      const appliedAmount = Math.min(giftCard.amount, orderTotal);
+      const appliedAmount = Math.min(giftCard.current_amount, orderTotal);
       toast({
         title: "Gift card applied successfully",
         description: `Applied $${appliedAmount.toFixed(2)} from your gift card`,
@@ -109,7 +109,7 @@ const GiftCardForm: React.FC<GiftCardFormProps> = ({
                     {appliedGiftCard.code}
                   </Badge>
                   <p className="text-sm text-green-600 dark:text-green-400 mt-1">
-                    ${Math.min(appliedGiftCard.amount, orderTotal).toFixed(2)} applied
+                    ${Math.min(appliedGiftCard.current_amount, orderTotal).toFixed(2)} applied
                   </p>
                 </div>
               </div>

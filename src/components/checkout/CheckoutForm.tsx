@@ -196,15 +196,20 @@ const CheckoutForm = () => {
           
           {isDigitalOnly ? (
             <DigitalPaymentMethods 
-              selectedMethod={paymentMethod}
-              onMethodChange={setPaymentMethod}
+              total={totalPrice}
+              onPaymentSuccess={(orderId) => navigate(`/order-confirmation/${orderId}`)}
+              orderData={{
+                user_id: user?.id,
+                items: items,
+                ...shippingAddress
+              }}
             />
           ) : (
             <PaymentMethods 
               total={totalPrice}
               onPaymentSuccess={(orderId) => navigate(`/order-confirmation/${orderId}`)}
               orderData={{
-                user_id: user.id,
+                user_id: user?.id,
                 items: items,
                 ...shippingAddress
               }}

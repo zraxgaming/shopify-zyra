@@ -60,8 +60,8 @@ const CouponForm: React.FC<CouponFormProps> = ({
       }
 
       // Check minimum purchase requirement
-      if (coupon.min_purchase > orderTotal) {
-        throw new Error(`Minimum purchase of $${coupon.min_purchase} required for this coupon`);
+      if (coupon.min_purchase_amount > orderTotal) {
+        throw new Error(`Minimum purchase of $${coupon.min_purchase_amount} required for this coupon`);
       }
 
       onCouponApply(coupon);

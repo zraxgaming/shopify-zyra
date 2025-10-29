@@ -72,10 +72,10 @@ const DigitalPaymentMethods: React.FC<DigitalPaymentMethodsProps> = ({
 
       // Update gift card balance if applied
       if (appliedGiftCard) {
-        const usedAmount = Math.min(appliedGiftCard.amount, finalTotal);
+        const usedAmount = Math.min(appliedGiftCard.current_amount, finalTotal);
         await supabase
           .from('gift_cards')
-          .update({ amount: appliedGiftCard.amount - usedAmount })
+          .update({ current_amount: appliedGiftCard.current_amount - usedAmount })
           .eq('id', appliedGiftCard.id);
       }
 

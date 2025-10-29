@@ -24,17 +24,18 @@ const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
       }
 
       try {
-        const { data: profile, error } = await supabase
-          .from('profiles')
+        const { data: roles, error } = await supabase
+          .from('user_roles')
           .select('role')
-          .eq('id', user.id)
-          .single();
+          .eq('user_id', user.id)
+          .eq('role', 'admin')
+          .maybeSingle();
 
         if (error) {
           console.error('Error checking admin status:', error);
           setIsAdmin(false);
         } else {
-          setIsAdmin(profile?.role === 'admin');
+          setIsAdmin(!!roles);
         }
       } catch (error) {
         console.error('Error checking admin status:', error);
