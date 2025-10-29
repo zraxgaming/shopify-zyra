@@ -31,113 +31,35 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
   const processZiinaPayment = async () => {
     setIsProcessing(true);
     try {
-      // Get Ziina configuration
-      const { data: configData, error: configError } = await supabase
-        .from('site_config')
-        .select('*')
-        .in('key', ['ziina_api_key', 'ziina_merchant_id'])
-
-      if (configError) throw new Error('Failed to load payment configuration');
-
-      const config = configData?.reduce((acc, item) => {
-        acc[item.key] = typeof item.value === 'string' ? item.value : String(item.value);
-        return acc;
-      }, {} as Record<string, string>) || {};
-
-      if (!config.ziina_api_key) {
-        throw new Error('Payment system not configured');
+      // Get the current user's session token
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('You must be logged in to complete payment');
       }
 
-      // Create order first
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: orderData.user_id,
-          total_amount: finalAmount,
-          status: 'pending',
-          payment_status: 'pending',
-          payment_method: 'ziina',
-          shipping_address: orderData,
-          billing_address: orderData,
-          delivery_type: orderData.delivery_type || 'standard'
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      // Add order items
-      if (orderData.items && orderData.items.length > 0) {
-        const orderItems = orderData.items.map((item: any) => ({
-          order_id: order.id,
-          product_id: item.id,
-          quantity: item.quantity,
-          price: item.price,
-          customization: item.customization || null
-        }));
-
-        await supabase.from('order_items').insert(orderItems);
-      }
-
-      // Update coupon usage if applied
-      if (appliedCoupon) {
-        await supabase
-          .from('coupons')
-          .update({ used_count: appliedCoupon.used_count + 1 })
-          .eq('id', appliedCoupon.id);
-      }
-
-      // Update gift card balance if applied
-      if (appliedGiftCard) {
-        const usedAmount = Math.min(appliedGiftCard.current_amount, finalAmount);
-        await supabase
-          .from('gift_cards')
-          .update({ current_amount: appliedGiftCard.current_amount - usedAmount })
-          .eq('id', appliedGiftCard.id);
-      }
-
-      // Create Ziina payment intent
-      const aedAmount = Math.round(finalAmount * 3.67 * 100); // Convert to fils
-
-      const ziinaPayload = {
-        amount: aedAmount,
-        currency_code: 'AED',
-        message: `Order #${order.id.slice(-8)}`,
-        success_url: `${window.location.origin}/order-success/${order.id}`,
-        cancel_url: `${window.location.origin}/checkout`,
-        failure_url: `${window.location.origin}/checkout`
-      };
-
-      const response = await fetch('https://api-v2.ziina.com/api/payment_intent', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${config.ziina_api_key}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(ziinaPayload)
+      // Call secure edge function for payment processing
+      const { data, error } = await supabase.functions.invoke('process-ziina-payment', {
+        body: {
+          orderData: {
+            ...orderData,
+            origin: window.location.origin
+          },
+          amount: finalAmount,
+          appliedCoupon,
+          appliedGiftCard
+        }
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Payment failed: ${response.status}`);
+      if (error) {
+        throw new Error(error.message || 'Payment processing failed');
       }
 
-      const ziinaData = await response.json();
-
-      if (ziinaData.payment_url || ziinaData.redirect_url) {
-        // Update order with payment ID
-        await supabase
-          .from('orders')
-          .update({
-            payment_intent_id: ziinaData.id
-          })
-          .eq('id', order.id);
-
+      if (data.paymentUrl) {
         // Redirect to Ziina payment page
-        const redirectUrl = ziinaData.payment_url || ziinaData.redirect_url;
-        window.location.href = redirectUrl;
+        window.location.href = data.paymentUrl;
       } else {
-        throw new Error('No redirect URL received from Ziina');
+        throw new Error('No payment URL received');
       }
     } catch (error: any) {
       onError(error.message || 'Payment processing failed');
