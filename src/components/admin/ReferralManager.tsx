@@ -79,14 +79,13 @@ const ReferralManager = () => {
     }
   };
 
-  const updateReferralStatus = async (referralId: string, status: string, rewardEarned?: boolean) => {
+  const updateReferralStatus = async (referralId: string, status: string, rewardEarned?: number) => {
     try {
       const { error } = await supabase
         .from('referrals')
         .update({ 
           status, 
-          reward_earned: rewardEarned,
-          updated_at: new Date().toISOString()
+          reward_earned: rewardEarned || 0
         })
         .eq('id', referralId);
 
@@ -223,7 +222,7 @@ const ReferralManager = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => updateReferralStatus(referral.id, 'completed', true)}
+                        onClick={() => updateReferralStatus(referral.id, 'completed', 10)}
                       >
                         <CheckCircle className="h-4 w-4 mr-1" />
                         Complete
@@ -231,7 +230,7 @@ const ReferralManager = () => {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => updateReferralStatus(referral.id, 'rejected')}
+                        onClick={() => updateReferralStatus(referral.id, 'rejected', 0)}
                       >
                         <XCircle className="h-4 w-4 mr-1" />
                         Reject
@@ -242,7 +241,7 @@ const ReferralManager = () => {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => updateReferralStatus(referral.id, 'completed', true)}
+                      onClick={() => updateReferralStatus(referral.id, 'completed', 10)}
                     >
                       <CheckCircle className="h-4 w-4 mr-1" />
                       Mark Complete

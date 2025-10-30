@@ -62,7 +62,7 @@ const BarcodeGenerator: React.FC<BarcodeGeneratorProps> = ({ onGenerated }) => {
         .from("barcode_generations")
         .insert({
           barcode_type: barcodeType,
-          barcode_data: barcodeData,
+          barcode_value: barcodeData,
           product_id: selectedProduct?.id || null,
         });
       if (error) throw error;

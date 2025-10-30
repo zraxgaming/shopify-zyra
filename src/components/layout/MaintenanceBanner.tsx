@@ -49,8 +49,7 @@ const MaintenanceBanner = () => {
       }
 
       // Check if maintenance mode is enabled
-      const isEnabled = modeData?.value === true || 
-                       modeData?.value === 'true' || 
+      const isEnabled = modeData?.value === 'true' || 
                        modeData?.value === '1' ||
                        (typeof modeData?.value === 'string' && modeData.value.toLowerCase() === 'true');
       

@@ -38,14 +38,11 @@ const OrderDetail = () => {
             product_id,
             quantity,
             price,
-            customization,
             products:product_id (
               id,
               name,
               images,
-              slug,
-              is_digital,
-              meta_description
+              slug
             )
           )
         `)
@@ -154,40 +151,11 @@ const OrderDetail = () => {
                       <p className="text-sm text-muted-foreground">
                         Quantity: {item.quantity} × AED {item.price.toFixed(2)}
                       </p>
-                      {item.product.is_digital && (
-                        <Badge variant="secondary" className="mt-1">
-                          Digital Product
-                        </Badge>
-                      )}
-                      {item.customization && Object.keys(item.customization).length > 0 && (
-                        <div className="mt-2 p-2 bg-primary/10 rounded text-xs">
-                          <strong>Customization:</strong>
-                          <ul className="mt-1">
-                            {Object.entries(item.customization).map(([key, value]) => (
-                              <li key={key}>
-                                {key}: {typeof value === 'string' ? value : JSON.stringify(value)}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
                     </div>
                     <div className="text-right">
                       <p className="font-medium">
                         AED {(item.price * item.quantity).toFixed(2)}
                       </p>
-                      {item.product.is_digital && 
-                       item.product.meta_description && 
-                       order.payment_status === 'paid' && (
-                        <Button
-                          size="sm"
-                          onClick={() => handleDigitalDownload(item.product.meta_description!)}
-                          className="mt-2"
-                        >
-                          <Download className="h-4 w-4 mr-1" />
-                          Download
-                        </Button>
-                      )}
                     </div>
                   </div>
                 ))}

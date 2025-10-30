@@ -76,6 +76,7 @@ const ReferralDashboard = () => {
       // Transform data to match our interface
       const transformedReferrals: Referral[] = (userReferrals || []).map(ref => ({
         ...ref,
+        updated_at: ref.created_at,
         referred_profiles: {
           display_name: `User ${ref.referred_id?.slice(0, 8)}`,
           email: 'user@example.com'

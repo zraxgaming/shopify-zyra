@@ -9,8 +9,8 @@ export interface Category {
   description?: string;
   image_url?: string;
   icon?: string;
-  is_active: boolean;
-  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export const useCategories = () => {
@@ -20,8 +20,7 @@ export const useCategories = () => {
       const { data, error } = await supabase
         .from("categories")
         .select("*")
-        .eq("is_active", true)
-        .order("sort_order", { ascending: true });
+        .order("created_at", { ascending: true });
 
       if (error) {
         throw new Error(error.message);

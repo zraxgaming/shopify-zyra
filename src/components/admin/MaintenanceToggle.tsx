@@ -53,8 +53,8 @@ const MaintenanceToggle = () => {
         .from('site_config')
         .upsert({
           key: 'maintenance_mode',
-          value: isActive
-        });
+          value: String(isActive)
+        }, { onConflict: 'key' });
 
       // Update maintenance message
       await supabase
@@ -62,7 +62,7 @@ const MaintenanceToggle = () => {
         .upsert({
           key: 'maintenance_message',
           value: message || 'We are currently performing maintenance. Some features may be temporarily unavailable.'
-        });
+        }, { onConflict: 'key' });
 
       toast({
         title: "Maintenance Status Updated",

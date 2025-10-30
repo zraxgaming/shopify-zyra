@@ -17,14 +17,14 @@ import { format } from "date-fns";
 interface GiftCard {
   id: string;
   code: string;
-  amount: number;
+  current_amount: number;
   initial_amount: number;
   recipient_email?: string;
+  sender_name?: string;
   message?: string;
-  is_active: boolean;
+  status: string;
   expires_at?: string;
   created_at: string;
-  created_by?: string;
 }
 
 const GiftCardManager = () => {
@@ -36,9 +36,10 @@ const GiftCardManager = () => {
   const [formData, setFormData] = useState({
     amount: "",
     recipient_email: "",
+    sender_name: "",
     message: "",
     expires_at: "",
-    is_active: true
+    status: "active"
   });
 
   useEffect(() => {
@@ -81,12 +82,13 @@ const GiftCardManager = () => {
     try {
       const giftCardData = {
         code: editingCard?.code || generateGiftCardCode(),
-        amount: parseFloat(formData.amount),
+        current_amount: parseFloat(formData.amount),
         initial_amount: parseFloat(formData.amount),
         recipient_email: formData.recipient_email || null,
+        sender_name: formData.sender_name || null,
         message: formData.message || null,
         expires_at: formData.expires_at || null,
-        is_active: formData.is_active
+        status: formData.status
       };
 
       if (editingCard) {
@@ -159,9 +161,10 @@ const GiftCardManager = () => {
     setFormData({
       amount: "",
       recipient_email: "",
+      sender_name: "",
       message: "",
       expires_at: "",
-      is_active: true
+      status: "active"
     });
     setEditingCard(null);
   };
@@ -169,11 +172,12 @@ const GiftCardManager = () => {
   const openEditDialog = (card: GiftCard) => {
     setEditingCard(card);
     setFormData({
-      amount: card.amount.toString(),
+      amount: card.current_amount.toString(),
       recipient_email: card.recipient_email || "",
+      sender_name: card.sender_name || "",
       message: card.message || "",
       expires_at: card.expires_at ? card.expires_at.split('T')[0] : "",
-      is_active: card.is_active
+      status: card.status
     });
     setIsDialogOpen(true);
   };
@@ -186,18 +190,19 @@ const GiftCardManager = () => {
     });
   };
 
-  const toggleCardStatus = async (id: string, currentStatus: boolean) => {
+  const toggleCardStatus = async (id: string, currentStatus: string) => {
     try {
+      const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
       const { error } = await supabase
         .from('gift_cards')
-        .update({ is_active: !currentStatus })
+        .update({ status: newStatus })
         .eq('id', id);
         
       if (error) throw error;
       
       toast({
         title: "Gift card updated",
-        description: `Gift card has been ${!currentStatus ? 'activated' : 'deactivated'}.`,
+        description: `Gift card has been ${newStatus === 'active' ? 'activated' : 'deactivated'}.`,
       });
       fetchGiftCards();
     } catch (error: any) {
@@ -279,8 +284,8 @@ const GiftCardManager = () => {
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="is_active"
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
+                    checked={formData.status === 'active'}
+                    onCheckedChange={(checked) => setFormData({...formData, status: checked ? 'active' : 'inactive'})}
                   />
                   <Label htmlFor="is_active" className="text-foreground">Active</Label>
                 </div>
@@ -342,7 +347,7 @@ const GiftCardManager = () => {
                       </div>
                     </TableCell>
                     <TableCell className="text-foreground">
-                      ${card.amount.toFixed(2)} / ${card.initial_amount.toFixed(2)}
+                      ${card.current_amount.toFixed(2)} / ${card.initial_amount.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-foreground">
                       {card.recipient_email || "N/A"}
@@ -358,14 +363,14 @@ const GiftCardManager = () => {
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Switch
-                          checked={card.is_active}
-                          onCheckedChange={() => toggleCardStatus(card.id, card.is_active)}
+                          checked={card.status === 'active'}
+                          onCheckedChange={() => toggleCardStatus(card.id, card.status)}
                         />
                         <Badge 
-                          variant={card.is_active ? "default" : "secondary"}
-                          className={card.is_active ? "bg-green-500" : "bg-gray-500"}
+                          variant={card.status === 'active' ? "default" : "secondary"}
+                          className={card.status === 'active' ? "bg-green-500" : "bg-gray-500"}
                         >
-                          {card.is_active ? "Active" : "Inactive"}
+                          {card.status === 'active' ? "Active" : "Inactive"}
                         </Badge>
                       </div>
                     </TableCell>

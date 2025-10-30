@@ -29,7 +29,7 @@ const GeneralSettings = () => {
       // Save general settings to site_config table
       const configEntries = Object.entries(settings).map(([key, value]) => ({
         key,
-        value: { data: value },
+        value: String(value),
         updated_at: new Date().toISOString()
       }));
 

@@ -19,16 +19,16 @@ export const useShopProducts = (filters: {
       let query = supabase
         .from("products")
         .select(
-          `id, name, slug, price, images, short_description, description, rating, is_featured, featured, in_stock, stock_quantity, category, is_customizable`
+          `id, name, slug, price, images, short_description, description, is_featured, stock_quantity, stock_status, category_id, is_customizable`
         );
       if (filters.categories && filters.categories.length > 0) {
-        query = query.in("category", filters.categories);
+        query = query.in("category_id", filters.categories);
       }
       if (filters.priceRange) {
         query = query.gte("price", filters.priceRange[0]).lte("price", filters.priceRange[1]);
       }
       if (filters.inStock) {
-        query = query.eq("in_stock", true);
+        query = query.gt("stock_quantity", 0).neq("stock_status", "out_of_stock");
       }
       if (filters.featured) {
         query = query.eq("is_featured", true);
@@ -49,7 +49,14 @@ export const useShopProducts = (filters: {
       query = query.range((page - 1) * pageSize, page * pageSize - 1);
       const { data, error } = await query;
       if (error) throw new Error(error.message);
-      return (data || []) as Product[];
+      return (data || []).map(product => ({
+        ...product,
+        in_stock: product.stock_quantity > 0 && product.stock_status !== 'out_of_stock',
+        featured: product.is_featured,
+        rating: 0,
+        review_count: 0,
+        category: 'Uncategorized'
+      })) as Product[];
     },
     staleTime: 1000 * 60 * 2,
     refetchOnWindowFocus: false,

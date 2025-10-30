@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Star, Heart, Settings } from "lucide-react";
 import AddToCartButton from "@/components/cart/AddToCartButton";
 import ProductCustomizer from "./ProductCustomizer";
-import ProductCustomizeModal from "./ProductCustomizeModal";
+import ProductCustomizationModal from "./ProductCustomizationModal";
 import { useState } from "react";
 
 interface ProductCardProps {
@@ -44,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
   return (
     <>
-      <ProductCustomizeModal
+      <ProductCustomizationModal
         open={modalOpen}
         onOpenChange={setModalOpen}
         product={product}

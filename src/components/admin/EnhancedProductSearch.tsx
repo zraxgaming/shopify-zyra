@@ -46,9 +46,9 @@ const EnhancedProductSearch: React.FC<EnhancedProductSearchProps> = ({
     try {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, sku, price, category')
+        .select('id, name, sku, price')
         .or(`name.ilike.%${searchTerm}%,sku.ilike.%${searchTerm}%`)
-        .eq('status', 'published')
+        .eq('status', 'active')
         .limit(10);
 
       if (error) throw error;
@@ -131,9 +131,6 @@ const EnhancedProductSearch: React.FC<EnhancedProductSearchProps> = ({
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   {product.sku && (
                     <span>SKU: {product.sku}</span>
-                  )}
-                  {product.category && (
-                    <span>• {product.category}</span>
                   )}
                 </div>
               </div>
