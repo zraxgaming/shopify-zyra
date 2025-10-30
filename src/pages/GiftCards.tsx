@@ -39,7 +39,7 @@ const GiftCards = () => {
       const { data, error } = await supabase
         .from('gift_cards')
         .select('*')
-        .eq('created_by', user.id)
+        .eq('sender_name', user.email)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -73,12 +73,12 @@ const GiftCards = () => {
         .from('gift_cards')
         .insert({
           code: code,
-          amount: amount,
           initial_amount: amount,
-          created_by: user.id,
+          current_amount: amount,
           recipient_email: recipientEmail || null,
+          sender_name: user.email || 'Anonymous',
           message: message || null,
-          is_active: true,
+          status: 'active',
           expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
         });
 

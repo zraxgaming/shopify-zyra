@@ -78,12 +78,22 @@ interface CartContextType {
   clearCart: () => Promise<void>;
   totalItems: number;
   totalPrice: number;
+  subtotal: number;
+  discount: number;
+  giftCardAmount: number;
+  coupon: any;
+  giftCard: any;
+  setCoupon: (coupon: any) => void;
+  setGiftCard: (card: any) => void;
+  addToCart: (item: Omit<CartItem, 'id'>) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, { items: [], isLoading: false });
+  const [coupon, setCoupon] = React.useState<any>(null);
+  const [giftCard, setGiftCard] = React.useState<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -219,6 +229,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const totalItems = state.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
   const totalPrice = state.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
+  
+  const subtotal = totalPrice;
+  const discount = coupon?.discount_value || 0;
+  const giftCardAmount = giftCard?.amount || 0;
 
   return (
     <CartContext.Provider value={{
@@ -229,7 +243,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       removeItem,
       clearCart,
       totalItems,
-      totalPrice
+      totalPrice,
+      subtotal,
+      discount,
+      giftCardAmount,
+      coupon,
+      giftCard,
+      setCoupon,
+      setGiftCard,
+      addToCart: addItem,
     }}>
       {children}
     </CartContext.Provider>

@@ -38,7 +38,13 @@ const Profile = () => {
         if (error && error.code !== 'PGRST116') throw error;
 
         if (data) {
-          setProfile(data);
+          setProfile({
+            first_name: data.first_name || '',
+            last_name: data.last_name || '',
+            email: data.email || user.email || '',
+            phone: data.phone || '',
+            username: data.display_name || '',
+          });
         } else {
           setProfile(prev => ({
             ...prev,

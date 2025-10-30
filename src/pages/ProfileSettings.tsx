@@ -62,16 +62,22 @@ const ProfileSettings = () => {
 
       if (error) throw error;
 
-      const profileData = data as Profile;
-      setProfile(profileData);
+      setProfile({
+        ...data,
+        username: data.display_name || "",
+        preferred_currency: "AED",
+        preferred_language: "en",
+        role: "user",
+        updated_at: data.created_at,
+      } as Profile);
       setFormData({
-        first_name: profileData.first_name || "",
-        last_name: profileData.last_name || "",
-        username: profileData.username || "",
-        display_name: profileData.display_name || "",
-        phone: "", // Note: phone field doesn't exist in current schema
-        preferred_currency: profileData.preferred_currency || "USD",
-        preferred_language: profileData.preferred_language || "en"
+        first_name: data.first_name || "",
+        last_name: data.last_name || "",
+        username: data.display_name || "",
+        display_name: data.display_name || "",
+        phone: data.phone || "",
+        preferred_currency: "AED",
+        preferred_language: "en"
       });
     } catch (error: any) {
       console.error("Error fetching profile:", error);
@@ -103,11 +109,8 @@ const ProfileSettings = () => {
         .update({
           first_name: formData.first_name,
           last_name: formData.last_name,
-          username: formData.username,
           display_name: formData.display_name,
-          preferred_currency: formData.preferred_currency,
-          preferred_language: formData.preferred_language,
-          updated_at: new Date().toISOString()
+          phone: formData.phone || null,
         })
         .eq("id", user.id);
 

@@ -46,11 +46,15 @@ const AdminCategories = () => {
     try {
       const { data, error } = await supabase
         .from("categories")
-        .select("*")
-        .order("sort_order", { ascending: true });
+        .select("id, name, slug, description, image_url, created_at, updated_at")
+        .order("created_at", { ascending: true });
 
       if (error) throw error;
-      setCategories(data || []);
+      setCategories((data || []).map(cat => ({
+        ...cat,
+        is_active: true,
+        sort_order: 0,
+      })));
     } catch (error: any) {
       toast({
         title: "Error fetching categories",

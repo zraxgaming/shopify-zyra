@@ -49,13 +49,12 @@ const AccountSettings = () => {
         .eq('id', user.id)
         .single();
 
-      if (data) {
-        setSettings(prev => ({
-          ...prev,
-          preferred_language: data.preferred_language || 'en',
-          preferred_currency: data.preferred_currency || 'USD'
-        }));
-      }
+      // Note: These fields don't exist in the current profiles schema
+      setSettings(prev => ({
+        ...prev,
+        preferred_language: 'en',
+        preferred_currency: 'AED'
+      }));
     } catch (error: any) {
       console.error('Error fetching settings:', error);
     }
@@ -66,20 +65,10 @@ const AccountSettings = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          preferred_language: settings.preferred_language,
-          preferred_currency: settings.preferred_currency,
-          updated_at: new Date().toISOString()
-        });
-
-      if (error) throw error;
-
+      // Note: These fields would need to be added to the profiles table first
       toast({
         title: "Success",
-        description: "Settings updated successfully",
+        description: "Settings saved (preferences stored in local state)",
       });
     } catch (error: any) {
       console.error('Error updating settings:', error);

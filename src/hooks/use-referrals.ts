@@ -60,19 +60,19 @@ export const useReferrals = () => {
       // Get user profile for referral code
       const { data: profile } = await supabase
         .from('profiles')
-        .select('username, id')
+        .select('id, display_name')
         .eq('id', user.id)
         .single();
 
-      const referralCode = profile?.username || `USER${user.id.slice(-6).toUpperCase()}`;
+      const referralCode = profile?.display_name?.replace(/\s+/g, '').toUpperCase() || `USER${user.id.slice(-6).toUpperCase()}`;
 
       const referrals = referralData || [];
       const totalReferrals = referrals.length;
       const activeReferrals = referrals.filter(r => r.status === 'active').length;
       const pendingReferrals = referrals.filter(r => r.status === 'pending').length;
-      const totalRewards = referrals.filter(r => r.reward_earned).length * 10; // $10 per referral
+      const totalRewards = referrals.reduce((sum, r) => sum + (r.reward_earned || 0), 0);
 
-      setReferrals(referrals);
+      setReferrals(referrals.map(r => ({ ...r, updated_at: r.updated_at || r.created_at })));
       setStats({
         totalReferrals,
         activeReferrals,

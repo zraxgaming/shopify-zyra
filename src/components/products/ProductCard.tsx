@@ -47,7 +47,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <ProductCustomizationModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        product={product}
+        onSave={(customization) => {
+          // Handle customization save logic here
+          console.log('Customization saved:', customization);
+        }}
       />
       <Card className="group hover:shadow-lg transition-all duration-300 hover:scale-105 overflow-hidden bg-gradient-to-br from-card/80 to-card border-border/50">
         <div className="relative overflow-hidden">

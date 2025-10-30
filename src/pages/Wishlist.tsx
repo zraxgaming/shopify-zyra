@@ -22,16 +22,13 @@ const Wishlist = () => {
 
   const handleAddToCart = async (product: any) => {
     if (!product) return;
-    await addToCart(
-      {
-        product_id: product.id,
-        name: product.name,
-        price: product.price,
-        image_url: product.images[0] || "/placeholder-product.jpg",
-      },
-      1,
-      {}
-    );
+    await addItem({
+      product_id: product.id,
+      name: product.name,
+      price: product.price,
+      quantity: 1,
+      image_url: product.images[0] || "/placeholder-product.jpg",
+    });
   };
 
   // Removed isLoading check and loading skeleton as isLoading is not available in WishlistContextType
