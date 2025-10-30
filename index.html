@@ -121,28 +121,40 @@
       ]
     }
     </script>
+    <!-- Shopify Liquid variables (available when this file is used inside a Shopify theme) -->
+    <script>
+      // When this HTML is served by Shopify, the Liquid tags will be replaced.
+      // When served statically (local dev) the tags will remain as strings and won't break JS.
+      window.__SHOPIFY__ = {
+        shop_domain: "{{ shop.permanent_domain | default: shop.domain | escape }}",
+        shop_name: "{{ shop.name | escape }}",
+        currency: "{{ shop.currency | escape }}",
+        locale: "{{ localization.language.iso_code | default: 'en' }}",
+        theme_id: "{{ theme.id }}",
+        theme_name: "{{ theme.name | escape }}",
+        // NOTE: to reference theme assets, in your theme use: '{{ "your-file.js" | asset_url }}'
+      };
+    </script>
   </head>
-      <!-- PushAlert -->
-      <script type="text/javascript">
-        (function(d, t) {
-          var g = d.createElement(t),
-          s = d.getElementsByTagName(t)[0];
-          g.src = "https://cdn.pushalert.co/integrate_7106138faba0c7d73e7770f196f29511.js";
-          s.parentNode.insertBefore(g, s);
-        }(document, "script"));
-      </script>
-      <!-- End PushAlert -->
+      <!-- PushAlert is loaded once above in <head>. Duplicate snippet removed. -->
   <body>
     <div id="root"></div>
+  <!-- Vite / React entry - required to actually load the SPA in the browser -->
+  <script type="module" src="/src/main.tsx"></script>
     
     <!-- Service Worker Registration -->
     <script>
-      if ('serviceWorker' in navigator) {
+      // Disable service worker when this HTML is rendered inside a Shopify theme
+      // (Shopify themes manage their own caching and SW scope). We check for the
+      // Liquid-injected `window.__SHOPIFY__` object and skip SW registration there.
+      const runningInsideShopify = window.__SHOPIFY__ && window.__SHOPIFY__.theme_id;
+
+      if (!runningInsideShopify && 'serviceWorker' in navigator) {
         window.addEventListener('load', function() {
           navigator.serviceWorker.register('/sw.js')
             .then(function(registration) {
               console.log('SW registered: ', registration);
-              
+
               // Check for updates
               registration.addEventListener('updatefound', function() {
                 const newWorker = registration.installing;
@@ -161,14 +173,16 @@
               console.log('SW registration failed: ', registrationError);
             });
         });
-        
+
         // Listen for SW updates
         navigator.serviceWorker.addEventListener('controllerchange', function() {
           window.location.reload();
         });
+      } else if (runningInsideShopify) {
+        console.log('Service worker registration skipped in Shopify theme context');
       }
-      
-      // Handle app install prompt
+
+      // Handle app install prompt (still safe to keep)
       let deferredPrompt;
       window.addEventListener('beforeinstallprompt', function(e) {
         e.preventDefault();
@@ -176,7 +190,7 @@
         // Show install button or banner
         console.log('App install prompt available');
       });
-      
+
       // Track app launches
       if (window.matchMedia('(display-mode: standalone)').matches) {
         console.log('Launched as PWA');

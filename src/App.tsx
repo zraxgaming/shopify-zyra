@@ -38,27 +38,13 @@ import ProductCustomizer from "@/pages/ProductCustomizer";
 import Unsubscribe from "@/pages/Unsubscribe";
 import OrderConfirmation from "@/pages/OrderConfirmation";
 import OrderFailed from "@/pages/OrderFailed";
-import AdminDashboard from "@/pages/admin/AdminDashboard";
-import AdminProducts from "@/pages/admin/AdminProducts";
-import AdminOrders from "@/pages/admin/AdminOrders";
-import AdminUsers from "@/pages/admin/AdminUsers";
-import AdminSettings from "@/pages/admin/AdminSettings";
-import AdminLayout from "@/components/admin/AdminLayout";
-import AdminProductDetails from "@/pages/admin/AdminProductDetails";
-import AdminOrderDetails from "@/pages/admin/AdminOrderDetails";
+// Admin pages removed from the public SPA; Shopify provides its own admin.
+// The admin pages/components are kept in the repository if needed, but are
+// intentionally not imported or routed here to avoid exposing them in the
+// storefront bundle.
 import ProductDetails from "@/pages/ProductDetails";
-import AdminCategories from "@/pages/admin/AdminCategories";
-import AdminCoupons from "@/pages/admin/AdminCoupons";
-import AdminGiftCards from "@/pages/admin/AdminGiftCards";
-import AdminReviews from "@/pages/admin/AdminReviews";
-import AdminBlogs from "@/pages/admin/AdminBlogs";
-import AdminFaqs from "@/pages/admin/AdminFaqs";
-import AdminContacts from "@/pages/admin/AdminContacts";
-import AdminNewsletter from "@/pages/admin/AdminNewsletter";
-import AdminAppearance from "@/pages/admin/AdminAppearance";
-import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import OrderDetail from "@/components/user/OrderDetail";
-import AdminRefunds from "@/pages/admin/AdminRefunds";
+// Admin imports intentionally omitted
 
 const queryClient = new QueryClient();
 
@@ -107,25 +93,7 @@ function App() {
                     <Route path="/referrals" element={<Referrals />} />
                     <Route path="/order-success/:orderId" element={<Success />} />
 
-                    {/* Admin Routes - Example with Layout */}
-                    <Route path="/admin" element={<AdminLayout><AdminDashboard /></AdminLayout>} />
-                    <Route path="/admin/products" element={<AdminLayout><AdminProducts /></AdminLayout>} />
-                    <Route path="/admin/products/:id" element={<AdminLayout><AdminProductDetails /></AdminLayout>} />
-                    <Route path="/admin/orders" element={<AdminLayout><AdminOrders /></AdminLayout>} />
-                    <Route path="/admin/orders/:id" element={<AdminLayout><AdminOrderDetails /></AdminLayout>} />
-                    <Route path="/admin/refunds" element={<AdminLayout><AdminRefunds /></AdminLayout>} />
-                    <Route path="/admin/users" element={<AdminLayout><AdminUsers /></AdminLayout>} />
-                    <Route path="/admin/categories" element={<AdminLayout><AdminCategories /></AdminLayout>} />
-                    <Route path="/admin/coupons" element={<AdminLayout><AdminCoupons /></AdminLayout>} />
-                    <Route path="/admin/gift-cards" element={<AdminLayout><AdminGiftCards /></AdminLayout>} />
-                    <Route path="/admin/reviews" element={<AdminLayout><AdminReviews /></AdminLayout>} />
-                    <Route path="/admin/blogs" element={<AdminLayout><AdminBlogs /></AdminLayout>} />
-                    <Route path="/admin/faqs" element={<AdminLayout><AdminFaqs /></AdminLayout>} />
-                    <Route path="/admin/contacts" element={<AdminLayout><AdminContacts /></AdminLayout>} />
-                    <Route path="/admin/newsletter" element={<AdminLayout><AdminNewsletter /></AdminLayout>} />
-                    <Route path="/admin/appearance" element={<AdminLayout><AdminAppearance /></AdminLayout>} />
-                    <Route path="/admin/analytics" element={<AdminLayout><AdminAnalytics /></AdminLayout>} />
-                    <Route path="/admin/settings" element={<AdminLayout><AdminSettings /></AdminLayout>} />
+                    {/* Admin routes removed from storefront - use Shopify admin instead. */}
 
                     <Route path="/order/:id" element={<OrderDetail />} />
                     
