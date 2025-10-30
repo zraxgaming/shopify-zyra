@@ -1,0 +1,15 @@
+<!-- Zyra storefront embed snippet -->
+<!-- Usage: Upload built assets to your theme assets and include this snippet in layout/theme.liquid -->
+<div id="root"></div>
+<script>
+  window.__SHOPIFY__ = {
+    shop_domain: "{{ shop.permanent_domain | default: shop.domain | escape }}",
+    shop_name: "{{ shop.name | escape }}",
+    currency: "{{ shop.currency | escape }}",
+    locale: "{{ localization.language.iso_code | default: 'en' }}",
+    theme_id: "{{ theme.id }}",
+    theme_name: "{{ theme.name | escape }}"
+  };
+</script>
+<!-- Replace app.js with the actual built filename you uploaded to assets -->
+<script type="module" src="{{ 'app.js' | asset_url }}"></script>

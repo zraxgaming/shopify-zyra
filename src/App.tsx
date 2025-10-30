@@ -1,7 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { HelmetProvider } from "react-helmet-async";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Route, Routes } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -46,19 +44,14 @@ import ProductDetails from "@/pages/ProductDetails";
 import OrderDetail from "@/components/user/OrderDetail";
 // Admin imports intentionally omitted
 
-const queryClient = new QueryClient();
-
 function App() {
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-          <Router>
-            <AuthProvider>
-              <CartProvider>
-                <WishlistProvider>
-                  <Toaster />
-                  <Routes>
+    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+      <AuthProvider>
+        <CartProvider>
+          <WishlistProvider>
+            <Toaster />
+            <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/shop" element={<Shop />} />
@@ -99,14 +92,11 @@ function App() {
                     
                     {/* 404 Not Found Route - Must be last */}
                     <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </WishlistProvider>
-              </CartProvider>
-            </AuthProvider>
-          </Router>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </HelmetProvider>
+            </Routes>
+          </WishlistProvider>
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

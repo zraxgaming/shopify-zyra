@@ -20,9 +20,9 @@ const ZiinaPayment: React.FC<ZiinaPaymentProps> = ({
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
-  const [testing, setTesting] = useState(false); // Add state for environment flag
-
-  const TEST_MODE = true; // Set to false for real payments
+  // Remove unused `testing` state and allow test mode to be toggled via env when needed.
+  // By default, keep test mode off in production builds.
+  const TEST_MODE = import.meta.env?.VITE_ZIINA_TEST === 'true' || false;
 
   const handleInitiatePayment = async () => {
     if (amount <= 0 && !TEST_MODE) {
@@ -51,12 +51,12 @@ const ZiinaPayment: React.FC<ZiinaPaymentProps> = ({
       const ziinaApiKey = configData.value as string;
       const ziinaEndpoint = 'https://api-v2.ziina.com/api/payment_intent'; // Always use sandbox for testing
 
-      let body;
+      let body: any;
       if (TEST_MODE) {
         body = { test: true };
       } else {
         const amountInFils = Math.round(amount * 100);
-        const body: any = {
+        body = {
           amount: amountInFils,
           currency_code: "AED",
           success_url: `${window.location.origin}/order-success?source=ziina`,
@@ -64,8 +64,7 @@ const ZiinaPayment: React.FC<ZiinaPaymentProps> = ({
           failure_url: `${window.location.origin}/order-failed?source=ziina&status=failed`,
           metadata: {
             order_id: String(orderPayload.orderId || orderPayload.id || "test-order")
-          },
-          ...(TEST_MODE ? { test: true } : {})
+          }
         };
       }
 

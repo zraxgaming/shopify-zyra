@@ -23,7 +23,10 @@ const NewsletterOptions: React.FC = () => {
         </CardHeader>
         <CardContent>
           <p>Send SMS notifications and campaigns to your users.</p>
-          <Button asChild><Link href="/admin/AdminSms">Go to SMS</Link></Button>
+          {/* Admin features moved to Shopify/admin tools. */}
+          <Button onClick={() => window.alert('SMS campaigns are managed via Shopify Apps or external tools.')}>
+            Manage SMS
+          </Button>
         </CardContent>
       </Card>
       {/* AI Phone Calls */}
@@ -33,7 +36,9 @@ const NewsletterOptions: React.FC = () => {
         </CardHeader>
         <CardContent>
           <p>Automate phone calls to your customers using AI.</p>
-          <Button asChild><Link href="/admin/AdminAICalls">Go to AI Calls</Link></Button>
+          <Button onClick={() => window.alert('AI call features are not available in the storefront. Use admin tools.')}>
+            Manage AI Calls
+          </Button>
         </CardContent>
       </Card>
       {/* Web Push Notifications */}
@@ -43,7 +48,9 @@ const NewsletterOptions: React.FC = () => {
         </CardHeader>
         <CardContent>
           <p>Send browser push notifications using PushAlert.</p>
-          <Button asChild><Link href="/admin/AdminWebPush">Go to Web Push</Link></Button>
+          <Button onClick={() => window.alert('Web push notifications are configured via PushAlert dashboard or Shopify Apps.')}>
+            Web Push Settings
+          </Button>
         </CardContent>
       </Card>
     </div>
