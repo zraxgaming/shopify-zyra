@@ -22,7 +22,7 @@ const Wishlist = () => {
 
   const handleAddToCart = async (product: any) => {
     if (!product) return;
-    await addItem({
+    await addToCart({
       product_id: product.id,
       name: product.name,
       price: product.price,

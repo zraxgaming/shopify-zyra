@@ -72,7 +72,7 @@ export const useReferrals = () => {
       const pendingReferrals = referrals.filter(r => r.status === 'pending').length;
       const totalRewards = referrals.reduce((sum, r) => sum + (r.reward_earned || 0), 0);
 
-      setReferrals(referrals.map(r => ({ ...r, updated_at: r.updated_at || r.created_at })));
+      setReferrals(referrals);
       setStats({
         totalReferrals,
         activeReferrals,

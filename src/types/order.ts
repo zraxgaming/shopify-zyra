@@ -54,14 +54,26 @@ export interface OrderDetail extends Order {
 export interface Referral {
   id: string;
   referrer_id: string;
-  referred_id: string;
+  referred_id: string | null;
   referral_code: string;
   status: string;
   reward_earned: number;
   created_at: string;
-  updated_at: string;
   referred_profiles?: {
     display_name?: string;
     email?: string;
   };
+}
+
+export interface GiftCard {
+  id: string;
+  code: string;
+  initial_amount: number;
+  current_amount: number;
+  status: string;
+  expires_at?: string;
+  created_at: string;
+  sender_name?: string;
+  recipient_email?: string;
+  message?: string;
 }

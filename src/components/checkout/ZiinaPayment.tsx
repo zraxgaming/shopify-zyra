@@ -161,11 +161,6 @@ const ZiinaPayment: React.FC<ZiinaPaymentProps> = ({
             Secure payment powered by Ziina
           </p>
 
-          {testing && (
-            <p className="text-sm text-yellow-600 font-medium mt-2">
-              ⚠️ Test Mode Active
-            </p>
-          )}
         </div>
       </CardContent>
     </Card>
