@@ -69,7 +69,7 @@ const OrderConfirmation = () => {
         .single();
 
       if (error) throw error;
-      setOrder(data);
+      setOrder(data as any);
     } catch (error: any) {
       console.error('Error fetching order:', error);
       toast({

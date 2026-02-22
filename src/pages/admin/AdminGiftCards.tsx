@@ -15,12 +15,13 @@ import { Gift, Plus, Eye, Trash2 } from "lucide-react";
 interface GiftCard {
   id: string;
   code: string;
-  amount: number;
   initial_amount: number;
-  recipient_email: string;
-  message: string;
-  is_active: boolean;
-  expires_at: string;
+  current_amount: number;
+  recipient_email?: string;
+  sender_name?: string;
+  message?: string;
+  status: string;
+  expires_at?: string;
   created_at: string;
 }
 
@@ -48,7 +49,7 @@ const AdminGiftCards = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setGiftCards(data || []);
+      setGiftCards((data || []) as any);
     } catch (error: any) {
       console.error('Error fetching gift cards:', error);
       toast({
@@ -108,7 +109,7 @@ const AdminGiftCards = () => {
     try {
       const { error } = await supabase
         .from('gift_cards')
-        .update({ is_active: false })
+        .update({ status: 'inactive' } as any)
         .eq('id', id);
 
       if (error) throw error;
@@ -129,8 +130,8 @@ const AdminGiftCards = () => {
     }
   };
 
-  const totalValue = giftCards.reduce((sum, card) => sum + card.amount, 0);
-  const activeCards = giftCards.filter(card => card.is_active).length;
+  const totalValue = giftCards.reduce((sum, card) => sum + (card.initial_amount || 0), 0);
+  const activeCards = giftCards.filter(card => card.status === 'active').length;
 
   return (
     <AdminLayout>
@@ -261,11 +262,11 @@ const AdminGiftCards = () => {
                   {giftCards.map((card) => (
                     <TableRow key={card.id}>
                       <TableCell className="font-mono">{card.code}</TableCell>
-                      <TableCell>${card.amount.toFixed(2)}</TableCell>
+                      <TableCell>${(card.current_amount || card.initial_amount).toFixed(2)}</TableCell>
                       <TableCell>{card.recipient_email || '—'}</TableCell>
                       <TableCell>
-                        <Badge variant={card.is_active ? "default" : "secondary"}>
-                          {card.is_active ? "Active" : "Inactive"}
+                        <Badge variant={card.status === 'active' ? "default" : "secondary"}>
+                          {card.status === 'active' ? "Active" : "Inactive"}
                         </Badge>
                       </TableCell>
                       <TableCell>{new Date(card.created_at).toLocaleDateString()}</TableCell>
@@ -274,7 +275,7 @@ const AdminGiftCards = () => {
                           <Button size="sm" variant="outline">
                             <Eye className="h-4 w-4" />
                           </Button>
-                          {card.is_active && (
+                          {card.status === 'active' && (
                             <Button 
                               size="sm" 
                               variant="destructive"

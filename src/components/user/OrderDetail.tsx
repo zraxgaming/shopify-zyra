@@ -52,7 +52,7 @@ const OrderDetail = () => {
 
       if (orderError) throw orderError;
 
-      setOrder(orderData);
+      setOrder(orderData as any);
     } catch (error) {
       console.error('Error fetching order details:', error);
       toast({

@@ -43,8 +43,9 @@ const AdminTrafficDashboard = () => {
     },
   });
 
-  const topPages = pageViews?.reduce((acc, view) => {
-    acc[view.path] = (acc[view.path] || 0) + 1;
+  const topPages = pageViews?.reduce((acc: Record<string, number>, view: any) => {
+    const p = view.page_path || view.path;
+    acc[p] = (acc[p] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -169,16 +170,16 @@ const AdminTrafficDashboard = () => {
               <div key={view.id} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 rounded-lg transition-colors">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    {view.user_agent?.includes('Mobile') ? (
+                    {view.device_type === 'mobile' ? (
                       <Smartphone className="h-4 w-4 text-gray-500" />
-                    ) : view.user_agent?.includes('Tablet') ? (
+                    ) : view.device_type === 'tablet' ? (
                       <Tablet className="h-4 w-4 text-gray-500" />
                     ) : (
                       <Monitor className="h-4 w-4 text-gray-500" />
                     )}
                   </div>
                   <div>
-                    <p className="font-medium">{view.path}</p>
+                    <p className="font-medium">{view.page_path}</p>
                     {view.referrer && (
                       <p className="text-sm text-gray-500">From: {view.referrer}</p>
                     )}

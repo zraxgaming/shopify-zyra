@@ -14,9 +14,9 @@ import { useToast } from '@/hooks/use-toast';
 interface OrderRefund {
   id: string;
   order_id: string;
-  ziina_refund_id: string;
+  ziina_refund_id?: string;
   amount: number;
-  currency: string;
+  currency?: string;
   reason?: string;
   status: string;
   created_at: string;

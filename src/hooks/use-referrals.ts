@@ -9,7 +9,7 @@ interface Referral {
   referred_id: string;
   referral_code: string;
   status: string;
-  reward_earned: boolean;
+  reward_earned: number;
   created_at: string;
   updated_at: string;
 }

@@ -114,7 +114,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           .eq('user_id', user.id);
 
         if (error) throw error;
-        dispatch({ type: 'SET_ITEMS', payload: data || [] });
+        dispatch({ type: 'SET_ITEMS', payload: (data || []) as any });
       } else {
         // Load from localStorage for guests
         const savedCart = localStorage.getItem('zyra_cart');
