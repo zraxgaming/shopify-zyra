@@ -22,10 +22,9 @@ export const usePageTracking = () => {
         const { error } = await supabase
           .from('page_views')
           .insert({
-            path: location.pathname,
+            page_path: location.pathname,
             user_id: user?.id || null,
-            session_id: sessionId,
-            user_agent: navigator.userAgent,
+            device_type: /Mobile/i.test(navigator.userAgent) ? 'mobile' : /Tablet/i.test(navigator.userAgent) ? 'tablet' : 'desktop',
             referrer: document.referrer || null
           });
 

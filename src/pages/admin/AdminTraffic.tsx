@@ -43,7 +43,7 @@ const AdminTraffic = () => {
       // Fetch page views
       const { data: viewsData, error: viewsError } = await supabase
         .from('page_views')
-        .select('path, timestamp, session_id, referrer')
+        .select('page_path, timestamp, user_id, referrer')
         .order('timestamp', { ascending: false });
 
       if (viewsError) throw viewsError;
@@ -51,30 +51,30 @@ const AdminTraffic = () => {
       // Process page views data
       const pageViewsCount: Record<string, number> = {};
       const referrersCount: Record<string, number> = {};
-      const dailyViews: Record<string, { views: number; sessions: Set<string> }> = {};
-      const uniqueSessions = new Set<string>();
+      const dailyViews: Record<string, { views: number; users: Set<string> }> = {};
+      const uniqueUsers = new Set<string>();
 
-      (viewsData || []).forEach(view => {
+      (viewsData || []).forEach((view: any) => {
         // Count page views
-        pageViewsCount[view.path] = (pageViewsCount[view.path] || 0) + 1;
+        pageViewsCount[view.page_path] = (pageViewsCount[view.page_path] || 0) + 1;
         
         // Count referrers
         const referrer = view.referrer || 'Direct';
         referrersCount[referrer] = (referrersCount[referrer] || 0) + 1;
         
-        // Track unique sessions
-        if (view.session_id) {
-          uniqueSessions.add(view.session_id);
+        // Track unique users
+        if (view.user_id) {
+          uniqueUsers.add(view.user_id);
         }
         
         // Daily traffic
         const date = new Date(view.timestamp).toISOString().split('T')[0];
         if (!dailyViews[date]) {
-          dailyViews[date] = { views: 0, sessions: new Set() };
+          dailyViews[date] = { views: 0, users: new Set() };
         }
         dailyViews[date].views++;
-        if (view.session_id) {
-          dailyViews[date].sessions.add(view.session_id);
+        if (view.user_id) {
+          dailyViews[date].users.add(view.user_id);
         }
       });
 
@@ -100,7 +100,7 @@ const AdminTraffic = () => {
         last7Days.push({
           date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
           views: dayData?.views || 0,
-          visitors: dayData?.sessions.size || 0
+          visitors: dayData?.users.size || 0
         });
       }
 
@@ -108,7 +108,7 @@ const AdminTraffic = () => {
       setReferrers(referrersArray);
       setTrafficData(last7Days);
       setTotalViews(viewsData?.length || 0);
-      setUniqueVisitors(uniqueSessions.size);
+      setUniqueVisitors(uniqueUsers.size);
     } catch (error: any) {
       console.error('Error fetching traffic data:', error);
       toast({

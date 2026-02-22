@@ -66,7 +66,7 @@ export const useUpdateSiteConfig = () => {
       const promises = Object.entries(updates).map(([key, value]) =>
         supabase
           .from("site_config")
-          .upsert({ key, value }, { onConflict: "key" })
+          .upsert({ key, value: String(value) } as any, { onConflict: "key" })
       );
 
       const results = await Promise.all(promises);

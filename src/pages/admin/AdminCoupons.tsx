@@ -269,8 +269,8 @@ const AdminCoupons = () => {
                           {coupon.used_count} / {coupon.max_uses || '∞'}
                         </TableCell>
                         <TableCell>
-                          <Badge variant={coupon.active ? "default" : "secondary"}>
-                            {coupon.active ? "Active" : "Inactive"}
+                          <Badge variant={coupon.is_active ? "default" : "secondary"}>
+                            {coupon.is_active ? "Active" : "Inactive"}
                           </Badge>
                         </TableCell>
                         <TableCell>

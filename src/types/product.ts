@@ -34,13 +34,7 @@ export interface Product {
   in_stock?: boolean;
   rating?: number;
   review_count?: number;
-  customization_options?: {
-    allow_text?: boolean;
-    allow_image?: boolean;
-    max_text_length?: number;
-    max_image_count?: number;
-    allow_resize_rotate?: boolean;
-  };
+  customization_options?: any;
 }
 
 export interface ProductFilters {

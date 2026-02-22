@@ -60,11 +60,11 @@ const BarcodeGenerator: React.FC<BarcodeGeneratorProps> = ({ onGenerated }) => {
       }
       const { error } = await supabase
         .from("barcode_generations")
-        .insert({
+        .insert([{
           barcode_type: barcodeType,
-          barcode_value: barcodeData,
+          barcode_data: barcodeData,
           product_id: selectedProduct?.id || null,
-        });
+        }]);
       if (error) throw error;
       toast({
         title: "Barcode generated",

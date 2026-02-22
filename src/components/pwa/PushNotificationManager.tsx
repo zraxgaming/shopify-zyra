@@ -28,7 +28,7 @@ const PushNotificationManager: React.FC = () => {
       const registration = await navigator.serviceWorker.register('/sw.js');
 
       // Check for existing subscription
-      const existingSubscription = await registration.pushManager.getSubscription();
+      const existingSubscription = await (registration as any).pushManager.getSubscription();
       if (existingSubscription) {
         setSubscription(existingSubscription);
       }
@@ -43,7 +43,7 @@ const PushNotificationManager: React.FC = () => {
     try {
       const registration = await navigator.serviceWorker.ready;
       
-      const subscription = await registration.pushManager.subscribe({
+      const subscription = await (registration as any).pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(
           // This would be your VAPID public key in a real app

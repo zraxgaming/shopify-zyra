@@ -42,8 +42,8 @@ const CouponForm: React.FC<CouponFormProps> = ({
         .from('coupons')
         .select('*')
         .eq('code', couponCode.trim().toUpperCase())
-        .eq('active', true)
-        .single();
+        .eq('is_active', true)
+        .single() as any;
 
       if (error || !coupon) {
         throw new Error('Invalid coupon code');
