@@ -1,250 +1,92 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import { Container } from "@/components/ui/container";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { User, Package, Heart } from "lucide-react";
-import SEOHead from "@/components/seo/SEOHead";
+import { shopifyUpdateCustomer } from "@/services/shopifyCustomer";
+import { Loader2 } from "lucide-react";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { customer, accessToken, loading, refresh } = useAuth();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(false);
-  const [profile, setProfile] = useState({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    username: ''
-  });
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ firstName: "", lastName: "", phone: "" });
 
   useEffect(() => {
-    const fetchProfile = async () => {
-      if (!user) return;
-
-      try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (error && error.code !== 'PGRST116') throw error;
-
-        if (data) {
-          setProfile({
-            first_name: data.first_name || '',
-            last_name: data.last_name || '',
-            email: data.email || user.email || '',
-            phone: data.phone || '',
-            username: data.display_name || '',
-          });
-        } else {
-          setProfile(prev => ({
-            ...prev,
-            email: user.email || ''
-          }));
-        }
-      } catch (error: any) {
-        console.error('Error fetching profile:', error);
-      }
-    };
-
-    fetchProfile();
-  }, [user]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    setLoading(true);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          ...profile,
-          updated_at: new Date().toISOString()
-        } as any);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
+    if (customer) {
+      setForm({
+        firstName: customer.firstName || "",
+        lastName: customer.lastName || "",
+        phone: customer.phone || "",
       });
-    } catch (error: any) {
-      console.error('Error updating profile:', error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update profile",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [customer]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setProfile(prev => ({ ...prev, [name]: value }));
-  };
-
-  if (!user) {
+  if (loading) {
     return (
       <>
-        <SEOHead 
-          title="Sign In - Zyra Custom Craft"
-          description="Access your profile at Zyra. Please sign in to view your account details and manage your profile, orders, and wishlist."
-          url="https://www.shopzyra.site/profile"
-        />
         <Navbar />
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <h1 className="text-2xl font-bold mb-4">Please sign in</h1>
-              <p className="text-muted-foreground">You need to be signed in to view your profile.</p>
-            </CardContent>
-          </Card>
-        </div>
+        <Container className="py-20 flex justify-center"><Loader2 className="h-10 w-10 animate-spin" /></Container>
         <Footer />
       </>
     );
   }
 
+  if (!customer || !accessToken) return <Navigate to="/auth" replace />;
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await shopifyUpdateCustomer(accessToken, form);
+      await refresh();
+      toast({ title: "Profile updated" });
+    } catch (err: any) {
+      toast({ title: "Update failed", description: err.message, variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <>
-      <SEOHead 
-        title="My Profile - Zyra Custom Craft"
-        description="View and update your profile, manage your orders and wishlist at Zyra Custom Craft."
-        url="https://www.shopzyra.site/profile"
-      />
       <Navbar />
-      <div className="min-h-screen bg-background py-12">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold mb-2">My Profile</h1>
-            <p className="text-muted-foreground">Manage your account settings</p>
-          </div>
-
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Profile
-              </TabsTrigger>
-              <TabsTrigger value="orders" className="flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Orders
-              </TabsTrigger>
-              <TabsTrigger value="wishlist" className="flex items-center gap-2">
-                <Heart className="h-4 w-4" />
-                Wishlist
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="profile">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Profile Information</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <Label htmlFor="first_name">First Name</Label>
-                        <Input
-                          id="first_name"
-                          name="first_name"
-                          value={profile.first_name}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="last_name">Last Name</Label>
-                        <Input
-                          id="last_name"
-                          name="last_name"
-                          value={profile.last_name}
-                          onChange={handleInputChange}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="username">Username</Label>
-                      <Input
-                        id="username"
-                        name="username"
-                        value={profile.username}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={profile.email}
-                        onChange={handleInputChange}
-                        disabled
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Email cannot be changed from this page
-                      </p>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        value={profile.phone}
-                        onChange={handleInputChange}
-                      />
-                    </div>
-
-                    <Button type="submit" disabled={loading}>
-                      {loading ? "Updating..." : "Update Profile"}
-                    </Button>
-                  </form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="orders">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Order History</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Your order history will appear here.</p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="wishlist">
-              <Card>
-                <CardHeader>
-                  <CardTitle>My Wishlist</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">Your wishlist items will appear here.</p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </div>
+      <Container className="py-12 max-w-2xl">
+        <h1 className="text-3xl font-bold mb-6">Edit Profile</h1>
+        <Card>
+          <CardHeader><CardTitle>Profile Information</CardTitle></CardHeader>
+          <CardContent>
+            <form onSubmit={handleSave} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="firstName">First Name</Label>
+                  <Input id="firstName" value={form.firstName} onChange={(e) => setForm({ ...form, firstName: e.target.value })} />
+                </div>
+                <div>
+                  <Label htmlFor="lastName">Last Name</Label>
+                  <Input id="lastName" value={form.lastName} onChange={(e) => setForm({ ...form, lastName: e.target.value })} />
+                </div>
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input value={customer.email} disabled />
+                <p className="text-xs text-muted-foreground mt-1">Email cannot be changed from this page.</p>
+              </div>
+              <div>
+                <Label htmlFor="phone">Phone</Label>
+                <Input id="phone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              </div>
+              <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save changes"}</Button>
+            </form>
+          </CardContent>
+        </Card>
+      </Container>
       <Footer />
     </>
   );
