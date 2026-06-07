@@ -158,7 +158,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 quantity: item.quantity,
                 image_url: item.image_url,
                 customization: item.customization
-              }))
+              })) as any
             );
 
           if (error) throw error;
