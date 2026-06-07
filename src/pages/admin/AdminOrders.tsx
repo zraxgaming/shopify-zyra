@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Package, Eye, Edit, Truck, CheckCircle, XCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/router";
+import { useNavigate } from "react-router-dom";
 import BackendEmailService from "@/services/backendEmailService";
 
 interface Order {
@@ -39,7 +39,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const { toast } = useToast();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
@@ -292,7 +292,7 @@ const AdminOrders = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => router.push(`/admin/AdminOrderDetails?id=${order.id}`)}
+                      onClick={() => navigate(`/admin/AdminOrderDetails?id=${order.id}`)}
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       View

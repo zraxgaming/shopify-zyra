@@ -1,5 +1,5 @@
 
-import Head from 'next/head';
+import { Helmet as Head } from 'react-helmet-async';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

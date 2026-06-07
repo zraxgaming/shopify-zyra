@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Link } from 'react-router-dom';
 
 const NewsletterOptions: React.FC = () => {
   return (
@@ -13,7 +13,7 @@ const NewsletterOptions: React.FC = () => {
         </CardHeader>
         <CardContent>
           <p>Send updates and offers to your subscribers via email.</p>
-          <Button asChild><Link href="/newsletter">Go to Newsletter</Link></Button>
+          <Button asChild><Link to="/newsletter">Go to Newsletter</Link></Button>
         </CardContent>
       </Card>
       {/* SMS */}

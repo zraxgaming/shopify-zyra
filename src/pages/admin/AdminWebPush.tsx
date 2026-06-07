@@ -1,5 +1,5 @@
 import React from "react";
-import Head from "next/head";
+import { Helmet as Head } from "react-helmet-async";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
