@@ -191,3 +191,32 @@ export async function shopifyUpdateCustomer(
   if (errs.length) throw new Error(errs[0].message);
   return data.customerUpdate.customer;
 }
+
+/**
+ * Subscribe an email to the Shopify customer list with marketing consent.
+ * Creates a Shopify customer (with a random password) and flags acceptsMarketing=true
+ * so they appear in your Shopify Customers > Email subscribers list.
+ * If the email already exists, treats it as success (idempotent for marketing capture).
+ */
+export async function shopifyNewsletterSubscribe(email: string, firstName?: string) {
+  const password =
+    "Z" +
+    Math.random().toString(36).slice(2) +
+    Math.random().toString(36).slice(2).toUpperCase() +
+    "!";
+  const data = await req(CUSTOMER_CREATE, {
+    input: {
+      email,
+      password,
+      firstName: firstName || undefined,
+      acceptsMarketing: true,
+    },
+  });
+  const errs = data.customerCreate.customerUserErrors || [];
+  // Treat "already taken" as success — the goal is marketing consent capture.
+  const onlyTaken =
+    errs.length > 0 &&
+    errs.every((e: any) => e.code === "TAKEN" || /taken|already/i.test(e.message));
+  if (errs.length && !onlyTaken) throw new Error(errs[0].message);
+  return { alreadySubscribed: onlyTaken };
+}

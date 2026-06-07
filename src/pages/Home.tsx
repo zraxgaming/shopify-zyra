@@ -12,10 +12,10 @@ const Home = () => {
   return (
     <>
       <SEOHead
-        title="Zyra - Premium Digital Products, Templates & Creative Resources"
-        description="Discover thousands of high-quality digital products at Zyra. Download premium templates, graphics, fonts, stock photos, and creative resources instantly. Perfect for designers, businesses, and creators."
-        url="https://www.shopzyra.site"
-        keywords="digital products, templates, graphics, fonts, stock photos, design resources, instant download, creative assets, Zyra"
+        title="Zyra — Apparel, Accessories & Gifts"
+        description="Shop Zyra for premium apparel, drinkware, bags, accessories and gift cards. Quality essentials, fast shipping."
+        url="/"
+        keywords="apparel, t-shirts, mugs, tote bags, hats, gift cards, Zyra"
       />
       <Navbar />
       <Hero />
