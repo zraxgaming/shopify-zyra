@@ -29,6 +29,7 @@ import CategoryPage from "@/pages/CategoryPage";
 import NotFound from "@/pages/NotFound";
 import Dashboard from "@/pages/Dashboard";
 import Unsubscribe from "@/pages/Unsubscribe";
+import GiftCards from "@/pages/GiftCards";
 
 function App() {
   useCartSync();
@@ -58,6 +59,7 @@ function App() {
               <Route path="/cart" element={<Cart />} />
               <Route path="/newsletter" element={<Newsletter />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
+              <Route path="/gift-cards" element={<GiftCards />} />
               <Route path="/offline" element={<Offline />} />
               <Route path="/order-tracking" element={<OrderTracking />} />
               <Route path="/terms" element={<Terms />} />

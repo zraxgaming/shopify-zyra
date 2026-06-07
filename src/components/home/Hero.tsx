@@ -47,19 +47,19 @@ const Hero = () => {
           <div className="space-y-6">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight tracking-tight">
               <span className="block text-gray-900 dark:text-white mb-2">
-                Custom
+                Everyday
               </span>
               <span className="block bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 bg-clip-text text-transparent">
-                Excellence
+                Essentials
               </span>
               <span className="block text-gray-900 dark:text-white text-4xl md:text-5xl lg:text-6xl mt-4">
-                Delivered
+                Built to Last
               </span>
             </h1>
-            
+
             <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed font-light">
-              Premium custom products crafted with precision. From concept to creation, 
-              we bring your vision to life with unmatched quality and attention to detail.
+              Premium apparel, drinkware, bags and accessories. Quality you can feel,
+              shipped straight to your door.
             </p>
           </div>
 
@@ -85,8 +85,8 @@ const Hero = () => {
               <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/50 rounded-xl flex items-center justify-center mb-4">
                 <Star className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Custom Design</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Personalized products tailored to your vision</p>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Curated Range</h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400">Hand-picked products you'll actually use every day</p>
             </div>
           </div>
 
@@ -98,7 +98,7 @@ const Hero = () => {
               className="h-14 px-10 text-lg font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 border-0"
             >
               <Link to="/shop">
-                Start Creating
+                Shop Now
                 <ArrowRight className="ml-3 h-5 w-5" />
               </Link>
             </Button>
@@ -123,7 +123,7 @@ const Hero = () => {
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-indigo-600 dark:text-indigo-400 mb-2">500+</div>
-              <div className="text-gray-600 dark:text-gray-400 font-medium">Custom Products</div>
+              <div className="text-gray-600 dark:text-gray-400 font-medium">Products in Store</div>
             </div>
             <div className="text-center">
               <div className="text-3xl md:text-4xl font-bold text-purple-600 dark:text-purple-400 mb-2">99%</div>
