@@ -9,10 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter, Grid, List, Sparkles } from "lucide-react";
 import SEOHead from "@/components/seo/SEOHead";
 import { Badge } from "@/components/ui/badge";
-import ProductGrid from "@/components/shop/ProductGrid";
-import ProductFilters from "@/components/shop/ProductFilters";
-import { useProducts } from "@/hooks/use-products";
-import { useCategories } from "@/hooks/use-categories";
+import ShopifyProductGrid from "@/components/shop/ShopifyProductGrid";
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
