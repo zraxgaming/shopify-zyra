@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Package, Eye, Edit, Truck, CheckCircle, XCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useRouter } from "next/router";
+import { useNavigate } from "react-router-dom";
 import BackendEmailService from "@/services/backendEmailService";
 
 interface Order {
