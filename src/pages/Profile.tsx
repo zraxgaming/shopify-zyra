@@ -71,7 +71,7 @@ const Profile = () => {
           id: user.id,
           ...profile,
           updated_at: new Date().toISOString()
-        });
+        } as any);
 
       if (error) throw error;
 
