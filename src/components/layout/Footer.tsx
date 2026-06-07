@@ -13,7 +13,7 @@ const Footer = () => {
           <div>
             <h2 className="text-xl font-bold mb-4">Zyra</h2>
             <p className="text-gray-300 mb-4">
-              Custom products designed by you. Express your creativity with our personalized items.
+              Everyday essentials, built to last. Apparel, drinkware, bags & accessories — shipped fast.
             </p>
             <div className="flex space-x-4">
               <a href="#" className="text-gray-300 hover:text-white">
@@ -44,6 +44,12 @@ const Footer = () => {
               </li>
               <li>
                 <Link to="/shop?new=true" className="text-gray-300 hover:text-white">New Arrivals</Link>
+              </li>
+              <li>
+                <Link to="/gift-cards" className="text-gray-300 hover:text-white">Gift Cards</Link>
+              </li>
+              <li>
+                <Link to="/newsletter" className="text-gray-300 hover:text-white">Newsletter</Link>
               </li>
             </ul>
           </div>
