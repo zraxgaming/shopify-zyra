@@ -1,7 +1,7 @@
 const SHOPIFY_API_VERSION = '2025-07';
-const SHOPIFY_STORE_PERMANENT_DOMAIN = 'zyra-custom-craft-u2bvk.myshopify.com';
+const SHOPIFY_STORE_PERMANENT_DOMAIN = 'v75dhd-ys.myshopify.com';
 const SHOPIFY_STOREFRONT_URL = `https://${SHOPIFY_STORE_PERMANENT_DOMAIN}/api/${SHOPIFY_API_VERSION}/graphql.json`;
-const SHOPIFY_STOREFRONT_TOKEN = '81b79dc7fd1783467f7ebdbbe2b013b5';
+const SHOPIFY_STOREFRONT_TOKEN = 'ff604df80351ecf88111e0620d7c7b40';
 
 export interface ShopifyProduct {
   node: {
