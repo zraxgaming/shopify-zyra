@@ -39,7 +39,7 @@ const AdminOrders = () => {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('all');
   const { toast } = useToast();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchOrders();
