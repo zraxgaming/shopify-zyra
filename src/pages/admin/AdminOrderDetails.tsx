@@ -122,7 +122,7 @@ const AdminOrderDetails = () => {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ [field]: value })
+        .update({ [field]: value } as any)
         .eq('id', order.id);
 
       if (error) throw error;

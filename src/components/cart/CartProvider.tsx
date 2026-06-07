@@ -158,7 +158,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 quantity: item.quantity,
                 image_url: item.image_url,
                 customization: item.customization
-              }))
+              })) as any
             );
 
           if (error) throw error;
@@ -177,21 +177,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const computeAdd = (items: CartItem[], item: CartItem): CartItem[] => {
+    const existingIndex = items.findIndex(i => i.product_id === item.product_id);
+    if (existingIndex >= 0) {
+      return items.map((i, idx) =>
+        idx === existingIndex ? { ...i, quantity: i.quantity + item.quantity } : i
+      );
+    }
+    return [...items, item];
+  };
+
   const addItem = async (newItem: Omit<CartItem, 'id'>) => {
     const item = { ...newItem, id: crypto.randomUUID() };
     dispatch({ type: 'ADD_ITEM', payload: item });
-    
-    const updatedItems = [...state.items];
-    const existingIndex = updatedItems.findIndex(i => i.product_id === item.product_id);
-    
-    if (existingIndex >= 0) {
-      updatedItems[existingIndex].quantity += item.quantity;
-    } else {
-      updatedItems.push(item);
-    }
-    
+
+    const updatedItems = computeAdd(state.items || [], item);
     await saveCart(updatedItems);
-    
+
     toast({
       title: "Added to Cart",
       description: `${item.name} has been added to your cart`,
@@ -203,9 +205,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await removeItem(id);
       return;
     }
-    
+
     dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
-    const updatedItems = state.items.map(item =>
+    const updatedItems = (state.items || []).map(item =>
       item.id === id ? { ...item, quantity } : item
     );
     await saveCart(updatedItems);
@@ -213,7 +215,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const removeItem = async (id: string) => {
     dispatch({ type: 'REMOVE_ITEM', payload: id });
-    const updatedItems = state.items.filter(item => item.id !== id);
+    const updatedItems = (state.items || []).filter(item => item.id !== id);
     await saveCart(updatedItems);
     
     toast({

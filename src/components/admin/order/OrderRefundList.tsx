@@ -136,7 +136,7 @@ const OrderRefundList: React.FC = () => {
           currency: ziinaRefund.currency,
           reason: newRefund.reason,
           status: ziinaRefund.status
-        });
+        } as any);
 
       if (dbError) throw dbError;
 
