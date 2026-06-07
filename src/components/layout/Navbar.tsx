@@ -15,7 +15,6 @@ import {
   Grid3X3
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/components/cart/CartProvider";
 import { useWishlist } from '@/contexts/WishlistContext';
 import ShopifyCartDrawer from "@/components/cart/ShopifyCartDrawer";
 import { useCartStore } from "@/stores/cartStore";
@@ -32,16 +31,12 @@ import {
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { user, signOut, isAdmin } = useAuth();
-  const { totalItems } = useCart();
+  const { user, signOut } = useAuth();
   const shopifyItems = useCartStore((s) => s.items);
   const { wishlist: wishlistItems } = useWishlist();
   const navigate = useNavigate();
 
-  // Combine local + shopify cart counts for the badge
-  const cartItemCount =
-    (typeof totalItems === "number" ? totalItems : 0) +
-    shopifyItems.reduce((sum, i) => sum + i.quantity, 0);
+  const cartItemCount = shopifyItems.reduce((sum, i) => sum + i.quantity, 0);
 
   const handleSignOut = async () => {
     try {
@@ -169,11 +164,14 @@ const Navbar = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                    <DropdownMenuItem onClick={() => navigate('/account')}>
                       <Package className="mr-2 h-4 w-4" />
-                      <span>Dashboard</span>
+                      <span>My Account</span>
                     </DropdownMenuItem>
-                    {/* Admin panel navigation removed from storefront. Use Shopify admin instead. */}
+                    <DropdownMenuItem onClick={() => navigate('/order-tracking')}>
+                      <Package className="mr-2 h-4 w-4" />
+                      <span>Orders</span>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />
