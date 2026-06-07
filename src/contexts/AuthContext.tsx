@@ -1,163 +1,167 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
+// Shopify-backed auth context. Keeps the same API as the previous Supabase-based
+// AuthContext so existing components (which read user.id, user.email,
+// user.user_metadata, signIn/signUp/signOut) continue to work.
+import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
+import {
+  shopifyLogin,
+  shopifyRegister,
+  shopifyLogout,
+  shopifyFetchCustomer,
+  ShopifyCustomer,
+  ShopifyOrder,
+} from "@/services/shopifyCustomer";
+
+const TOKEN_KEY = "shopify_customer_token";
+
+interface StoredToken {
+  accessToken: string;
+  expiresAt: string;
+}
+
+// Shape kept compatible with previous Supabase user usage.
+interface CompatUser {
+  id: string;
+  email: string;
+  user_metadata: { first_name?: string; last_name?: string; full_name?: string };
+  customer: ShopifyCustomer;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: CompatUser | null;
+  customer: ShopifyCustomer | null;
+  orders: ShopifyOrder[];
+  accessToken: string | null;
   loading: boolean;
   isLoading: boolean;
   isAdmin: boolean;
-  signOut: () => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, metadata?: any) => Promise<void>;
+  signUp: (email: string, password: string, metadata?: { first_name?: string; last_name?: string }) => Promise<void>;
+  signOut: () => Promise<void>;
+  refresh: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function readToken(): StoredToken | null {
+  try {
+    const raw = localStorage.getItem(TOKEN_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as StoredToken;
+    if (new Date(parsed.expiresAt).getTime() <= Date.now()) {
+      localStorage.removeItem(TOKEN_KEY);
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function toCompatUser(customer: ShopifyCustomer): CompatUser {
+  return {
+    id: customer.id,
+    email: customer.email,
+    user_metadata: {
+      first_name: customer.firstName ?? undefined,
+      last_name: customer.lastName ?? undefined,
+      full_name: customer.displayName,
+    },
+    customer,
+  };
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize with explicit values to prevent dispatcher issues
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [customer, setCustomer] = useState<ShopifyCustomer | null>(null);
+  const [orders, setOrders] = useState<ShopifyOrder[]>([]);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    let mounted = true;
-
-    // Force refresh session on mount
-    const refreshSession = async () => {
-      try {
-        await supabase.auth.getSession();
-      } catch (err) {
-        console.error('Supabase session refresh error:', err);
+  const refresh = useCallback(async () => {
+    const stored = readToken();
+    if (!stored) {
+      setCustomer(null);
+      setOrders([]);
+      setAccessToken(null);
+      return;
+    }
+    setAccessToken(stored.accessToken);
+    try {
+      const result = await shopifyFetchCustomer(stored.accessToken);
+      if (result) {
+        setCustomer(result.customer);
+        setOrders(result.orders);
+      } else {
+        localStorage.removeItem(TOKEN_KEY);
+        setCustomer(null);
+        setOrders([]);
+        setAccessToken(null);
       }
-    };
-    refreshSession();
-
-    // Get initial session
-    const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (mounted) {
-          setUser(session?.user ?? null);
-          if (session?.user) {
-            await checkAdminStatus(session.user.id);
-          }
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Error initializing auth:', error);
-        if (mounted) {
-          setLoading(false);
-        }
-      }
-    };
-
-    initializeAuth();
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (mounted) {
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await checkAdminStatus(session.user.id);
-        } else {
-          setIsAdmin(false);
-        }
-        setLoading(false);
-      }
-    });
-
-    return () => {
-      mounted = false;
-      subscription.unsubscribe();
-    };
+    } catch (e) {
+      console.error("Failed to fetch Shopify customer", e);
+    }
   }, []);
 
-  const checkAdminStatus = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .rpc('has_role', { _user_id: userId, _role: 'admin' });
-
-      if (!error && data === true) {
-        setIsAdmin(true);
-      } else {
-        setIsAdmin(false);
-      }
-    } catch (error) {
-      console.error('Error checking admin status:', error);
-      setIsAdmin(false);
-    }
-  };
+  useEffect(() => {
+    (async () => {
+      await refresh();
+      setLoading(false);
+    })();
+  }, [refresh]);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-
-    // Send suspicious login notification (customize condition as needed)
-    try {
-      const { zyraEmailTemplate } = await import('@/utils/emailTemplate');
-      await fetch('/api/send-email-generic', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: email,
-          subject: 'New Login Detected - Zyra Custom Craft',
-          text: `A new login to your account was detected. If this wasn't you, please reset your password immediately.`,
-          html: zyraEmailTemplate({
-            title: 'Suspicious Login Detected',
-            body: `<p style='font-size:1.1rem;color:#6b21a8;'>A new login to your Zyra Custom Craft account was detected.</p><p>If this wasn't you, please <a href='https://www.shopzyra.site/reset-password' style='color:#7c3aed;text-decoration:underline;'>reset your password</a> immediately.</p>`,
-            ctaText: 'Reset Password',
-            ctaUrl: 'https://www.shopzyra.site/reset-password'
-          })
-        })
-      });
-    } catch (e) {
-      // Do not block login on email failure
-      console.error('Failed to send suspicious login email:', e);
-    }
+    const token = await shopifyLogin(email, password);
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(token));
+    setAccessToken(token.accessToken);
+    await refresh();
   };
 
-  const signUp = async (email: string, password: string, metadata?: any) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (email: string, password: string, metadata?: { first_name?: string; last_name?: string }) => {
+    await shopifyRegister({
       email,
       password,
-      options: {
-        data: metadata
-      }
+      firstName: metadata?.first_name,
+      lastName: metadata?.last_name,
     });
-    if (error) throw error;
+    // After successful registration, sign the user in automatically.
+    const token = await shopifyLogin(email, password);
+    localStorage.setItem(TOKEN_KEY, JSON.stringify(token));
+    setAccessToken(token.accessToken);
+    await refresh();
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-    setIsAdmin(false);
+    if (accessToken) await shopifyLogout(accessToken);
+    localStorage.removeItem(TOKEN_KEY);
+    setCustomer(null);
+    setOrders([]);
+    setAccessToken(null);
   };
 
+  const user = customer ? toCompatUser(customer) : null;
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      loading, 
-      isLoading: loading,
-      isAdmin,
-      signOut,
-      signIn,
-      signUp
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        customer,
+        orders,
+        accessToken,
+        loading,
+        isLoading: loading,
+        isAdmin: false,
+        signIn,
+        signUp,
+        signOut,
+        refresh,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
 };
 
 export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  return ctx;
 };
