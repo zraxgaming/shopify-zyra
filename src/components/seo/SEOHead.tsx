@@ -18,14 +18,14 @@ interface SEOHeadProps {
 }
 
 const SEOHead: React.FC<SEOHeadProps> = ({
-  title = 'Zyra Custom Craft - Premium Customizable Products & Personalized Gifts',
-  description = 'Discover premium customizable products at Zyra Custom Craft. From custom printing to bespoke designs, we create unique items tailored to your vision with exceptional quality and fast delivery in UAE.',
+  title = 'Zyra — Apparel, Drinkware, Bags & Gift Cards',
+  description = 'Shop Zyra for premium everyday essentials: t-shirts, mugs, tote bags, hats and gift cards. Quality goods, fast shipping.',
   url = 'https://www.shopzyra.site',
-  image = 'https://www.shopzyra.site/og-image.jpg',
+  image = 'https://www.shopzyra.site/icon-512.png',
   type = 'website',
-  siteName = 'Zyra Custom Craft',
-  keywords = 'custom products, personalized gifts, crafting, UAE, customization, premium quality, custom printing, bespoke design, unique items, personalized products, Dubai crafts, custom merchandise',
-  author = 'Zyra Custom Craft Team',
+  siteName = 'Zyra',
+  keywords = 'apparel, t-shirts, mugs, tote bags, hats, gift cards, accessories, UAE shop, Zyra',
+  author = 'Zyra',
   publishedTime,
   modifiedTime,
   section,
