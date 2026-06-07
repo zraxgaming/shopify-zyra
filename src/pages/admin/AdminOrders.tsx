@@ -292,7 +292,7 @@ const AdminOrders = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => router.push(`/admin/AdminOrderDetails?id=${order.id}`)}
+                      onClick={() => navigate(`/admin/AdminOrderDetails?id=${order.id}`)}
                     >
                       <Eye className="h-4 w-4 mr-2" />
                       View
