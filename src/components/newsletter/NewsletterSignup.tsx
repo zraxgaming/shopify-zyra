@@ -55,7 +55,7 @@ const NewsletterSignup = () => {
           name: name || null,
           is_active: true,
           subscribed_at: new Date().toISOString(),
-        });
+        } as any);
       if (error) {
         if (error.code === '23505') {
           toast({
