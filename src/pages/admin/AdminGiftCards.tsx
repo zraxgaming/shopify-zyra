@@ -83,7 +83,7 @@ const AdminGiftCards = () => {
           message: formData.message,
           expires_at: formData.expires_at || null,
           is_active: true
-        });
+        } as any);
 
       if (error) throw error;
 
