@@ -22,7 +22,8 @@ interface StoredToken {
 interface CompatUser {
   id: string;
   email: string;
-  user_metadata: { first_name?: string; last_name?: string; full_name?: string };
+  role?: string;
+  user_metadata: Record<string, any>;
   customer: ShopifyCustomer;
 }
 
