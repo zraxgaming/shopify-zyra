@@ -77,7 +77,7 @@ const AdminCoupons = () => {
           code: formData.code.toUpperCase(),
           starts_at: new Date().toISOString(),
           expires_at: formData.expires_at || null,
-        }]);
+        }] as any);
 
       if (error) throw error;
 
