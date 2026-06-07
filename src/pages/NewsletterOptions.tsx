@@ -13,7 +13,7 @@ const NewsletterOptions: React.FC = () => {
         </CardHeader>
         <CardContent>
           <p>Send updates and offers to your subscribers via email.</p>
-          <Button asChild><Link href="/newsletter">Go to Newsletter</Link></Button>
+          <Button asChild><Link to="/newsletter">Go to Newsletter</Link></Button>
         </CardContent>
       </Card>
       {/* SMS */}
