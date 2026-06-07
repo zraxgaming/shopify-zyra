@@ -116,25 +116,6 @@ const Navbar = () => {
                 <Search className="h-5 w-5" />
               </Button>
 
-              {/* Wishlist */}
-              {user && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="relative"
-                  onClick={() => navigate('/wishlist')}
-                >
-                  <Heart className="h-5 w-5" />
-                  {wishlistItems.length > 0 && (
-                    <Badge 
-                      variant="destructive" 
-                      className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
-                    >
-                      {wishlistItems.length}
-                    </Badge>
-                  )}
-                </Button>
-              )}
 
               {/* Cart */}
               <Button
