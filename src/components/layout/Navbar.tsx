@@ -17,7 +17,8 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/components/cart/CartProvider";
 import { useWishlist } from '@/contexts/WishlistContext';
-import CartDrawer from "@/components/cart/CartDrawer";
+import ShopifyCartDrawer from "@/components/cart/ShopifyCartDrawer";
+import { useCartStore } from "@/stores/cartStore";
 import SearchBar from "@/components/search/SearchBar";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import {
@@ -33,11 +34,14 @@ const Navbar = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const { user, signOut, isAdmin } = useAuth();
   const { totalItems } = useCart();
+  const shopifyItems = useCartStore((s) => s.items);
   const { wishlist: wishlistItems } = useWishlist();
   const navigate = useNavigate();
 
-  // Ensure totalItems is always a number
-  const cartItemCount = typeof totalItems === 'number' ? totalItems : 0;
+  // Combine local + shopify cart counts for the badge
+  const cartItemCount =
+    (typeof totalItems === "number" ? totalItems : 0) +
+    shopifyItems.reduce((sum, i) => sum + i.quantity, 0);
 
   const handleSignOut = async () => {
     try {
@@ -248,7 +252,7 @@ const Navbar = () => {
         )}
       </nav>
 
-      <CartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
+      <ShopifyCartDrawer isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 };

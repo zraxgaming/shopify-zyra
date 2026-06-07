@@ -7,7 +7,8 @@ import { CartProvider } from "@/components/cart/CartProvider";
 import { WishlistProvider } from "@/contexts/WishlistContext";
 import Home from "@/pages/Home";
 import Shop from "@/pages/Shop";
-import ProductDetail from "@/pages/ProductDetail";
+import ProductDetail from "@/pages/ShopifyProductDetail";
+import { useCartSync } from "@/hooks/use-cart-sync";
 import Categories from "@/pages/Categories";
 import FAQ from "@/pages/FAQ";
 import Contact from "@/pages/Contact";
@@ -59,6 +60,7 @@ import OrderDetail from "@/components/user/OrderDetail";
 import AdminRefunds from "@/pages/admin/AdminRefunds";
 
 function App() {
+  useCartSync();
   return (
     <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
       <AuthProvider>
