@@ -47,6 +47,20 @@ export interface ShopifyProduct {
   };
 }
 
+export interface ShopifyPolicy {
+  title: string;
+  body: string;
+  url?: string | null;
+}
+
+export interface ShopifyPolicies {
+  shopName: string;
+  termsOfService: ShopifyPolicy | null;
+  privacyPolicy: ShopifyPolicy | null;
+  refundPolicy: ShopifyPolicy | null;
+  shippingPolicy: ShopifyPolicy | null;
+}
+
 const STOREFRONT_QUERY = `
   query GetProducts($first: Int!) {
     products(first: $first) {
@@ -97,6 +111,18 @@ const STOREFRONT_QUERY = `
   }
 `;
 
+const SHOP_POLICIES_QUERY = `
+  query GetShopPolicies {
+    shop {
+      name
+      termsOfService { title body url }
+      privacyPolicy { title body url }
+      refundPolicy { title body url }
+      shippingPolicy { title body url }
+    }
+  }
+`;
+
 async function storefrontApiRequest(query: string, variables: any = {}) {
   const response = await fetch(SHOPIFY_STOREFRONT_URL, {
     method: 'POST',
@@ -130,6 +156,24 @@ export async function fetchShopifyProducts(limit: number = 50): Promise<ShopifyP
   } catch (error) {
     console.error('Error fetching Shopify products:', error);
     throw error;
+  }
+}
+
+export async function fetchShopifyPolicies(): Promise<ShopifyPolicies | null> {
+  try {
+    const data = await storefrontApiRequest(SHOP_POLICIES_QUERY);
+    const shop = data.data.shop;
+
+    return {
+      shopName: shop.name,
+      termsOfService: shop.termsOfService,
+      privacyPolicy: shop.privacyPolicy,
+      refundPolicy: shop.refundPolicy,
+      shippingPolicy: shop.shippingPolicy,
+    };
+  } catch (error) {
+    console.error('Error fetching Shopify policies:', error);
+    return null;
   }
 }
 

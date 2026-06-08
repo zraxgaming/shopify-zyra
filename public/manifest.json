@@ -1,8 +1,8 @@
 
 {
-  "name": "Zyra Custom Craft - Premium Custom Products",
-  "short_name": "Zyra Craft",
-  "description": "Premium custom products and personalized gifts with exceptional quality and fast delivery",
+  "name": "Zyra - Online Store",
+  "short_name": "Zyra",
+  "description": "Shop physical products and gift cards from Zyra with secure checkout and fast updates.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -30,7 +30,7 @@
     {
       "name": "Shop Products",
       "short_name": "Shop",
-      "description": "Browse our premium custom products",
+      "description": "Browse products and gift cards",
       "url": "/shop",
       "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     },
