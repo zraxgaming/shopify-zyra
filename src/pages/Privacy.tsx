@@ -1,11 +1,12 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { fetchShopifyPolicies, type ShopifyPolicy } from "@/services/shopifyService";
 import { 
   Shield, 
   Eye, 
@@ -27,6 +28,22 @@ import {
 } from "lucide-react";
 
 const Privacy = () => {
+  const [shopifyPolicy, setShopifyPolicy] = useState<ShopifyPolicy | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetchShopifyPolicies().then((policies) => {
+      if (mounted && policies?.privacyPolicy) {
+        setShopifyPolicy(policies.privacyPolicy);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const sections = [
     {
       id: "information-collection",
