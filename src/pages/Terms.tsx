@@ -1,11 +1,12 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { fetchShopifyPolicies, type ShopifyPolicy } from "@/services/shopifyService";
 import { 
   FileText, 
   Scale, 
@@ -28,6 +29,22 @@ import {
 } from "lucide-react";
 
 const Terms = () => {
+  const [shopifyPolicy, setShopifyPolicy] = useState<ShopifyPolicy | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetchShopifyPolicies().then((policies) => {
+      if (mounted && policies?.termsOfService) {
+        setShopifyPolicy(policies.termsOfService);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const sections = [
     {
       id: "acceptance",
@@ -66,8 +83,8 @@ const Terms = () => {
           items: [
             "We strive for accurate product descriptions",
             "Colors may vary due to monitor settings",
-            "Custom products are made to order",
-            "Digital products are delivered electronically"
+            "Gift cards and products follow the details shown on their product pages",
+            "Gift card delivery follows the checkout and product details"
           ]
         },
         {
@@ -76,7 +93,7 @@ const Terms = () => {
             "Product availability is subject to change",
             "We reserve the right to discontinue products",
             "Stock levels are updated regularly but not guaranteed",
-            "Custom orders may have extended lead times"
+            "Some products may have extended handling or fulfillment times"
           ]
         }
       ]
@@ -93,16 +110,16 @@ const Terms = () => {
             "Orders are subject to acceptance and availability",
             "We reserve the right to refuse or cancel orders",
             "Order confirmation will be sent via email",
-            "Custom orders require design approval before production"
+            "Orders may require verification before fulfillment"
           ]
         },
         {
           title: "Payment Terms",
           items: [
             "Payment is required at time of order",
-            "We accept payments through Ziina only",
+            "We accept the payment methods shown at checkout",
             "All prices are in USD unless otherwise specified",
-            "Payment processing is handled securely by Ziina"
+            "Payment processing is handled securely by our checkout and payment partners"
           ]
         }
       ]
@@ -123,12 +140,12 @@ const Terms = () => {
           ]
         },
         {
-          title: "Digital Products",
+          title: "Gift Cards",
           items: [
-            "Digital products are delivered via download link",
-            "Download links are sent to your email address",
-            "Downloads are available immediately after payment",
-            "Download links remain active permanently"
+            "Gift cards are delivered according to the product and checkout details",
+            "Gift card codes should be kept private and secure",
+            "Gift card value and redemption rules are shown at purchase",
+            "Gift cards may be subject to additional Shopify store terms"
           ]
         }
       ]
@@ -142,7 +159,7 @@ const Terms = () => {
         {
           title: "Return Policy",
           items: [
-            "Most items are marked as 'No Refund' due to custom nature",
+            "Return eligibility follows the policy shown at checkout and on this page",
             "Defective items may be eligible for replacement",
             "Returns must be requested within 7 days of delivery",
             "Items must be in original condition for return"
@@ -154,7 +171,7 @@ const Terms = () => {
             "Approved refunds will be processed within 5-10 business days",
             "Refunds will be issued to the original payment method",
             "Shipping costs are non-refundable",
-            "Custom and personalized items are non-refundable"
+            "Gift cards may be final sale unless required by law"
           ]
         }
       ]
@@ -194,7 +211,7 @@ const Terms = () => {
         {
           title: "Our Rights",
           items: [
-            "All website content is owned by Zyra Custom Craft",
+            "All website content is owned by Zyra",
             "Product designs and descriptions are protected",
             "You may not copy or reproduce our content",
             "Trademarks and logos are protected intellectual property"
