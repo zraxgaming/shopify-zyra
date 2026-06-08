@@ -63,7 +63,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const batchPromises = batch.map(async (subscriber) => {
         try {
           const result = await resend.emails.send({
-            from: 'Zyra Custom Craft <contact@shopzyra.site>',
+            from: 'Zyra <contact@shopzyra.site>',
             to: [subscriber.email],
             subject: title,
             react: NewsletterCampaignEmail({ 

@@ -26,9 +26,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const result = await resend.emails.send({
-      from: 'Zyra Custom Craft <contact@shopzyra.site>',
+      from: 'Zyra <contact@shopzyra.site>',
       to: [email],
-      subject: 'Welcome to Zyra Custom Craft!',
+      subject: 'Welcome to Zyra!',
       react: WelcomeSignupEmail({ email, firstName }),
     });
 
