@@ -279,6 +279,21 @@ const Privacy = () => {
             </CardContent>
           </Card>
 
+          {shopifyPolicy?.body && (
+            <Card className="mb-12 animate-slide-in-up border-primary/20 shadow-xl">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Globe className="h-6 w-6 text-primary" />
+                  Current Store Privacy Policy
+                </h2>
+                <div
+                  className="prose prose-sm md:prose-base max-w-none text-muted-foreground dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: shopifyPolicy.body }}
+                />
+              </CardContent>
+            </Card>
+          )}
+
           {/* Detailed Sections */}
           <div className="space-y-8">
             {sections.map((section, index) => (
