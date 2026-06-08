@@ -1,17 +1,11 @@
-
 {
+  "framework": "vite",
+  "buildCommand": "vite build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install --legacy-peer-deps",
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
-    {
-      "source": "/(sitemap.xml|robots.txt)",
-      "destination": "/$1"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(sitemap.xml|robots.txt|manifest.json|sw.js|favicon.ico)", "destination": "/$1" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
   ]
 }
