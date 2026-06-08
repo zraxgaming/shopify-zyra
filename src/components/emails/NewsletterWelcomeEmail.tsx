@@ -23,18 +23,18 @@ export function NewsletterWelcomeEmail({ email }: NewsletterWelcomeEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={h1}>Zyra Custom Craft</Heading>
+            <Heading style={h1}>Zyra</Heading>
           </Section>
           
           <Section style={content}>
-            <Heading style={h2}>Welcome to Zyra Custom Craft!</Heading>
+            <Heading style={h2}>Welcome to Zyra!</Heading>
             
             <Text style={text}>
               Thank you for subscribing to our newsletter! 🎉
             </Text>
             
             <Text style={text}>
-              You'll be the first to know about new products, exclusive offers, and design tips.
+              You'll be the first to know about new products, gift cards, and exclusive offers.
             </Text>
             
             <Section style={buttonContainer}>
