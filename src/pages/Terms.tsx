@@ -322,27 +322,42 @@ const Terms = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800 animate-scale-in">
                   <ShoppingCart className="h-6 w-6 text-blue-600 mx-auto mb-2 animate-pulse" />
-                  <h3 className="font-semibold text-blue-800 dark:text-blue-200 text-sm mb-1">Custom Orders</h3>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Made to order, no refunds</p>
+                  <h3 className="font-semibold text-blue-800 dark:text-blue-200 text-sm mb-1">Product Orders</h3>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">Subject to availability</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-xl border border-green-200 dark:border-green-800 animate-scale-in" style={{animationDelay: '100ms'}}>
                   <CreditCard className="h-6 w-6 text-green-600 mx-auto mb-2 animate-pulse" />
                   <h3 className="font-semibold text-green-800 dark:text-green-200 text-sm mb-1">Payment</h3>
-                  <p className="text-xs text-green-600 dark:text-green-400">Ziina payments only</p>
+                  <p className="text-xs text-green-600 dark:text-green-400">Secure checkout</p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-xl border border-purple-200 dark:border-purple-800 animate-scale-in" style={{animationDelay: '200ms'}}>
                   <Truck className="h-6 w-6 text-purple-600 mx-auto mb-2 animate-pulse" />
                   <h3 className="font-semibold text-purple-800 dark:text-purple-200 text-sm mb-1">Shipping</h3>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">UAE delivery only</p>
+                  <p className="text-xs text-purple-600 dark:text-purple-400">Shown at checkout</p>
                 </div>
                 <div className="text-center p-4 bg-orange-50 dark:bg-orange-950/20 rounded-xl border border-orange-200 dark:border-orange-800 animate-scale-in" style={{animationDelay: '300ms'}}>
                   <RefreshCw className="h-6 w-6 text-orange-600 mx-auto mb-2 animate-pulse" />
                   <h3 className="font-semibold text-orange-800 dark:text-orange-200 text-sm mb-1">Returns</h3>
-                  <p className="text-xs text-orange-600 dark:text-orange-400">7 days for defects only</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400">Policy-based eligibility</p>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {shopifyPolicy?.body && (
+            <Card className="mb-12 animate-slide-in-up border-primary/20 shadow-xl">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Globe className="h-6 w-6 text-primary" />
+                  Current Store Terms
+                </h2>
+                <div
+                  className="prose prose-sm md:prose-base max-w-none text-muted-foreground dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: shopifyPolicy.body }}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Detailed Sections */}
           <div className="space-y-8">
