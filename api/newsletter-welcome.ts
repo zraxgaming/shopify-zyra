@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { Resend } from 'resend';
-import { NewsletterWelcomeEmail } from '../src/components/emails/NewsletterWelcomeEmail';
+import { NewsletterWelcomeEmail } from '../src/components/emails/NewsletterWelcomeEmail.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -28,9 +28,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     // Send email using Resend SDK with React Email template
     const result = await resend.emails.send({
-      from: 'Zyra Custom Craft <contact@shopzyra.site>',
+      from: 'Zyra <contact@shopzyra.site>',
       to: [email],
-      subject: 'Welcome to Zyra Custom Craft Newsletter!',
+      subject: 'Welcome to the Zyra Newsletter!',
       react: NewsletterWelcomeEmail({ email }),
     }); 
 

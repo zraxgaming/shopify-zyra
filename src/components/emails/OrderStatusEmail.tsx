@@ -68,7 +68,7 @@ export function OrderStatusEmail({
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={h1}>Zyra Custom Craft</Heading>
+            <Heading style={h1}>Zyra</Heading>
           </Section>
           
           <Section style={content}>

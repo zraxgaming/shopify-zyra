@@ -1,11 +1,12 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { fetchShopifyPolicies, type ShopifyPolicy } from "@/services/shopifyService";
 import { 
   Shield, 
   Eye, 
@@ -27,6 +28,22 @@ import {
 } from "lucide-react";
 
 const Privacy = () => {
+  const [shopifyPolicy, setShopifyPolicy] = useState<ShopifyPolicy | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetchShopifyPolicies().then((policies) => {
+      if (mounted && policies?.privacyPolicy) {
+        setShopifyPolicy(policies.privacyPolicy);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const sections = [
     {
       id: "information-collection",
@@ -200,8 +217,8 @@ const Privacy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Privacy Policy - Zyra Custom Craft</title>
-        <meta name="description" content="Learn how Zyra Custom Craft protects your privacy and handles your personal information." />
+        <title>Privacy Policy - Zyra</title>
+        <meta name="description" content="Learn how Zyra collects, uses, protects, and manages customer information." />
       </Helmet>
       
       <Navbar />
@@ -261,6 +278,21 @@ const Privacy = () => {
               </div>
             </CardContent>
           </Card>
+
+          {shopifyPolicy?.body && (
+            <Card className="mb-12 animate-slide-in-up border-primary/20 shadow-xl">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Globe className="h-6 w-6 text-primary" />
+                  Current Store Privacy Policy
+                </h2>
+                <div
+                  className="prose prose-sm md:prose-base max-w-none text-muted-foreground dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: shopifyPolicy.body }}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Detailed Sections */}
           <div className="space-y-8">

@@ -23,7 +23,7 @@ export function UnsubscribeEmail({ email }: UnsubscribeEmailProps) {
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={h1}>Zyra Custom Craft</Heading>
+            <Heading style={h1}>Zyra</Heading>
           </Section>
           
           <Section style={content}>
@@ -49,7 +49,7 @@ export function UnsubscribeEmail({ email }: UnsubscribeEmailProps) {
             <Hr style={hr} />
             
             <Text style={footer}>
-              Thank you for being part of the Zyra Custom Craft community.
+              Thank you for being part of the Zyra community.
             </Text>
           </Section>
         </Container>

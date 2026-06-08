@@ -24,18 +24,18 @@ export function WelcomeSignupEmail({ email, firstName }: WelcomeSignupEmailProps
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={h1}>Zyra Custom Craft</Heading>
+            <Heading style={h1}>Zyra</Heading>
           </Section>
           
           <Section style={content}>
-            <Heading style={h2}>Welcome to Zyra Custom Craft{firstName ? `, ${firstName}` : ''}!</Heading>
+            <Heading style={h2}>Welcome to Zyra{firstName ? `, ${firstName}` : ''}!</Heading>
             
             <Text style={text}>
-              🎉 Your account has been successfully created! Welcome to our community of craft enthusiasts.
+              🎉 Your account has been successfully created. Welcome to our store.
             </Text>
             
             <Text style={text}>
-              Get ready to explore our amazing collection of custom crafts, personalized products, and unique designs.
+              Explore our latest products, gift cards, and exclusive offers.
             </Text>
             
             <Text style={text}>
@@ -44,7 +44,7 @@ export function WelcomeSignupEmail({ email, firstName }: WelcomeSignupEmailProps
             
             <Text style={text}>
               • Browse our product catalog<br/>
-              • Customize your favorite items<br/>
+              • Save your details for faster checkout<br/>
               • Join our newsletter for exclusive offers<br/>
               • Follow us on social media
             </Text>

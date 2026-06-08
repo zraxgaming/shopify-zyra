@@ -35,7 +35,7 @@ export function NewsletterCampaignEmail({
       <Body style={main}>
         <Container style={container}>
           <Section style={header}>
-            <Heading style={h1}>Zyra Custom Craft</Heading>
+            <Heading style={h1}>Zyra</Heading>
           </Section>
           
           <Section style={contentSection}>
@@ -71,9 +71,7 @@ export function NewsletterCampaignEmail({
             <Section style={socialSection}>
               <Text style={socialText}>Follow us on social media:</Text>
               <Section style={socialLinks}>
-                <Button href="https://facebook.com/zyracustomcraft" style={socialButton}>Facebook</Button>
-                <Button href="https://instagram.com/zyracustomcraft" style={socialButton}>Instagram</Button>
-                <Button href="https://twitter.com/zyracustomcraft" style={socialButton}>Twitter</Button>
+                <Button href="https://www.shopzyra.site" style={socialButton}>Website</Button>
               </Section>
             </Section>
             

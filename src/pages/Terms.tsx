@@ -1,11 +1,12 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Container } from "@/components/ui/container";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { fetchShopifyPolicies, type ShopifyPolicy } from "@/services/shopifyService";
 import { 
   FileText, 
   Scale, 
@@ -28,6 +29,22 @@ import {
 } from "lucide-react";
 
 const Terms = () => {
+  const [shopifyPolicy, setShopifyPolicy] = useState<ShopifyPolicy | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetchShopifyPolicies().then((policies) => {
+      if (mounted && policies?.termsOfService) {
+        setShopifyPolicy(policies.termsOfService);
+      }
+    });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const sections = [
     {
       id: "acceptance",
@@ -66,8 +83,8 @@ const Terms = () => {
           items: [
             "We strive for accurate product descriptions",
             "Colors may vary due to monitor settings",
-            "Custom products are made to order",
-            "Digital products are delivered electronically"
+            "Gift cards and products follow the details shown on their product pages",
+            "Gift card delivery follows the checkout and product details"
           ]
         },
         {
@@ -76,7 +93,7 @@ const Terms = () => {
             "Product availability is subject to change",
             "We reserve the right to discontinue products",
             "Stock levels are updated regularly but not guaranteed",
-            "Custom orders may have extended lead times"
+            "Some products may have extended handling or fulfillment times"
           ]
         }
       ]
@@ -93,16 +110,16 @@ const Terms = () => {
             "Orders are subject to acceptance and availability",
             "We reserve the right to refuse or cancel orders",
             "Order confirmation will be sent via email",
-            "Custom orders require design approval before production"
+            "Orders may require verification before fulfillment"
           ]
         },
         {
           title: "Payment Terms",
           items: [
             "Payment is required at time of order",
-            "We accept payments through Ziina only",
+            "We accept the payment methods shown at checkout",
             "All prices are in USD unless otherwise specified",
-            "Payment processing is handled securely by Ziina"
+            "Payment processing is handled securely by our checkout and payment partners"
           ]
         }
       ]
@@ -123,12 +140,12 @@ const Terms = () => {
           ]
         },
         {
-          title: "Digital Products",
+          title: "Gift Cards",
           items: [
-            "Digital products are delivered via download link",
-            "Download links are sent to your email address",
-            "Downloads are available immediately after payment",
-            "Download links remain active permanently"
+            "Gift cards are delivered according to the product and checkout details",
+            "Gift card codes should be kept private and secure",
+            "Gift card value and redemption rules are shown at purchase",
+            "Gift cards may be subject to additional Shopify store terms"
           ]
         }
       ]
@@ -142,7 +159,7 @@ const Terms = () => {
         {
           title: "Return Policy",
           items: [
-            "Most items are marked as 'No Refund' due to custom nature",
+            "Return eligibility follows the policy shown at checkout and on this page",
             "Defective items may be eligible for replacement",
             "Returns must be requested within 7 days of delivery",
             "Items must be in original condition for return"
@@ -154,7 +171,7 @@ const Terms = () => {
             "Approved refunds will be processed within 5-10 business days",
             "Refunds will be issued to the original payment method",
             "Shipping costs are non-refundable",
-            "Custom and personalized items are non-refundable"
+            "Gift cards may be final sale unless required by law"
           ]
         }
       ]
@@ -194,7 +211,7 @@ const Terms = () => {
         {
           title: "Our Rights",
           items: [
-            "All website content is owned by Zyra Custom Craft",
+            "All website content is owned by Zyra",
             "Product designs and descriptions are protected",
             "You may not copy or reproduce our content",
             "Trademarks and logos are protected intellectual property"
@@ -256,8 +273,8 @@ const Terms = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Terms of Service - Zyra Custom Craft</title>
-        <meta name="description" content="Read the terms and conditions for using Zyra Custom Craft's services and products." />
+        <title>Terms of Service - Zyra</title>
+        <meta name="description" content="Read Zyra's terms for orders, payments, shipping, returns, gift cards, and store use." />
       </Helmet>
       
       <Navbar />
@@ -305,27 +322,42 @@ const Terms = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800 animate-scale-in">
                   <ShoppingCart className="h-6 w-6 text-blue-600 mx-auto mb-2 animate-pulse" />
-                  <h3 className="font-semibold text-blue-800 dark:text-blue-200 text-sm mb-1">Custom Orders</h3>
-                  <p className="text-xs text-blue-600 dark:text-blue-400">Made to order, no refunds</p>
+                  <h3 className="font-semibold text-blue-800 dark:text-blue-200 text-sm mb-1">Product Orders</h3>
+                  <p className="text-xs text-blue-600 dark:text-blue-400">Subject to availability</p>
                 </div>
                 <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-xl border border-green-200 dark:border-green-800 animate-scale-in" style={{animationDelay: '100ms'}}>
                   <CreditCard className="h-6 w-6 text-green-600 mx-auto mb-2 animate-pulse" />
                   <h3 className="font-semibold text-green-800 dark:text-green-200 text-sm mb-1">Payment</h3>
-                  <p className="text-xs text-green-600 dark:text-green-400">Ziina payments only</p>
+                  <p className="text-xs text-green-600 dark:text-green-400">Secure checkout</p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 dark:bg-purple-950/20 rounded-xl border border-purple-200 dark:border-purple-800 animate-scale-in" style={{animationDelay: '200ms'}}>
                   <Truck className="h-6 w-6 text-purple-600 mx-auto mb-2 animate-pulse" />
                   <h3 className="font-semibold text-purple-800 dark:text-purple-200 text-sm mb-1">Shipping</h3>
-                  <p className="text-xs text-purple-600 dark:text-purple-400">UAE delivery only</p>
+                  <p className="text-xs text-purple-600 dark:text-purple-400">Shown at checkout</p>
                 </div>
                 <div className="text-center p-4 bg-orange-50 dark:bg-orange-950/20 rounded-xl border border-orange-200 dark:border-orange-800 animate-scale-in" style={{animationDelay: '300ms'}}>
                   <RefreshCw className="h-6 w-6 text-orange-600 mx-auto mb-2 animate-pulse" />
                   <h3 className="font-semibold text-orange-800 dark:text-orange-200 text-sm mb-1">Returns</h3>
-                  <p className="text-xs text-orange-600 dark:text-orange-400">7 days for defects only</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400">Policy-based eligibility</p>
                 </div>
               </div>
             </CardContent>
           </Card>
+
+          {shopifyPolicy?.body && (
+            <Card className="mb-12 animate-slide-in-up border-primary/20 shadow-xl">
+              <CardContent className="p-8">
+                <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                  <Globe className="h-6 w-6 text-primary" />
+                  Current Store Terms
+                </h2>
+                <div
+                  className="prose prose-sm md:prose-base max-w-none text-muted-foreground dark:prose-invert"
+                  dangerouslySetInnerHTML={{ __html: shopifyPolicy.body }}
+                />
+              </CardContent>
+            </Card>
+          )}
 
           {/* Detailed Sections */}
           <div className="space-y-8">

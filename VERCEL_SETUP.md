@@ -17,7 +17,7 @@ Your Vercel deployment is failing because the `RESEND_API_KEY` environment varia
 3. Click **Add New**
 4. Set:
    - **Name**: `RESEND_API_KEY`
-   - **Value**: `re_NnTZvVdb_MNZFrw9c8x6EWrBkkDFmoFZN`
+   - **Value**: your Resend API key from your Resend dashboard
    - **Environments**: Check all (Production, Preview, Development)
 
 ### 3. Redeploy
@@ -30,7 +30,7 @@ Your Vercel deployment is failing because the `RESEND_API_KEY` environment varia
 If you have Vercel CLI installed:
 ```bash
 vercel env add RESEND_API_KEY
-# When prompted, enter: re_NnTZvVdb_MNZFrw9c8x6EWrBkkDFmoFZN
+# When prompted, enter your Resend API key
 # Select all environments
 
 vercel --prod
@@ -50,4 +50,4 @@ While you're there, also add these if not already set:
 - `VITE_PAYPAL_CLIENT_ID`
 
 ## Note
-The API key `re_NnTZvVdb_MNZFrw9c8x6EWrBkkDFmoFZN` is from your current configuration. If you want to use a different Resend account, get a new API key from [resend.com/api-keys](https://resend.com/api-keys).
+Keep API keys out of code and documentation. If a key has been shared publicly, rotate it in Resend and update the Vercel environment variable.
