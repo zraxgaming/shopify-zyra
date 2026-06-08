@@ -217,8 +217,8 @@ const Privacy = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Privacy Policy - Zyra Custom Craft</title>
-        <meta name="description" content="Learn how Zyra Custom Craft protects your privacy and handles your personal information." />
+        <title>Privacy Policy - Zyra</title>
+        <meta name="description" content="Learn how Zyra collects, uses, protects, and manages customer information." />
       </Helmet>
       
       <Navbar />

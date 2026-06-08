@@ -273,8 +273,8 @@ const Terms = () => {
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
-        <title>Terms of Service - Zyra Custom Craft</title>
-        <meta name="description" content="Read the terms and conditions for using Zyra Custom Craft's services and products." />
+        <title>Terms of Service - Zyra</title>
+        <meta name="description" content="Read Zyra's terms for orders, payments, shipping, returns, gift cards, and store use." />
       </Helmet>
       
       <Navbar />
