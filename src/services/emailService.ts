@@ -35,9 +35,9 @@ export class EmailService {
     try {
       const resend = this.getResend();
       const result = await resend.emails.send({
-        from: 'Zyra Custom Craft <contact@shopzyra.site>',
+        from: 'Zyra <contact@shopzyra.site>',
         to: [email],
-        subject: 'Welcome to Zyra Custom Craft Newsletter!',
+        subject: 'Welcome to the Zyra Newsletter!',
         react: NewsletterWelcomeEmail({ email }),
       });
 
@@ -58,9 +58,9 @@ export class EmailService {
     try {
       const resend = this.getResend();
       const result = await resend.emails.send({
-        from: 'Zyra Custom Craft <contact@shopzyra.site>',
+        from: 'Zyra <contact@shopzyra.site>',
         to: [email],
-        subject: 'Welcome to Zyra Custom Craft!',
+        subject: 'Welcome to Zyra!',
         react: WelcomeSignupEmail({ email, firstName }),
       });
 

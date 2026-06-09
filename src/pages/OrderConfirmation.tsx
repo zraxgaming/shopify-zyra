@@ -132,8 +132,8 @@ const OrderConfirmation = () => {
   return (
     <>
       <SEOHead
-        title={`Order Confirmation #${order.id.slice(0, 8)} - Zyra Digital Products`}
-        description="Your order has been confirmed. Access your digital products and track your order status."
+        title={`Order Confirmation #${order.id.slice(0, 8)} — Zyra`}
+        description="Your order has been confirmed. View your details and track your order status."
         url={`https://www.shopzyra.site/order-confirmation/${order.id}`}
       />
       <Navbar />
