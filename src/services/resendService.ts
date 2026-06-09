@@ -32,7 +32,7 @@ export const sendResendEmail = async (options: EmailOptions) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        from: "Zyra Digital Products <noreply@shopzyra.site>",
+        from: "Zyra <noreply@shopzyra.site>",
         to: [options.to],
         subject: options.subject,
         html: emailHtml
@@ -56,23 +56,23 @@ export const sendResendEmail = async (options: EmailOptions) => {
 
 export const emailTemplates = {
   welcome: (name: string) => ({
-    title: 'Welcome to Zyra Digital Products!',
+    title: 'Welcome to Zyra!',
     body: `
       <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
         Hello <strong>${name}</strong>,
       </p>
       <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Welcome to Zyra Digital Products! We're excited to have you join our community of digital creators.
+        Welcome to Zyra! Thanks for joining — we're glad to have you.
       </p>
       <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Discover amazing digital products, templates, tools, and resources to enhance your projects.
+        Explore our latest products and gift cards, hand-picked just for you.
       </p>
     `,
-    ctaText: 'Explore Digital Products',
+    ctaText: 'Start Shopping',
     ctaUrl: 'https://www.shopzyra.site/shop'
   }),
 
-  orderConfirmation: (orderId: string, total: number, isDigital: boolean) => ({
+  orderConfirmation: (orderId: string, total: number, _isDigital?: boolean) => ({
     title: 'Order Confirmed!',
     body: `
       <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
@@ -81,15 +81,9 @@ export const emailTemplates = {
       <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
         Total: <strong>$${total.toFixed(2)}</strong>
       </p>
-      ${isDigital ? `
-        <p style="color:#7c3aed;font-size:16px;line-height:1.6;margin-bottom:16px;">
-          <strong>Digital Products:</strong> Your download links are available in your account dashboard.
-        </p>
-      ` : `
-        <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-          We'll send you tracking information once your order ships.
-        </p>
-      `}
+      <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
+        We'll send you tracking information once your order ships.
+      </p>
     `,
     ctaText: 'View Order',
     ctaUrl: `https://www.shopzyra.site/order-confirmation/${orderId}`
@@ -115,22 +109,22 @@ export const emailTemplates = {
   }),
 
   newsletterWelcome: (email: string) => ({
-    title: 'Welcome to Zyra Newsletter!',
+    title: 'Welcome to the Zyra Newsletter!',
     body: `
       <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        Thank you for subscribing to our newsletter! 🎉
+        Thank you for subscribing! 🎉
       </p>
       <p style="color:#444;font-size:16px;line-height:1.6;margin-bottom:16px;">
-        You'll be the first to know about new digital products, exclusive offers, and industry insights.
+        You'll be the first to know about new products, restocks, and exclusive offers.
       </p>
       <p style="color:#666;font-size:14px;line-height:1.6;">
-        If you wish to unsubscribe, 
+        If you wish to unsubscribe,
         <a href="https://www.shopzyra.site/unsubscribe?email=${encodeURIComponent(email)}" style="color:#7c3aed;text-decoration:underline;">
           click here
         </a>.
       </p>
     `,
-    ctaText: 'Explore Digital Products',
+    ctaText: 'Shop Now',
     ctaUrl: 'https://www.shopzyra.site/shop'
   }),
 

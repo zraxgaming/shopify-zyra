@@ -15,7 +15,15 @@ async function req(query: string, variables: any = {}) {
   });
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   const data = await r.json();
-  if (data.errors) throw new Error(data.errors.map((e: any) => e.message).join(", "));
+  if (data.errors) {
+    const msg = data.errors.map((e: any) => e.message).join(", ");
+    if (/unauthenticated_write_customers|unauthenticated_read_customers|access denied/i.test(msg)) {
+      throw new Error(
+        "This store isn't accepting account sign-ups yet. The site owner needs to enable customer access in Shopify (Storefront API → unauthenticated_write_customers)."
+      );
+    }
+    throw new Error(msg);
+  }
   return data.data;
 }
 

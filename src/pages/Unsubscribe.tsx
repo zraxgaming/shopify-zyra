@@ -30,7 +30,7 @@ const Unsubscribe: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: email,
-          subject: 'You have been unsubscribed from Zyra Custom Craft',
+          subject: 'You have been unsubscribed from Zyra',
           html: zyraEmailTemplate({
             title: `You've been unsubscribed`,
             body: `<p style='font-size:1.1rem;color:#6b21a8;'>${email}, you have been removed from our newsletter list. We're sorry to see you go.</p><p style='color:#333;'>If this was a mistake, you can <a href='https://www.shopzyra.site/newsletter' style='color:#7c3aed;text-decoration:underline;'>resubscribe here</a>.</p>`,
@@ -53,9 +53,9 @@ const Unsubscribe: React.FC = () => {
 
   return (
     <>
-      <SEOHead 
-        title="Unsubscribe from Newsletter | Zyra Custom Craft"
-        description="Easily unsubscribe from the Zyra Custom Craft newsletter. Manage your email preferences and privacy."
+      <SEOHead
+        title="Unsubscribe from Newsletter | Zyra"
+        description="Easily unsubscribe from the Zyra newsletter. Manage your email preferences and privacy."
         url="https://www.shopzyra.site/unsubscribe"
       />
       <main className="max-w-lg mx-auto mt-12" aria-labelledby="unsubscribe-title">
